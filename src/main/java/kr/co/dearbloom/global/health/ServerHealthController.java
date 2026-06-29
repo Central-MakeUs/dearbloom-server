@@ -17,10 +17,10 @@ import static kr.co.dearbloom.global.health.HealthStatus.*;
 @RequestMapping("/health")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "HealthCheck", description = "서버 상태 / 정보 / 시간 확인")
+@Tag(name = "Health - Spring", description = "스프링 부트 서버 상태 | 정보 | 시간 확인")
 public class ServerHealthController {
 
-    @Operation(summary = "서버 헬스체크")
+    @Operation(summary = "스프링 부트 서버 헬스체크")
     @GetMapping
     public String healthCheck() {
         return "DearBloom Server " + CONNECTED;

@@ -23,7 +23,7 @@ import java.util.List;
 public class UniversityController {
     private final UniversitySearchService universitySearchService;
 
-    @Operation(summary = "대학교 검색 (자동완성)", description = "대학교 이름으로 검색하여 자동완성 결과를 반환합니다. <br> "
+    @Operation(summary = "대학교 검색 (prefix 자동완성)", description = "대학교 이름으로 검색하여 자동완성 결과를 반환합니다. <br> "
             + "한국어(한글) 대학교명만 검색할 수 있습니다. <br> "
             + "검색어 keyword는 입력한 글자로 시작하는 대학교를 prefix 매칭합니다. (1글자부터 검색, 공백만 입력 시 빈 결과) <br> "
             + "초성 검색을 지원합니다. 자음만 입력해도 됩니다. (예: 'ㄱ' → 초성이 ㄱ인 대학, '강ㅇ' → '강원대학교') <br> "
