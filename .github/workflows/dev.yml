@@ -1,0 +1,46 @@
+name: Backend CI/CD Dev
+
+on:
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: dearbloom-server:latest
+
+jobs:
+  build-and-deploy:
+    runs-on: [self-hosted, dev, dearbloom]
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build with Gradle
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test --no-daemon --max-workers=1
+        env:
+          GRADLE_OPTS: >-
+            -Xmx320m
+            -XX:MaxMetaspaceSize=128m
+            -XX:ReservedCodeCacheSize=64m
+            -XX:+UseSerialGC
+            -Dorg.gradle.daemon=false
+            -Dorg.gradle.workers.max=1
+
+      - name: Build Docker image
+        run: docker build -f Dockerfile -t ${{ env.DOCKER_IMAGE }} .
+
+      - name: Deploy with Docker Compose
+        working-directory: /home/ubuntu/app
+        run: |
+          docker compose up -d --no-deps --force-recreate dearbloom-server
+          docker image prune -f

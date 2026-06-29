@@ -1,0 +1,15 @@
+# 기본적으로 모든 것 무시
+*
+
+# build/libs 의 jar 만 컨텍스트에 포함
+!build
+build/*
+!build/libs
+build/libs/*
+!build/libs/*.jar
+
+# plain jar 는 실행용이 아니므로 제외
+build/libs/*-plain.jar
+
+# Dockerfile 자체는 컨텍스트에 필요
+!Dockerfile

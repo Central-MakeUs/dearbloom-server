@@ -1,0 +1,87 @@
+server:
+  port: ${SERVER_PORT:9000}
+
+spring:
+  application:
+    name: dearbloom-spring
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        highlight_sql: true
+        generate_statistics: false
+    open-in-view: false
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://localhost:3306/dearbloom?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:95206326}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:2}
+      client-type: lettuce
+      timeout: 2s
+      connect-timeout: 2s
+      lettuce:
+        pool:
+          enabled: false                 # Lettuce 는 공유 커넥션 사용, 기본 비활성화
+        shutdown-timeout: 100ms          # 종료 시 대기
+
+  web:
+    resources:
+      add-mappings: false # 정적 리소스 자동 매핑 비활성화하여 예외(NoHandlerFoundException) 발생시키기 위함
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth?prompt=select_account
+
+#  cloud:
+#    aws:
+#      credentials:
+#        access-key: ${S3_ACCESS_KEY}
+#        secret-key: ${S3_SECRET_KEY}
+#      region:
+#        static: ap-northeast-2
+#      s3:
+#        bucket: ${S3_BUCKET}
+#        exp-time: 300000  # presigned URL 유효시간 (ms) = 5분
+
+url:
+  cors-origins: ${URL_CORS_ORIGINS:http://localhost:4000}
+  oauth-callback: ${URL_OAUTH_CALLBACK:http://localhost:4000/api/auth/callback}
+
+jwt:
+  issuer: ${JWT_ISSUER:abc}
+  secret_key: ${JWT_SECRET_KEY:abcdefgh1234567890}
+  access_token_expiry: ${ACCESS_TOKEN_EXPIRY:900}s # 15분
+  refresh_token_expiry: ${REFRESH_TOKEN_EXPIRY:604800}s # 7일
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    doc-expansion: none
+    persist-authorization: true
+    tags-sorter: alpha
