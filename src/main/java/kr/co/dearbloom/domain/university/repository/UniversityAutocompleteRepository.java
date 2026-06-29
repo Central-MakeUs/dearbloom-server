@@ -27,6 +27,7 @@ public class UniversityAutocompleteRepository {
                         u.getName() + DELIMITER
                                 + u.getCampusType() + DELIMITER
                                 + u.getRegion() + DELIMITER
+                                + (u.getAddress() != null ? u.getAddress() : "") + DELIMITER
                                 + u.getUniversityId(),
                         0.0))
                 .collect(Collectors.toSet());
@@ -52,7 +53,7 @@ public class UniversityAutocompleteRepository {
                 .toList();
     }
 
-    /** 멤버("이름|캠퍼스|지역|ID")에서 대학명만 추출. */
+    /** 멤버("이름|캠퍼스|지역|주소|ID")에서 대학명만 추출. */
     private String nameOf(String member) {
         int idx = member.indexOf(DELIMITER);
         return idx >= 0 ? member.substring(0, idx) : member;

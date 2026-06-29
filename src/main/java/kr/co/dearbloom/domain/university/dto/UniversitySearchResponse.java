@@ -4,17 +4,19 @@ public record UniversitySearchResponse(
         Long universityId,
         String name,
         String campusType,
-        String region
+        String region,
+        String address
 ) {
     private static final String DELIMITER = "\\|";
 
     public static UniversitySearchResponse fromRedisMember(String member) {
         String[] parts = member.split(DELIMITER);
         return new UniversitySearchResponse(
-                Long.parseLong(parts[3]),
+                Long.parseLong(parts[4]),
                 parts[0],
                 parts[1],
-                parts[2]
+                parts[2],
+                parts[3]
         );
     }
 }
