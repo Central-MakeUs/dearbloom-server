@@ -35,7 +35,7 @@ public class UniversityController {
     })
     @GetMapping("/search")
     public List<UniversitySearchResponse> search(
-            @Parameter(description = "검색어 (한글 대학교명, 초성 가능). 필수", example = "강원")
+            @Parameter(description = "검색어 (한글 대학교명, 초성 가능). 필수", example = "서울")
             @RequestParam String keyword,
             @Parameter(description = "반환 개수 (1 이상, 기본 10)", example = "10")
             @RequestParam(defaultValue = "10") @Positive(message = "limit은 1 이상이어야 합니다.") int limit) {
