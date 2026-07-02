@@ -1,6 +1,6 @@
 package kr.co.dearbloom.global.auth.jwt;
 
-import kr.co.dearbloom.domain.auth.repository.OAuthAccountRepository;
+import kr.co.dearbloom.domain.member.repository.OAuthAccountRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.repository.MemberRepository;
 import kr.co.dearbloom.global.properties.JwtProperties;

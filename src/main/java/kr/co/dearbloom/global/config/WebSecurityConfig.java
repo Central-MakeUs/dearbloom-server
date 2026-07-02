@@ -1,7 +1,7 @@
 package kr.co.dearbloom.global.config;
 
-import kr.co.dearbloom.domain.auth.service.RefreshTokenSessionService;
-import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
+import kr.co.dearbloom.domain.member.service.RefreshTokenSessionService;
+import kr.co.dearbloom.domain.member.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.service.MemberService;
 import kr.co.dearbloom.global.auth.jwt.TokenAuthenticationFilter;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;

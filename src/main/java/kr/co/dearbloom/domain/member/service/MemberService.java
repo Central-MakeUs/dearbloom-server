@@ -1,6 +1,6 @@
 package kr.co.dearbloom.domain.member.service;
 
-import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
+import kr.co.dearbloom.domain.member.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.repository.MemberRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
@@ -21,14 +21,14 @@ public class MemberService {
     public Member createMember(OAuthAccount oauthAccount) {
         return memberRepository.save(Member.builder()
                 .email(oauthAccount.getEmail())
-                .nickname(oauthAccount.getName())
+                .name(oauthAccount.getName())
                 .build());
     }
 
-    public Member createSampleMember(OAuthAccount oauthAccount, String nickname) {
+    public Member createSampleMember(OAuthAccount oauthAccount, String name) {
         return memberRepository.save(Member.builder()
                 .email(oauthAccount.getEmail())
-                .nickname(nickname)
+                .name(name)
                 .build());
     }
 
@@ -42,8 +42,8 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
-    public Member getByNicknameOrThrow(String nickname) {
-        return memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, nickname));
+    public Member getByNameOrThrow(String name) {
+        return memberRepository.findByName(name)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, name));
     }
 }
