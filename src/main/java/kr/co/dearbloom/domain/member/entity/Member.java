@@ -40,6 +40,12 @@ public class Member implements UserDetails {
     @Enumerated(EnumType.STRING)
     private MemberRole recentRole;
 
+    @Builder.Default
+    private boolean hasCustomer = false;
+
+    @Builder.Default
+    private boolean hasArtist = false;
+
     // 최근 접속 소셜 (마지막으로 로그인한 provider)
     @Enumerated(EnumType.STRING)
     private OAuthProvider recentProvider;
@@ -89,5 +95,14 @@ public class Member implements UserDetails {
 
     public void updateName(String name) {
         this.name = name;
+    }
+
+    // Customer/Artist 생성 서비스 메서드에서만 호출할 것
+    public void markAsCustomer() {
+        this.hasCustomer = true;
+    }
+
+    public void markAsArtist() {
+        this.hasArtist = true;
     }
 }

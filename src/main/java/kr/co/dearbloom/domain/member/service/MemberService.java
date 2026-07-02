@@ -2,11 +2,15 @@ package kr.co.dearbloom.domain.member.service;
 
 import kr.co.dearbloom.domain.member.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.repository.MemberRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,5 +49,17 @@ public class MemberService {
     public Member getByNameOrThrow(String name) {
         return memberRepository.findByName(name)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, name));
+    }
+
+    // 실제로 생성되어 있는 Role 목록 (Customer, Artist 존재 여부 기준)
+    public List<MemberRole> getAvailableRoles(Member member) {
+        List<MemberRole> roles = new ArrayList<>();
+        if (member.isHasCustomer()) {
+            roles.add(MemberRole.CUSTOMER);
+        }
+        if (member.isHasArtist()) {
+            roles.add(MemberRole.ARTIST);
+        }
+        return roles;
     }
 }
