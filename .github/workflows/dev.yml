@@ -15,7 +15,7 @@ jobs:
       - name: Verify actor
         if: github.actor != 'chyun5197'
         run: |
-          echo "::error::이 워크플로는 너구리만 실행할 수 있습니다. (실행자: ${{ github.actor }})"
+          echo "::error::이 워크플로우는 너구리만 실행할 수 있습니다. (실행자: ${{ github.actor }})"
           exit 1
 
       - name: Git Checkout
