@@ -8,7 +8,6 @@ env:
 
 jobs:
   build-and-deploy:
-    # chyun5197 이 아니면 러너 점유조차 안 하도록 job 자체를 skip
     if: github.actor == 'chyun5197'
     runs-on: [self-hosted, dev, dearbloom]
 
