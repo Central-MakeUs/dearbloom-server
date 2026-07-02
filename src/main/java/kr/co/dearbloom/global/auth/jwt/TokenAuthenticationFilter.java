@@ -25,6 +25,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private final static String TOKEN_PREFIX = "Bearer";
 
     private boolean isSkipPath(String path) {
+        // 스킵 예외 경로는 SKIP_TOKEN_PREFIXES 에 걸리더라도 토큰 검증을 수행
+        if (PublicPaths.SKIP_TOKEN_EXCEPTIONS.stream().anyMatch(path::startsWith)) {
+            return false;
+        }
         return PublicPaths.SKIP_TOKEN_PREFIXES.stream().anyMatch(path::startsWith);
     }
 

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/dev/response")
 @Tag(name = "Dev - Response", description = "API 공통 응답 형태 예시")
+@Profile("!prod")
 public class DevResponseController {
 
     @GetMapping("/success/data")
