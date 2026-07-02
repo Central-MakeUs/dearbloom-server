@@ -1,6 +1,5 @@
 package kr.co.dearbloom.domain.member.entity;
 
-import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,17 +32,20 @@ public class Member implements UserDetails {
 
     private String email;
 
-    @Column(unique = true)
-    private String nickname;
-
-    private String profileImage;
+    private String name;
 
     private String password;
 
+    // 최근 접속 권한 (고객/작가 중 마지막으로 사용한 모드 — 재로그인 시 화면 복원용)
+    @Enumerated(EnumType.STRING)
+    private MemberRole recentRole;
+
+    // 최근 접속 소셜 (마지막으로 로그인한 provider)
+    @Enumerated(EnumType.STRING)
+    private OAuthProvider recentProvider;
+
     @CreatedDate
     private LocalDateTime createdAt;
-
-
 
     /* ================= implements from UserDetails ================= */
     @Override // 권한 반환
@@ -85,7 +87,7 @@ public class Member implements UserDetails {
         return true; // true -> 사용 가능
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
+    public void updateName(String name) {
+        this.name = name;
     }
 }
