@@ -31,8 +31,13 @@ public class TokenProvider {
     private final MemberService memberService;
 
     public String generateToken(Member member, Duration expiredAt){
+        return generateToken(member, expiredAt, null);
+    }
+
+    // overrideActiveRole 이 있으면 최근 접속 Role 대신 강제 사용 (예: Dev 로그인에서 role 지정 테스트)
+    public String generateToken(Member member, Duration expiredAt, MemberRole overrideActiveRole){
         Date now = new Date();
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member);
+        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member, overrideActiveRole);
     }
 
     /**
@@ -45,15 +50,17 @@ public class TokenProvider {
      * }
      */
     // JWT 토큰 생성 메서드
-    private String makeToken(Date expiry, Member member) {
+    private String makeToken(Date expiry, Member member, MemberRole overrideActiveRole) {
         Date now = new Date();
 
         List<MemberRole> availableRoles = memberService.getAvailableRoles(member);
         List<String> availableRoleNames = availableRoles.stream().map(Enum::name).toList();
         // 최근 접속 Role 이 없으면(둘 다 미생성 등) 생성된 Role 중 첫 번째로 대체
-        String activeRoleName = member.getRecentRole() != null
-                ? member.getRecentRole().name()
-                : availableRoleNames.isEmpty() ? null : availableRoleNames.get(0);
+        String activeRoleName = overrideActiveRole != null
+                ? overrideActiveRole.name()
+                : member.getRecentRole() != null
+                        ? member.getRecentRole().name()
+                        : availableRoleNames.isEmpty() ? null : availableRoleNames.get(0);
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ: JWT
