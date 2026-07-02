@@ -53,7 +53,7 @@ public class DevMemberController {
 
     @GetMapping("/me")
     @Operation(summary = "액세스 토큰으로 내 정보 조회", description = "Member/Customer/Artist 기본 정보를 한 번에 확인합니다 (Customer/Artist 는 생성된 경우에만 값이 채워짐). <br>"
-            + "인증이 필요한 API 입니다. Swagger 우측 상단 Authorize 버튼에 accessToken 을 입력한 뒤 호출해주세요.")
+            + "인증이 필요한 API 입니다. Swagger 우측 상단 Authorize 버튼에 Bearer Token을 입력한 뒤 호출해주세요.")
     public ResponseEntity<ApiResponse<DevMemberFullInfoResponse>> getMyFullInfo(
             @AuthenticationPrincipal Member member) {
         return ResponseEntity.ok(ApiResponse.success(devMemberService.getMyFullInfo(member)));
