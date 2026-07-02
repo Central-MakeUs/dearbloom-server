@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Builder
@@ -23,6 +24,9 @@ public class RedisRefreshToken {
     private Instant issuedAt;
     private Instant expiresAt;
     private Instant lastUsedAt;
+
+    private MemberRole activeRole;
+    private List<MemberRole> availableRoles;
 
     @TimeToLive
     private Long ttl;
