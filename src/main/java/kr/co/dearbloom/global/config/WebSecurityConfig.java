@@ -35,6 +35,7 @@ public class WebSecurityConfig {
     private final MemberService memberService;
     private final OAuthAccountService oAuthAccountService;
     private final JwtProperties jwtProperties;
+    private final kr.co.dearbloom.global.properties.CookieProperties cookieProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -94,7 +95,8 @@ public class WebSecurityConfig {
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
                 memberService,
                 oAuthAccountService,
-                jwtProperties
+                jwtProperties,
+                cookieProperties
         );
     }
 }

@@ -53,7 +53,7 @@ public class Member implements UserDetails {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    /* ================= implements from UserDetails ================= */
+    /* ──────────────── implements from UserDetails ──────────────── */
     @Override // 권한 반환
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("user"));

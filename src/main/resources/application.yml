@@ -78,6 +78,11 @@ jwt:
   access_token_expiry: ${ACCESS_TOKEN_EXPIRY:3600}s # 1시간
   refresh_token_expiry: ${REFRESH_TOKEN_EXPIRY:604800}s # 7일
 
+cookie:
+  domain: ${COOKIE_DOMAIN:}
+  secure: ${COOKIE_SECURE:false}
+  same-site: ${COOKIE_SAME_SITE:Lax}
+
 springdoc:
   api-docs:
     enabled: ${SWAGGER_ENABLED:true}
@@ -87,3 +92,9 @@ springdoc:
     doc-expansion: none
     persist-authorization: true
     tags-sorter: alpha
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: ${OTLP_METRICS_ENABLED:false}
