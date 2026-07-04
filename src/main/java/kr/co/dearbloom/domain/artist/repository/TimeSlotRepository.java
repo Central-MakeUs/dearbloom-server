@@ -1,6 +1,6 @@
-package kr.co.dearbloom.domain.artist.repository.timeslot;
+package kr.co.dearbloom.domain.artist.repository;
 
-import kr.co.dearbloom.domain.artist.entity.timeslot.TimeSlot;
+import kr.co.dearbloom.domain.artist.entity.TimeSlot;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

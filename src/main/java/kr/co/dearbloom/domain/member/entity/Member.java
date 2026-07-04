@@ -38,15 +38,15 @@ public class Member implements UserDetails {
 
     private String password;
 
-    // 최근 접속 권한 (고객/작가 중 마지막으로 사용한 모드 — 재로그인 시 화면 복원용)
-    @Enumerated(EnumType.STRING)
-    private MemberRole recentRole;
-
     @Builder.Default
     private boolean hasCustomer = false;
 
     @Builder.Default
     private boolean hasArtist = false;
+
+    // 최근 접속 권한 (고객/작가 중 마지막으로 사용한 모드 — 재로그인 시 화면 복원용)
+    @Enumerated(EnumType.STRING)
+    private MemberRole recentRole;
 
     // 최근 접속 소셜 (마지막으로 로그인한 provider)
     @Enumerated(EnumType.STRING)

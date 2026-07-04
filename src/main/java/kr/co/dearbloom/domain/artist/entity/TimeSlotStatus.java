@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.artist.entity.timeslot;
+package kr.co.dearbloom.domain.artist.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

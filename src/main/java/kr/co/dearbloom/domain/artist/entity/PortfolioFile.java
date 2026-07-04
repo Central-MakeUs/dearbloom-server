@@ -1,6 +1,7 @@
-package kr.co.dearbloom.domain.artist.entity.work;
+package kr.co.dearbloom.domain.artist.entity;
 
 import jakarta.persistence.*;
+import kr.co.dearbloom.domain.university.entity.University;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -8,14 +9,18 @@ import lombok.*;
 @Builder
 @Getter
 @Entity
-public class WorkFile {
+public class PortfolioFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long workFileId;
+    private Long portfolioFileId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_id", nullable = false)
-    private Work work;
+    @JoinColumn(name = "artist_id", nullable = false)
+    private Artist artist;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id")
+    private University university;
 
     @Column(nullable = false)
     private String fileUrl;

@@ -1,7 +1,7 @@
 package kr.co.dearbloom.domain.board.entity.candidate;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.work.Work;
+import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.board.entity.board.PickBoard;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import lombok.*;
@@ -12,8 +12,8 @@ import lombok.*;
 @Getter
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(
-        name = "uk_pick_candidate_board_work",
-        columnNames = {"pick_board_id", "work_id"}))
+        name = "uk_pick_candidate_board_artist",
+        columnNames = {"pick_board_id", "artist_id"}))
 public class PickCandidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +28,8 @@ public class PickCandidate {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_id", nullable = false)
-    private Work work;
+    @JoinColumn(name = "artist_id", nullable = false)
+    private Artist artist;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

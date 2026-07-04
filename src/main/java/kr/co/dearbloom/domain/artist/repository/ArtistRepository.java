@@ -1,6 +1,6 @@
-package kr.co.dearbloom.domain.artist.repository.artist;
+package kr.co.dearbloom.domain.artist.repository;
 
-import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

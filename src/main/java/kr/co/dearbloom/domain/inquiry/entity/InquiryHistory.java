@@ -1,7 +1,7 @@
 package kr.co.dearbloom.domain.inquiry.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.timeslot.TimeSlot;
+import kr.co.dearbloom.domain.artist.entity.TimeSlot;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import lombok.*;
 
