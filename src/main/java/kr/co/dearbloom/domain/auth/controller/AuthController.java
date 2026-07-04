@@ -19,17 +19,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Auth", description = "인증 API")
-@Slf4j
 public class AuthController {
 
     private final AuthFacade authFacade;
 
     @PostMapping("/refresh")
-    @Operation(summary = "accessToken 재발급", description = "refreshToken 검증 후 새 accessToken 발급. 회전(rotation) 미구현이라 refreshToken 은 그대로 반환.")
+    @Operation(summary = "accessToken 재발급", description = "refreshToken 검증 후 새 accessToken 발급")
     public ResponseEntity<ApiResponse<TokenRefreshResponse>> createNewAccessToken(@RequestBody TokenRefreshRequest request) {
         TokenRefreshResponse response = authFacade.refresh(request.getRefreshToken());
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
@@ -68,7 +68,7 @@ public class AuthController {
     }
 
     @DeleteMapping("/logout")
-    @Operation(summary = "로그아웃", description = "Redis 에 저장된 리프레시 토큰 세션을 삭제해 무효화합니다.")
+    @Operation(summary = "로그아웃", description = "리프레시 토큰 세션을 삭제해 무효화합니다.")
     public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal Member member) {
         authFacade.logout(member.getMemberId());
         return ResponseEntity.ok(ApiResponse.success());
