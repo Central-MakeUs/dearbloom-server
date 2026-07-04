@@ -1,9 +1,9 @@
 package kr.co.dearbloom.domain.customer.repository;
 
-import kr.co.dearbloom.domain.customer.entity.SavedWork;
+import kr.co.dearbloom.domain.customer.entity.SavedArtist;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SavedWorkRepository extends JpaRepository<SavedWork, Long> {
+public interface SavedWorkRepository extends JpaRepository<SavedArtist, Long> {
 }

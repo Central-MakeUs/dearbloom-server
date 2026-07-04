@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.artist.entity.artist;
+package kr.co.dearbloom.domain.artist.entity;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.member.entity.Member;

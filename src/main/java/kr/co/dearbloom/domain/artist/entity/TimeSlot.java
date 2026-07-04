@@ -1,7 +1,6 @@
-package kr.co.dearbloom.domain.artist.entity.timeslot;
+package kr.co.dearbloom.domain.artist.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import lombok.*;
 
 import java.time.LocalDate;

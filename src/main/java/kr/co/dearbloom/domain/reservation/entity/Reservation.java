@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.reservation.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.timeslot.TimeSlot;
-import kr.co.dearbloom.domain.artist.entity.work.Work;
+import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.TimeSlot;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import lombok.*;
@@ -28,8 +28,8 @@ public class Reservation {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "work_id", nullable = false)
-    private Work work;
+    @JoinColumn(name = "artist_id", nullable = false)
+    private Artist artist;
 
     // 한 슬롯당 예약 하나 (동시 예약 방지)
     @ManyToOne(fetch = FetchType.LAZY)

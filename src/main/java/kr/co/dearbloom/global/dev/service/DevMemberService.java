@@ -2,8 +2,8 @@ package kr.co.dearbloom.global.dev.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.dearbloom.domain.artist.dto.response.ArtistInfoResponse;
-import kr.co.dearbloom.domain.artist.entity.artist.Artist;
-import kr.co.dearbloom.domain.artist.repository.artist.ArtistRepository;
+import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerInfoResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.customer.repository.CustomerRepository;
