@@ -1,7 +1,7 @@
 package kr.co.dearbloom.global.config;
 
-import kr.co.dearbloom.domain.auth.service.RefreshTokenSessionService;
-import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
+import kr.co.dearbloom.domain.member.service.RefreshTokenSessionService;
+import kr.co.dearbloom.domain.member.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.service.MemberService;
 import kr.co.dearbloom.global.auth.jwt.TokenAuthenticationFilter;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
@@ -35,6 +35,7 @@ public class WebSecurityConfig {
     private final MemberService memberService;
     private final OAuthAccountService oAuthAccountService;
     private final JwtProperties jwtProperties;
+    private final kr.co.dearbloom.global.properties.CookieProperties cookieProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -94,7 +95,8 @@ public class WebSecurityConfig {
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
                 memberService,
                 oAuthAccountService,
-                jwtProperties
+                jwtProperties,
+                cookieProperties
         );
     }
 }

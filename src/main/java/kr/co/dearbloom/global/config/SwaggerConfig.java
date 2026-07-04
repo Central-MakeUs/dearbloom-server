@@ -23,8 +23,8 @@ public class SwaggerConfig {
                 .addList("Bearer Token");
 
         Info info = new Info()
-                .title("Dearbloom" + " API 명세서")
-                .description("Dearbloom API 명세서입니다.");
+                .title("DearBloom" + " API 명세서")
+                .description("DearBloom API 명세서입니다.");
 
         return new OpenAPI()
                 .info(info)

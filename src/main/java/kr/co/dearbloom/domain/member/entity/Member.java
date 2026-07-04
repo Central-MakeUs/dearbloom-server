@@ -1,6 +1,5 @@
 package kr.co.dearbloom.domain.member.entity;
 
-import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,19 +32,28 @@ public class Member implements UserDetails {
 
     private String email;
 
-    @Column(unique = true)
-    private String nickname;
-
-    private String profileImage;
+    private String name;
 
     private String password;
+
+    // 최근 접속 권한 (고객/작가 중 마지막으로 사용한 모드 — 재로그인 시 화면 복원용)
+    @Enumerated(EnumType.STRING)
+    private MemberRole recentRole;
+
+    @Builder.Default
+    private boolean hasCustomer = false;
+
+    @Builder.Default
+    private boolean hasArtist = false;
+
+    // 최근 접속 소셜 (마지막으로 로그인한 provider)
+    @Enumerated(EnumType.STRING)
+    private OAuthProvider recentProvider;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
-
-
-    /* ================= implements from UserDetails ================= */
+    /* ──────────────── implements from UserDetails ──────────────── */
     @Override // 권한 반환
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("user"));
@@ -85,7 +93,16 @@ public class Member implements UserDetails {
         return true; // true -> 사용 가능
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    // Customer/Artist 생성 서비스 메서드에서만 호출할 것
+    public void markAsCustomer() {
+        this.hasCustomer = true;
+    }
+
+    public void markAsArtist() {
+        this.hasArtist = true;
     }
 }

@@ -1,12 +1,16 @@
 package kr.co.dearbloom.domain.member.service;
 
-import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
+import kr.co.dearbloom.domain.member.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.repository.MemberRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,14 +25,14 @@ public class MemberService {
     public Member createMember(OAuthAccount oauthAccount) {
         return memberRepository.save(Member.builder()
                 .email(oauthAccount.getEmail())
-                .nickname(oauthAccount.getName())
+                .name(oauthAccount.getName())
                 .build());
     }
 
-    public Member createSampleMember(OAuthAccount oauthAccount, String nickname) {
+    public Member createSampleMember(OAuthAccount oauthAccount, String name) {
         return memberRepository.save(Member.builder()
                 .email(oauthAccount.getEmail())
-                .nickname(nickname)
+                .name(name)
                 .build());
     }
 
@@ -42,8 +46,20 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
-    public Member getByNicknameOrThrow(String nickname) {
-        return memberRepository.findByNickname(nickname)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, nickname));
+    public Member getByNameOrThrow(String name) {
+        return memberRepository.findByName(name)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, name));
+    }
+
+    // 실제로 생성되어 있는 Role 목록 (Customer, Artist 존재 여부 기준)
+    public List<MemberRole> getAvailableRoles(Member member) {
+        List<MemberRole> roles = new ArrayList<>();
+        if (member.isHasCustomer()) {
+            roles.add(MemberRole.CUSTOMER);
+        }
+        if (member.isHasArtist()) {
+            roles.add(MemberRole.ARTIST);
+        }
+        return roles;
     }
 }

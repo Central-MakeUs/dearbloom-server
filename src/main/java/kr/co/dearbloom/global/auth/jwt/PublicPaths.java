@@ -22,6 +22,11 @@ public final class PublicPaths {
             "/v3/api-docs/"
     );
 
+    /** SKIP_TOKEN_PREFIXES 에 매칭되더라도 예외적으로 토큰 검증을 수행하는 경로 (예: dev 인증 확인용) */
+    public static final List<String> SKIP_TOKEN_EXCEPTIONS = List.of(
+            "/dev/member/me"
+    );
+
     /** 비로그인도 접근 가능 — 토큰 있으면 인증 설정, 없으면 비로그인으로 통과 */
     public static final List<String> OPTIONAL_AUTH_PREFIXES = List.of(
             // tmp

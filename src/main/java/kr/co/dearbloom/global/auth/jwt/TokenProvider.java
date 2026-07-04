@@ -1,8 +1,9 @@
 package kr.co.dearbloom.global.auth.jwt;
 
-import kr.co.dearbloom.domain.auth.repository.OAuthAccountRepository;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
+import kr.co.dearbloom.domain.member.repository.OAuthAccountRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
-import kr.co.dearbloom.domain.member.repository.MemberRepository;
+import kr.co.dearbloom.domain.member.service.MemberService;
 import kr.co.dearbloom.global.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
@@ -15,9 +16,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
@@ -25,26 +28,39 @@ import java.util.Set;
 public class TokenProvider {
     private final JwtProperties jwtProperties;
     private final OAuthAccountRepository oauthAccountRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     public String generateToken(Member member, Duration expiredAt){
+        return generateToken(member, expiredAt, null);
+    }
+
+    // overrideActiveRole 이 있으면 최근 접속 Role 대신 강제 사용 (예: Dev 로그인에서 role 지정 테스트)
+    public String generateToken(Member member, Duration expiredAt, MemberRole overrideActiveRole){
         Date now = new Date();
-        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member);
+        return makeToken(new Date(now.getTime() + expiredAt.toMillis()), member, overrideActiveRole);
     }
 
     /**
      * {
      *   "sub": "123",
-     *   "activeRole": "PHOTOGRAPHER",
-     *   "activeProfileId": "45", (Customer.id 또는 Photographer.id)
-     *   "availableRoles": ["CUSTOMER", "PHOTOGRAPHER"],
+     *   "activeRole": "ARTIST",
+     *   "availableRoles": ["CUSTOMER", "ARTIST"],
      *   "iat": 1718000000,
      *   "exp": 1718000900
      * }
      */
     // JWT 토큰 생성 메서드
-    private String makeToken(Date expiry, Member member) {
+    private String makeToken(Date expiry, Member member, MemberRole overrideActiveRole) {
         Date now = new Date();
+
+        List<MemberRole> availableRoles = memberService.getAvailableRoles(member);
+        List<String> availableRoleNames = availableRoles.stream().map(Enum::name).toList();
+        // 최근 접속 Role 이 없으면(둘 다 미생성 등) 생성된 Role 중 첫 번째로 대체
+        String activeRoleName = overrideActiveRole != null
+                ? overrideActiveRole.name()
+                : member.getRecentRole() != null
+                        ? member.getRecentRole().name()
+                        : availableRoleNames.isEmpty() ? null : availableRoleNames.get(0);
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ: JWT
@@ -53,6 +69,8 @@ public class TokenProvider {
                 .setExpiration(expiry)  // 내용 exp: expiry 멤버 변수값
                 .setSubject(member.getEmail()) // 내용 sub: member의 이메일
                 .claim("memberId", member.getMemberId()) // 클레임 id: memberId
+                .claim("activeRole", activeRoleName) // 클레임: 최근 접속 Role
+                .claim("availableRoles", availableRoleNames) // 클레임: 생성되어 있는 Role 목록
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.secretKey())
                 //서명: secretKey와 함께 해시값을 HS256 방식으로 암호화
                 .compact();
@@ -73,18 +91,38 @@ public class TokenProvider {
     // 토큰 기반으로 인증 정보를 가져오는 메서드
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
-        Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
-        Member member = memberRepository.findById(claims.get("memberId", Long.class)).orElseThrow();
+        Set<SimpleGrantedAuthority> authorities = Stream.concat(
+                Stream.of(new SimpleGrantedAuthority("ROLE_USER")),
+                getAvailableRoles(token).stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+        ).collect(Collectors.toSet());
+
+        Member member = memberService.getByMemberIdOrThrow(claims.get("memberId", Long.class));
         return new UsernamePasswordAuthenticationToken(member, token, authorities);
-//        return new UsernamePasswordAuthenticationToken(new org.springframework.security.core.userdetails.User(claims.getSubject
-//                (), "", authorities), token, authorities);
     }
 
     // 토큰 기반으로 회원 ID를 가져오는 메서드
     public Long getMemberId(String token){
         Claims claims = getClaims(token);
         return claims.get("memberId", Long.class);
+    }
+
+    // 토큰 기반으로 생성되어 있는 Role 목록을 가져오는 메서드
+    @SuppressWarnings("unchecked")
+    public List<MemberRole> getAvailableRoles(String token) {
+        Claims claims = getClaims(token);
+        List<String> roleNames = claims.get("availableRoles", List.class);
+        if (roleNames == null) {
+            return List.of();
+        }
+        return roleNames.stream().map(MemberRole::valueOf).toList();
+    }
+
+    // 토큰 기반으로 최근 접속 Role 을 가져오는 메서드
+    public MemberRole getActiveRole(String token) {
+        Claims claims = getClaims(token);
+        String activeRoleName = claims.get("activeRole", String.class);
+        return activeRoleName != null ? MemberRole.valueOf(activeRoleName) : null;
     }
 
     private Claims getClaims(String token) {

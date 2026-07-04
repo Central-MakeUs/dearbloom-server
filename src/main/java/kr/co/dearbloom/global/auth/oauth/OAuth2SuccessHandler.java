@@ -1,11 +1,12 @@
 package kr.co.dearbloom.global.auth.oauth;
 
-import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
-import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
-import kr.co.dearbloom.domain.auth.service.RefreshTokenSessionService;
+import kr.co.dearbloom.domain.member.entity.OAuthAccount;
+import kr.co.dearbloom.domain.member.service.OAuthAccountService;
+import kr.co.dearbloom.domain.member.service.RefreshTokenSessionService;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.service.MemberService;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
+import kr.co.dearbloom.global.properties.CookieProperties;
 import kr.co.dearbloom.global.properties.JwtProperties;
 import kr.co.dearbloom.global.util.HttpRequestUtils;
 import jakarta.servlet.ServletException;
@@ -14,13 +15,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final MemberService memberService;
     private final OAuthAccountService oAuthAccountService;
     private final JwtProperties jwtProperties;
+    private final CookieProperties cookieProperties;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -66,19 +70,21 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             member = memberService.getByOauthAccount(oauthAccount);
         }
 
-        // 리프레시 토큰 생성 -> Redis 세션에 저장 -> URL로 전달
+        // 리프레시 토큰 생성 -> Redis 세션에 저장
         String refreshToken = tokenProvider.generateToken(member, jwtProperties.refreshTokenExpiry());
         saveRefreshToken(member, refreshToken, request);
-        // 액세스 토큰 생성 -> 패스에 엑세스 토큰 추가
+        // 액세스 토큰 생성
         String accessToken = tokenProvider.generateToken(member, jwtProperties.accessTokenExpiry());
 
-        String targetUrl = getTargetUrl(accessToken, refreshToken); // 액세스, 리프레시 모두 전달
+        // 토큰을 HttpOnly 쿠키로 전달 (URL 쿼리파라미터 노출 방지)
+        addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, accessToken, jwtProperties.refreshTokenExpiry());
+        addTokenCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, jwtProperties.refreshTokenExpiry());
 
         // 인증 관련 설정값과 쿠키 제거
         clearAuthenticationAttributes(request, response);
 
-        // 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        // 토큰 없이 콜백 경로로만 리다이렉트
+        getRedirectStrategy().sendRedirect(request, response, REDIRECT_PATH);
     }
 
     // 생성된 리프레시 토큰을 세션 메타데이터(ip, deviceInfo)와 함께 Redis에 저장
@@ -88,14 +94,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         refreshTokenSessionService.save(member, newRefreshToken, ip, deviceInfo);
     }
 
-    // 액세스 토큰을 패스에 추가
-    // 쿠키에서 리다이렉트 경로가 담긴 값을 가져와 쿼리 파라미터에 액세스 토큰을 추가한다
-    private String getTargetUrl(String accessToken, String refreshToken) {
-        return UriComponentsBuilder.fromUriString(REDIRECT_PATH)
-                .queryParam(ACCESS_TOKEN_COOKIE_NAME, accessToken)
-                .queryParam(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
-                .build()
-                .toUriString();
+    // 토큰을 HttpOnly 쿠키로 응답에 추가. domain/secure/sameSite 는 환경별 CookieProperties 로 분기.
+    private void addTokenCookie(HttpServletResponse response, String name, String value, Duration maxAge) {
+        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(cookieProperties.isSecure())
+                .sameSite(cookieProperties.getSameSite())
+                .path("/")
+                .maxAge(maxAge);
+        if (cookieProperties.getDomain() != null && !cookieProperties.getDomain().isBlank()) {
+            builder.domain(cookieProperties.getDomain());
+        }
+        response.addHeader(HttpHeaders.SET_COOKIE, builder.build().toString());
     }
 
     // 인증 관련 설정값과 쿠키 제거
