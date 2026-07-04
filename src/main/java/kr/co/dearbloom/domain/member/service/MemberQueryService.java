@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.member.service;
 
-import kr.co.dearbloom.domain.member.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
+import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.repository.MemberRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
@@ -12,28 +12,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Member 조회 전용 (읽기만, 상태 변경 없음). 쓰기는 {@link MemberCommandService} 담당. */
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberQueryService {
     private final MemberRepository memberRepository;
 
     public boolean notExistsByOauthAccount(OAuthAccount oauthAccount) {
         return memberRepository.findByOauthAccount(oauthAccount).isEmpty();
-    }
-
-    // Member 만 생성·저장. OAuthAccount 와의 연결(FK)은 OAuthAccountService.linkMember 로 별도 처리.
-    public Member createMember(OAuthAccount oauthAccount) {
-        return memberRepository.save(Member.builder()
-                .email(oauthAccount.getEmail())
-                .name(oauthAccount.getName())
-                .build());
-    }
-
-    public Member createSampleMember(OAuthAccount oauthAccount, String name) {
-        return memberRepository.save(Member.builder()
-                .email(oauthAccount.getEmail())
-                .name(name)
-                .build());
     }
 
     public Member getByOauthAccount(OAuthAccount oauthAccount) {

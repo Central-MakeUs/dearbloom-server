@@ -31,6 +31,8 @@ public enum ErrorCode {
      */
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-401", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-401", "액세스 토큰이 만료되었습니다."),
+    INVALID_OAUTH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-401", "소셜 로그인 토큰이 유효하지 않습니다."),
+    UNSUPPORTED_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH-400", "지원하지 않는 OAuth 프로바이더입니다."),
 
     /**
      * 프론트엔드 오류

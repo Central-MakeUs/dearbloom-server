@@ -1,7 +1,7 @@
-package kr.co.dearbloom.domain.member.service;
+package kr.co.dearbloom.domain.auth.service;
 
-import kr.co.dearbloom.domain.member.entity.RedisRefreshToken;
-import kr.co.dearbloom.domain.member.repository.RedisRefreshTokenRepository;
+import kr.co.dearbloom.domain.auth.entity.RedisRefreshToken;
+import kr.co.dearbloom.domain.auth.repository.RedisRefreshTokenRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.global.properties.JwtProperties;

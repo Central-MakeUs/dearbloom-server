@@ -1,6 +1,6 @@
-package kr.co.dearbloom.domain.member.repository;
+package kr.co.dearbloom.domain.auth.repository;
 
-import kr.co.dearbloom.domain.member.entity.OAuthAccount;
+import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

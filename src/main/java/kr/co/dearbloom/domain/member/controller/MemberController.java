@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.dearbloom.domain.member.dto.MemberInfoResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
-import kr.co.dearbloom.domain.member.service.MemberService;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Tag(name = "Member", description = "회원 API")
 public class MemberController {
-    private final MemberService memberService;
 
     @GetMapping("/me")
     @Operation(summary = "내 정보 조회", description = "최근 접속 Role과 Customer/Artist 각각의 생성 여부를 함께 반환합니다. <br> "

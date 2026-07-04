@@ -1,9 +1,9 @@
 package kr.co.dearbloom.global.auth.jwt;
 
 import kr.co.dearbloom.domain.member.entity.MemberRole;
-import kr.co.dearbloom.domain.member.repository.OAuthAccountRepository;
+import kr.co.dearbloom.domain.auth.repository.OAuthAccountRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
-import kr.co.dearbloom.domain.member.service.MemberService;
+import kr.co.dearbloom.domain.member.service.MemberQueryService;
 import kr.co.dearbloom.global.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 public class TokenProvider {
     private final JwtProperties jwtProperties;
     private final OAuthAccountRepository oauthAccountRepository;
-    private final MemberService memberService;
+    private final MemberQueryService memberQueryService;
 
     public String generateToken(Member member, Duration expiredAt){
         return generateToken(member, expiredAt, null);
@@ -53,14 +53,14 @@ public class TokenProvider {
     private String makeToken(Date expiry, Member member, MemberRole overrideActiveRole) {
         Date now = new Date();
 
-        List<MemberRole> availableRoles = memberService.getAvailableRoles(member);
+        List<MemberRole> availableRoles = memberQueryService.getAvailableRoles(member);
         List<String> availableRoleNames = availableRoles.stream().map(Enum::name).toList();
         // 최근 접속 Role 이 없으면(둘 다 미생성 등) 생성된 Role 중 첫 번째로 대체
         String activeRoleName = overrideActiveRole != null
                 ? overrideActiveRole.name()
                 : member.getRecentRole() != null
                         ? member.getRecentRole().name()
-                        : availableRoleNames.isEmpty() ? null : availableRoleNames.get(0);
+                        : availableRoleNames.isEmpty() ? null : availableRoleNames.getFirst();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ: JWT
@@ -97,7 +97,7 @@ public class TokenProvider {
                 getAvailableRoles(token).stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
         ).collect(Collectors.toSet());
 
-        Member member = memberService.getByMemberIdOrThrow(claims.get("memberId", Long.class));
+        Member member = memberQueryService.getByMemberIdOrThrow(claims.get("memberId", Long.class));
         return new UsernamePasswordAuthenticationToken(member, token, authorities);
     }
 

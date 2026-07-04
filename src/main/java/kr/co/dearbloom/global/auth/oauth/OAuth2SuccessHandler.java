@@ -1,29 +1,26 @@
 package kr.co.dearbloom.global.auth.oauth;
 
-import kr.co.dearbloom.domain.member.entity.OAuthAccount;
-import kr.co.dearbloom.domain.member.service.OAuthAccountService;
-import kr.co.dearbloom.domain.member.service.RefreshTokenSessionService;
+import kr.co.dearbloom.domain.auth.service.AuthService;
+import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
+import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
-import kr.co.dearbloom.domain.member.service.MemberService;
-import kr.co.dearbloom.global.auth.jwt.TokenProvider;
-import kr.co.dearbloom.global.properties.CookieProperties;
-import kr.co.dearbloom.global.properties.JwtProperties;
-import kr.co.dearbloom.global.util.HttpRequestUtils;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.time.Duration;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,16 +29,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${url.oauth-callback}")
     private String REDIRECT_PATH;
 
-    private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
-    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
-
-    private final TokenProvider tokenProvider;
-    private final RefreshTokenSessionService refreshTokenSessionService;
+    private final AuthService authService;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
-    private final MemberService memberService;
-    private final OAuthAccountService oAuthAccountService;
-    private final JwtProperties jwtProperties;
-    private final CookieProperties cookieProperties;
+    private final OAuthOneTimeCodeService oneTimeCodeService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -55,57 +45,48 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         CustomOAuth2User customUser = (CustomOAuth2User) oAuth2User;
         OAuthAccount oauthAccount = customUser.getOauthAccount();
 
-        /**
-         * 최초 가입시
-         * 1. Member 생성
-         * 2. OAuthAccount에 Member 연결
-         */
-        Member member;
-        if(memberService.notExistsByOauthAccount(oauthAccount)) {
-            log.info("OAuth2SuccessHandler: 신규 회원 가입 - 이메일: {}", oauthAccount.getEmail());
-            member = memberService.createMember(oauthAccount);
-            oAuthAccountService.linkMember(oauthAccount, member); // OAuthAccount → Member FK 연결
-        }else{
-            log.info("OAuth2SuccessHandler: 기존 회원 로그인 - 이메일: {}", oauthAccount.getEmail());
-            member = memberService.getByOauthAccount(oauthAccount);
+        // 회원 조회/생성(신규 가입시 Member 생성 + OAuthAccount 연결) — AuthService 공용 로직
+        Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
+
+        // 하이브리드 분기: 로컬 웹이 개발 서버로 로그인한 경우(진입점에서 표식 쿠키를 심어둠).
+        // localhost 는 백엔드 Set-Cookie 를 못 받으므로, 토큰 대신 1회용 oneTimeCode 만 넘겨
+        // (Google 자체 authorization code 와 구분하기 위해 "code"가 아닌 "oneTimeCode"로 명명)
+        // 로컬 Next.js 가 oneTimeCode→토큰 교환 후 자기 도메인 쿠키를 심게 한다.
+        String localTarget = readLocalTargetCookie(request);
+        if (localTarget != null) {
+            String oneTimeCode = oneTimeCodeService.issue(member.getMemberId());
+            deleteLocalTargetCookie(response);
+            clearAuthenticationAttributes(request, response);
+            String redirectUrl = UriComponentsBuilder.fromUriString(localTarget)
+                    .queryParam("oneTimeCode", oneTimeCode)
+                    .build().toUriString();
+            getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+            return;
         }
 
-        // 리프레시 토큰 생성 -> Redis 세션에 저장
-        String refreshToken = tokenProvider.generateToken(member, jwtProperties.refreshTokenExpiry());
-        saveRefreshToken(member, refreshToken, request);
-        // 액세스 토큰 생성
-        String accessToken = tokenProvider.generateToken(member, jwtProperties.accessTokenExpiry());
-
-        // 토큰을 HttpOnly 쿠키로 전달 (URL 쿼리파라미터 노출 방지)
-        addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, accessToken, jwtProperties.refreshTokenExpiry());
-        addTokenCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, jwtProperties.refreshTokenExpiry());
-
-        // 인증 관련 설정값과 쿠키 제거
+        // 일반 분기: dev 웹 / 운영 — 기존대로 백엔드가 직접 쿠키를 심는다.
+        authService.issueTokensAndSetCookies(member, request, response);
         clearAuthenticationAttributes(request, response);
-
-        // 토큰 없이 콜백 경로로만 리다이렉트
         getRedirectStrategy().sendRedirect(request, response, REDIRECT_PATH);
     }
 
-    // 생성된 리프레시 토큰을 세션 메타데이터(ip, deviceInfo)와 함께 Redis에 저장
-    private void saveRefreshToken(Member member, String newRefreshToken, HttpServletRequest request) {
-        String ip = HttpRequestUtils.extractClientIp(request);
-        String deviceInfo = request.getHeader("User-Agent");
-        refreshTokenSessionService.save(member, newRefreshToken, ip, deviceInfo);
+    /** 진입점(OAuthLocalEntryController)이 심은 표식 쿠키에서 로컬 콜백 URL 을 읽는다. 없으면 null. */
+    private String readLocalTargetCookie(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+        return Arrays.stream(request.getCookies())
+                .filter(c -> OAuthLocalEntryController.LOCAL_TARGET_COOKIE.equals(c.getName()))
+                .map(c -> URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8))
+                .findFirst()
+                .orElse(null);
     }
 
-    // 토큰을 HttpOnly 쿠키로 응답에 추가. domain/secure/sameSite 는 환경별 CookieProperties 로 분기.
-    private void addTokenCookie(HttpServletResponse response, String name, String value, Duration maxAge) {
-        ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, value)
-                .httpOnly(true)
-                .secure(cookieProperties.isSecure())
-                .sameSite(cookieProperties.getSameSite())
-                .path("/")
-                .maxAge(maxAge);
-        if (cookieProperties.getDomain() != null && !cookieProperties.getDomain().isBlank()) {
-            builder.domain(cookieProperties.getDomain());
-        }
-        response.addHeader(HttpHeaders.SET_COOKIE, builder.build().toString());
+    private void deleteLocalTargetCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie(OAuthLocalEntryController.LOCAL_TARGET_COOKIE, "");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 
     // 인증 관련 설정값과 쿠키 제거

@@ -2,7 +2,7 @@ package kr.co.dearbloom.domain.member.dto;
 
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
-import kr.co.dearbloom.domain.member.entity.OAuthProvider;
+import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 
 public record MemberInfoResponse(
         Long memberId,

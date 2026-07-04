@@ -11,8 +11,8 @@ import kr.co.dearbloom.domain.member.dto.MemberInfoResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.repository.MemberRepository;
-import kr.co.dearbloom.domain.member.service.MemberService;
-import kr.co.dearbloom.domain.member.service.RefreshTokenSessionService;
+import kr.co.dearbloom.domain.member.service.MemberQueryService;
+import kr.co.dearbloom.domain.auth.service.RefreshTokenSessionService;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.global.dev.dto.DevLoginResponse;
 import kr.co.dearbloom.global.dev.dto.DevMemberAccountResponse;
@@ -30,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DevMemberService {
     private final MemberRepository memberRepository;
-    private final MemberService memberService;
+    private final MemberQueryService memberQueryService;
     private final CustomerRepository customerRepository;
     private final ArtistRepository artistRepository;
     private final TokenProvider tokenProvider;
@@ -49,9 +49,9 @@ public class DevMemberService {
 
     // 테스트 계정으로 즉시 로그인(토큰 발급). role 지정 시 해당 Role 로 activeRole 강제 — 계정이 그 Role 을 갖고 있어야 함.
     public DevLoginResponse login(Long memberId, MemberRole role, HttpServletRequest request) {
-        Member member = memberService.getByMemberIdOrThrow(memberId);
+        Member member = memberQueryService.getByMemberIdOrThrow(memberId);
 
-        if (role != null && !memberService.getAvailableRoles(member).contains(role)) {
+        if (role != null && !memberQueryService.getAvailableRoles(member).contains(role)) {
             throw new CustomException(ErrorCode.PARAMETER_BAD_REQUEST,
                     "해당 계정은 " + role + " Role 을 갖고 있지 않습니다.");
         }

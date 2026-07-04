@@ -1,7 +1,7 @@
 package kr.co.dearbloom.global.auth.oauth;
 
-import kr.co.dearbloom.domain.member.entity.OAuthAccount;
-import kr.co.dearbloom.domain.member.service.OAuthAccountService;
+import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
+import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

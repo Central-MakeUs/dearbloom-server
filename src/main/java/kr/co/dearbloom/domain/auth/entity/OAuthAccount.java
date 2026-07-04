@@ -1,5 +1,6 @@
-package kr.co.dearbloom.domain.member.entity;
+package kr.co.dearbloom.domain.auth.entity;
 
+import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.global.entity.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;

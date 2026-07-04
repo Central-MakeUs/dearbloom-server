@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.member.entity;
+package kr.co.dearbloom.domain.auth.entity;
 
 public enum OAuthProvider {
     GOOGLE,

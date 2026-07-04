@@ -1,8 +1,8 @@
-package kr.co.dearbloom.domain.member.service;
+package kr.co.dearbloom.domain.auth.service;
 
-import kr.co.dearbloom.domain.member.entity.OAuthAccount;
-import kr.co.dearbloom.domain.member.entity.OAuthProvider;
-import kr.co.dearbloom.domain.member.repository.OAuthAccountRepository;
+import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
+import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
+import kr.co.dearbloom.domain.auth.repository.OAuthAccountRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -90,5 +90,17 @@ public class OAuthAccountService {
 
     public boolean existsByName(String name) {
         return oAuthAccountRepository.existsByName(name);
+    }
+
+    /** 네이티브 SDK 로그인용 — oauthId 로 계정을 조회하고 없으면 새로 만든다. */
+    @Transactional
+    public OAuthAccount findOrCreateNativeAccount(OAuthProvider provider, String oauthId, String email, String name) {
+        return oAuthAccountRepository.findByOauthId(oauthId)
+                .orElseGet(() -> oAuthAccountRepository.save(OAuthAccount.builder()
+                        .oauthProvider(provider)
+                        .oauthId(oauthId)
+                        .email(email)
+                        .name(name)
+                        .build()));
     }
 }

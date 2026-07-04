@@ -1,5 +1,7 @@
 package kr.co.dearbloom.domain.member.entity;
 
+import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
+import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
