@@ -57,16 +57,16 @@ spring:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth?prompt=select_account
 
-  cloud:
-    aws:
-      credentials:
-        access-key: ${S3_ACCESS_KEY}
-        secret-key: ${S3_SECRET_KEY}
-      region:
-        static: ap-northeast-2
-      s3:
-        bucket: ${S3_BUCKET}
-        exp-time: 300000  # presigned URL 유효시간 (ms) = 5분
+#  cloud:
+#    aws:
+#      credentials:
+#        access-key: ${S3_ACCESS_KEY}
+#        secret-key: ${S3_SECRET_KEY}
+#      region:
+#        static: ap-northeast-2
+#      s3:
+#        bucket: ${S3_BUCKET}
+#        exp-time: 300000  # presigned URL 유효시간 (ms) = 5분
 
 file:
   base-url: https://${S3_BUCKET}.s3.ap-northeast-2.amazonaws.com
