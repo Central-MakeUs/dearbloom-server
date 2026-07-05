@@ -91,7 +91,6 @@ springdoc:
     enabled: ${SWAGGER_ENABLED:true}
     doc-expansion: none
     persist-authorization: true
-    tags-sorter: alpha
 
 management:
   otlp:
