@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-@Tag(name = "OAuth Local Entry", description = "로컬 웹 ↔ 개발 서버 하이브리드 로그인 진입점 (dev 전용)")
+@Tag(name = "OAuth - Local Entry", description = "로컬 웹 ↔ 개발 서버 하이브리드 로그인 경로")
 @Profile("dev")
 @RestController
 @RequiredArgsConstructor

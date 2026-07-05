@@ -38,7 +38,7 @@ public enum ErrorCode {
      * 프론트엔드 오류
      */
     EMPTY_CHECKED_LIST(HttpStatus.BAD_REQUEST, "CHECKED-LIST-400", "빈 배열은 허용되지 않습니다."),
-    PARAMETER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "FE-PARAMETER-400", "잘못된 파라미터 입력입니다."),
+    PARAMETER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "PARAMETER-400", "잘못된 파라미터 입력입니다."),
     INVALID_CURSOR(HttpStatus.BAD_REQUEST, "CURSOR-400", "잘못된 cursor 입니다."),
     INVALID_IMAGE_URL(HttpStatus.BAD_REQUEST, "IMAGE-400",
             "이미지 URL은 {bucketName} S3 경로(https://{bucketName}.s3.ap-northeast-2.amazonaws.com/...) 여야 합니다.");
