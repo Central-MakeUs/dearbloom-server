@@ -66,10 +66,10 @@ public class AuthFacade {
      * - Google: serverAuthCode (offlineAccess=true 로 획득)
      * 성공 시 기존 redirect OAuth와 동일한 HttpOnly 쿠키를 설정한다.
      */
-    public void nativeLogin(String provider, String token,
+    public void nativeLogin(OAuthProvider provider, String token,
                              HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        OAuthAccount oauthAccount = switch (provider.toLowerCase()) {
-            case "google" -> {
+        OAuthAccount oauthAccount = switch (provider) {
+            case GOOGLE -> {
                 GoogleNativeAuthService.GoogleUserInfo userInfo =
                         googleNativeAuthService.exchangeServerAuthCode(token);
                 yield oAuthAccountService.findOrCreateNativeAccount(

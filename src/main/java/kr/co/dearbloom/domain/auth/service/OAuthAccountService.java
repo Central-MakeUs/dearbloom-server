@@ -33,27 +33,28 @@ public class OAuthAccountService {
                 name = (String) attributes.get("name");
                 oauthProvider = OAuthProvider.GOOGLE;
                 break;
-            case "kakao":
-                oauthId = attributes.get("id").toString();
-                existingAccount = oAuthAccountRepository.findByOauthId(oauthId);
-                if(existingAccount.isPresent()) return existingAccount.get();
-
-                Map attributesProperties = (Map) attributes.get("properties");
-                name = (String) attributesProperties.get("nickname");
-                Map attributesKakaoAcount = (Map) attributes.get("kakao_account");
-                email = (String) attributesKakaoAcount.get("email");
-                oauthProvider = OAuthProvider.KAKAO;
-                break;
-            case "naver": // ToDo: 네이버 파라미터 확인 필요
-                Map attributesResponse = (Map) attributes.get("response");
-                oauthId = attributesResponse.get("id").toString();
-                existingAccount = oAuthAccountRepository.findByOauthId(oauthId);
-                if(existingAccount.isPresent()) return existingAccount.get();
-
-                name = (String) attributesResponse.get("name");
-                email = (String) attributesResponse.get("email");
-                oauthProvider = OAuthProvider.NAVER;
-                break;
+            // NAVER/KAKAO 미지원 (OAuthProvider enum 에서 주석 처리됨). 지원 재개 시 enum 과 함께 복구.
+//            case "kakao":
+//                oauthId = attributes.get("id").toString();
+//                existingAccount = oAuthAccountRepository.findByOauthId(oauthId);
+//                if(existingAccount.isPresent()) return existingAccount.get();
+//
+//                Map attributesProperties = (Map) attributes.get("properties");
+//                name = (String) attributesProperties.get("nickname");
+//                Map attributesKakaoAcount = (Map) attributes.get("kakao_account");
+//                email = (String) attributesKakaoAcount.get("email");
+//                oauthProvider = OAuthProvider.KAKAO;
+//                break;
+//            case "naver": // ToDo: 네이버 파라미터 확인 필요
+//                Map attributesResponse = (Map) attributes.get("response");
+//                oauthId = attributesResponse.get("id").toString();
+//                existingAccount = oAuthAccountRepository.findByOauthId(oauthId);
+//                if(existingAccount.isPresent()) return existingAccount.get();
+//
+//                name = (String) attributesResponse.get("name");
+//                email = (String) attributesResponse.get("email");
+//                oauthProvider = OAuthProvider.NAVER;
+//                break;
             default:
                 throw new IllegalArgumentException("Unknown provider: " + provider);
         }

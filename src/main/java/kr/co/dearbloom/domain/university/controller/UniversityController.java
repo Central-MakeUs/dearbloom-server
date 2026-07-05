@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
+import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
+import kr.co.dearbloom.global.swagger.ApiErrorCodes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +38,7 @@ public class UniversityController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400", description = "잘못된 요청 (keyword 누락, limit가 1 미만이거나 정수가 아님)")
     })
+    @ApiErrorCodes(ErrorCode.PARAMETER_BAD_REQUEST)   // 스키마·예시 자동 주입 (description 은 위에서 직접 지정)
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<UniversitySearchResponse>>> search(
             @Parameter(description = "검색어 (한글 대학교명, 초성 가능). 필수", example = "서울")
