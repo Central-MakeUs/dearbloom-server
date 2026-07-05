@@ -49,6 +49,10 @@ dependencies {
 
     // Observability
     implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+
+    // AWS S3 (SDK v2 직접 사용 — Spring Boot 4 호환 위해 spring-cloud-aws 스타터 대신)
+    implementation platform('software.amazon.awssdk:bom:2.28.16')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {
