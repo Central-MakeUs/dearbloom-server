@@ -16,8 +16,8 @@ public class FileUrlValidator {
 
     private final String requiredPrefix;
 
-    public FileUrlValidator(@Value("${file.base-url}") String baseUrl) {
-        this.requiredPrefix = baseUrl + "/";
+    public FileUrlValidator(@Value("${file.cdn-url}") String cdnUrl) {
+        this.requiredPrefix = cdnUrl + "/";
     }
 
     public void validate(String fileUrl) {
