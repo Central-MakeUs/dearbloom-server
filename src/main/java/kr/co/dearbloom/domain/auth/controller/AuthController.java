@@ -1,8 +1,6 @@
 package kr.co.dearbloom.domain.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +10,6 @@ import kr.co.dearbloom.domain.auth.dto.CodeExchangeRequest;
 import kr.co.dearbloom.domain.auth.dto.NativeLoginRequest;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshRequest;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
-import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.facade.AuthFacade;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
@@ -79,8 +76,8 @@ public class AuthController {
      * - Google: serverAuthCode (offlineAccess=true 로 획득)
      * 성공 시 기존 redirect OAuth와 동일한 HttpOnly 쿠키를 설정하고 200 반환.
      */
-    @PostMapping("/login/{provider}")
-    @Operation(summary = "네이티브 소셜로그인", description = "WebView 앱에서 네이티브 SDK 로 얻은 토큰으로 로그인합니다.")
+    @PostMapping("/login")
+    @Operation(summary = "네이티브 소셜 로그인", description = "WebView 앱에서 네이티브 SDK 로 얻은 토큰으로 로그인합니다. provider 는 요청 본문으로 전달합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200", description = "로그인 성공 (HttpOnly 쿠키 설정)"),
@@ -91,16 +88,11 @@ public class AuthController {
     })
     @ApiErrorCodes({ErrorCode.UNSUPPORTED_OAUTH_PROVIDER, ErrorCode.INVALID_OAUTH_TOKEN})
     public ResponseEntity<ApiResponse<Void>> nativeLogin(
-            @Parameter(
-                    description = "소셜 로그인 프로바이더. 대소문자 무관 (현재 google 만 지원, apple 은 준비 중)",
-                    example = "google",
-                    schema = @Schema(type = "string", allowableValues = {"google", "apple"}))
-            @PathVariable OAuthProvider provider,
             @RequestBody @Valid NativeLoginRequest request,
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
-        authFacade.nativeLogin(provider, request.getToken(), httpRequest, httpResponse);
+        authFacade.nativeLogin(request.getProvider(), request.getToken(), httpRequest, httpResponse);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
