@@ -68,6 +68,9 @@ spring:
         bucket: ${S3_BUCKET}
         exp-time: 300000  # presigned URL 유효시간 (ms) = 5분
 
+app:
+  server-env-name: ${SERVER_ENV_NAME}
+
 file:
   cdn-url: ${FILE_CDN_URL}
 

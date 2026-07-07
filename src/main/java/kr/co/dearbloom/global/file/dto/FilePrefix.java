@@ -3,10 +3,6 @@ package kr.co.dearbloom.global.file.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * 업로드 파일 종류(= S3 저장 폴더). 자유 문자열 대신 enum 으로 고정해 폴더 난립을 막는다.
- * folder 값이 실제 S3 key prefix 로 쓰인다.
- */
 @Getter
 @AllArgsConstructor
 public enum FilePrefix {

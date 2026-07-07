@@ -10,7 +10,6 @@ import kr.co.dearbloom.global.dto.response.exception.ErrorDetail;
  */
 @Schema(name = "ErrorResponse", description = "공통 에러 응답")
 public class ErrorResponse {
-
     @Schema(description = "성공 여부", example = "false")
     public boolean success;
 

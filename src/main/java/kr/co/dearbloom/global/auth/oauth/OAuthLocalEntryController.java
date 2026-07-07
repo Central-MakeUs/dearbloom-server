@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 @RestController
 @RequiredArgsConstructor
 public class OAuthLocalEntryController {
-
     /** OAuth2SuccessHandler 와 공유하는 표식 쿠키 이름. */
     public static final String LOCAL_TARGET_COOKIE = "oauth2_local_target";
 

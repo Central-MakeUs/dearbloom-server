@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import kr.co.dearbloom.global.swagger.ErrorResponse;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,6 +20,10 @@ import java.util.Map;
 
 @Configuration
 public class SwaggerConfig {
+    // 현재 서버 환경명 (예: "로컬", "개발", "운영"). Swagger 제목에 노출.
+    @Value("${app.server-env-name}")
+    private String serverEnvName;
+
     @Bean
     public OpenAPI openAPI() {
         SecurityScheme apiKey = new SecurityScheme()
@@ -31,8 +36,11 @@ public class SwaggerConfig {
                 .addList("Bearer Token");
 
         Info info = new Info()
-                .title("DearBloom" + " API 명세서")
-                .description("DearBloom API 명세서입니다.");
+                .title("DearBloom " + serverEnvName + " 서버 API 명세서")
+                .description("DearBloom " + serverEnvName + " 서버 API 명세서입니다."
+                        + "<br><br>⚠️ <b>개발 편의성: 인증이 비활성화되어 있습니다.</b> "
+                        + "<br>현재 토큰 없이 모든 API 호출 가능 (토큰이 있으면 검증하지만, 없어도 통과) "
+                        + "<br>개발이 어느 정도 진행되면 인증을 활성화할 예정입니다.");
 
         Components components = new Components()
                 .addSecuritySchemes("Bearer Token", apiKey);
@@ -56,6 +64,7 @@ public class SwaggerConfig {
             "OAuth - Local Entry",
             "Member",
             "University",
+            "File",
             "Dev - Member",
             "Dev - Infra",
             "Dev - Response",

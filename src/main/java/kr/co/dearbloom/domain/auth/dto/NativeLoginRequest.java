@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class NativeLoginRequest {
-
     @NotNull
     @Schema(description = "소셜 로그인 프로바이더 (현재 GOOGLE 만 지원, APPLE 준비 중)", example = "GOOGLE")
     private OAuthProvider socialProvider;

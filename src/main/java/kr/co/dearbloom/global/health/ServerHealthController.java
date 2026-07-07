@@ -19,7 +19,6 @@ import static kr.co.dearbloom.global.health.HealthStatus.*;
 @Slf4j
 @Tag(name = "Health - Spring", description = "스프링 부트 서버 상태, 정보, 시간 확인")
 public class ServerHealthController {
-
     @Operation(summary = "스프링 부트 서버 헬스체크")
     @GetMapping
     public String healthCheck() {

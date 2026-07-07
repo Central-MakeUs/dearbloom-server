@@ -22,7 +22,6 @@ import java.util.Map;
 @RequestMapping("/dev/infra")
 @Tag(name = "Dev - Infra", description = "[백엔드 전용] 외부 인프라 테스트 API")
 public class DevInfraController {
-
     private final StringRedisTemplate stringRedisTemplate;
 
     /**

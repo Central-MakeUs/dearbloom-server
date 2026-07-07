@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @Tag(name = "Auth", description = "인증 API")
 public class AuthController {
-
     private final AuthFacade authFacade;
 
     @PostMapping("/refresh")

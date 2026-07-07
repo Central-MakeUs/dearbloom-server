@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 public class NicknameValidator implements ConstraintValidator<ValidNickname, String> {
-
     // 금지어 목록 (실제로는 DB나 설정 파일에서 관리)
     private static final String[] FORBIDDEN_WORDS = {
             "관리자", "admin", "운영자", "시스템",

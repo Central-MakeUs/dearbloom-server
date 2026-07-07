@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-
     /**
      * OauthAccount
      */
@@ -40,8 +39,7 @@ public enum ErrorCode {
     EMPTY_CHECKED_LIST(HttpStatus.BAD_REQUEST, "CHECKED-LIST-400", "빈 배열은 허용되지 않습니다."),
     PARAMETER_BAD_REQUEST(HttpStatus.BAD_REQUEST, "PARAMETER-400", "잘못된 파라미터 입력입니다."),
     INVALID_CURSOR(HttpStatus.BAD_REQUEST, "CURSOR-400", "잘못된 cursor 입니다."),
-    INVALID_IMAGE_URL(HttpStatus.BAD_REQUEST, "IMAGE-400",
-            "이미지 URL은 {bucketName} S3 경로(https://{bucketName}.s3.ap-northeast-2.amazonaws.com/...) 여야 합니다.");
+    INVALID_FILE_URL(HttpStatus.BAD_REQUEST, "FILE-400", "파일 URL은 허용된 CDN 경로로 시작해야 합니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -18,14 +18,9 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * 파일(이미지/영상 등) 업로드·삭제. AWS S3 를 직접 사용한다.
- * 업로드는 S3 presigned URL(PUT), 최종 접근 URL 은 CDN(CloudFront) 기준으로 조립한다.
- */
 @Service
 @RequiredArgsConstructor
 public class FileService {
-
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 

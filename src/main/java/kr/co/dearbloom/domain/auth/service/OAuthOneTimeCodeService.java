@@ -23,7 +23,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class OAuthOneTimeCodeService {
-
     private static final String KEY_PREFIX = "oauth:otc:";
     private static final Duration TTL = Duration.ofSeconds(30);
 

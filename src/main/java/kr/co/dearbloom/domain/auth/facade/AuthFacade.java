@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AuthFacade {
-
     private final MemberQueryService memberQueryService;
     private final OAuthAccountService oAuthAccountService;
     private final AuthService authService;

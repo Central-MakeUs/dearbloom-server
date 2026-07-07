@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Presigned URL 요청 DTO")
 public record PresignedUrlRequest(
-
         @Schema(description = "파일 종류 (저장 폴더명)", example = "REVIEW")
         FilePrefix prefix,
 

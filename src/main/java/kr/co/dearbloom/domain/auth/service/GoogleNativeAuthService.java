@@ -21,7 +21,6 @@ import java.util.Map;
 @Slf4j
 @Service
 public class GoogleNativeAuthService {
-
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String clientId;
 

@@ -1,10 +1,13 @@
 package kr.co.dearbloom.global.file;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
+import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.file.dto.PresignedUrlRequest;
 import kr.co.dearbloom.global.file.dto.PresignedUrlResponse;
+import kr.co.dearbloom.global.swagger.ApiErrorCodes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "File", description = "파일 업로드/삭제 API")
 public class FileController {
-
     private final FileService fileService;
     private final FileUrlValidator fileUrlValidator;
 
@@ -33,6 +35,12 @@ public class FileController {
                     **prefix:** REVIEW(리뷰 파일) / PORTFOLIO(작품 파일) / ARTIST_PROFILE(작가 프로필 이미지) 중 하나
                     """
     )
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "Presigned URL 발급 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400", description = "잘못된 요청 (prefix가 REVIEW/PORTFOLIO/ARTIST_PROFILE 중 하나가 아니거나 fileName 누락)")
+    })
     public ResponseEntity<ApiResponse<PresignedUrlResponse>> getPresignedUrl(
             @RequestBody PresignedUrlRequest request
     ) {
@@ -42,6 +50,13 @@ public class FileController {
 
     @DeleteMapping
     @Operation(summary = "[개발용] 파일 삭제", description = "fileUrl로 S3 저장소에서 파일을 직접 삭제합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "삭제 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400", description = "잘못된 fileUrl (허용된 저장소 경로가 아님)")
+    })
+    @ApiErrorCodes(ErrorCode.INVALID_FILE_URL)
     public ResponseEntity<ApiResponse<Void>> delete(@RequestParam String fileUrl) {
         fileUrlValidator.validate(fileUrl);
         fileService.delete(fileUrl);

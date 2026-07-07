@@ -9,7 +9,6 @@ import java.util.stream.Stream;
  * - WebSecurityConfig: antPatterns()로 requestMatchers에 사용
  */
 public final class PublicPaths {
-
     private PublicPaths() {}
 
     /** 인증 불필요 — 토큰 검증 자체를 스킵 (TokenAuthenticationFilter) */

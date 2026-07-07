@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class ApiErrorCodesCustomizer implements OperationCustomizer {
-
     private static final String SCHEMA_REF = "#/components/schemas/ErrorResponse";
 
     @Override

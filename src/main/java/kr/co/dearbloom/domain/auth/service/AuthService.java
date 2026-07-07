@@ -25,7 +25,6 @@ import java.time.Duration;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
     private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
     private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
