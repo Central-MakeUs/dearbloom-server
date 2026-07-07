@@ -92,7 +92,7 @@ public class AuthController {
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
 
-        authFacade.nativeLogin(request.getProvider(), request.getToken(), httpRequest, httpResponse);
+        authFacade.nativeLogin(request, httpRequest, httpResponse);
         return ResponseEntity.ok(ApiResponse.success());
     }
 

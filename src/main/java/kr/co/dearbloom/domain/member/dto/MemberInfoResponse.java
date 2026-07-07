@@ -9,7 +9,7 @@ public record MemberInfoResponse(
         String email,
         String name,
         MemberRole recentRole,
-        OAuthProvider recentProvider,
+        OAuthProvider recentSocialProvider,
         boolean hasCustomer,
         boolean hasArtist
 ) {

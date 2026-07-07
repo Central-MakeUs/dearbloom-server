@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
+import kr.co.dearbloom.domain.auth.dto.NativeLoginRequest;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.GoogleNativeAuthService;
@@ -66,12 +67,12 @@ public class AuthFacade {
      * - Google: serverAuthCode (offlineAccess=true 로 획득)
      * 성공 시 기존 redirect OAuth와 동일한 HttpOnly 쿠키를 설정한다.
      */
-    public void nativeLogin(OAuthProvider provider, String token,
+    public void nativeLogin(NativeLoginRequest request,
                              HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        OAuthAccount oauthAccount = switch (provider) {
+        OAuthAccount oauthAccount = switch (request.getSocialProvider()) {
             case GOOGLE -> {
                 GoogleNativeAuthService.GoogleUserInfo userInfo =
-                        googleNativeAuthService.exchangeServerAuthCode(token);
+                        googleNativeAuthService.exchangeServerAuthCode(request.getSocialToken());
                 yield oAuthAccountService.findOrCreateNativeAccount(
                         OAuthProvider.GOOGLE, userInfo.sub(), userInfo.email(), userInfo.name());
             }
