@@ -72,11 +72,22 @@ public class AuthController {
 
     /**
      * 네이티브 앱(WebView)에서 소셜 SDK로 얻은 토큰으로 로그인.
-     * - Google: serverAuthCode (offlineAccess=true 로 획득)
+     * - Google: serverAuthCode (offlineAccess=true 로 획득) → 서버가 토큰 교환
+     * - Apple: identityToken(JWT) → 서버가 Apple JWKS 로 검증
      * 성공 시 기존 redirect OAuth와 동일한 HttpOnly 쿠키를 설정하고 200 반환.
      */
     @PostMapping("/login")
-    @Operation(summary = "네이티브 소셜 로그인", description = "WebView 앱에서 네이티브 SDK 로 얻은 토큰으로 로그인합니다. provider 는 요청 본문으로 전달합니다.")
+    @Operation(summary = "네이티브 소셜 로그인 (구글, 애플 공용)",
+            description = "앱(WebView)에서 네이티브 소셜 SDK 로 로그인할 때 쓰는 <b>단일 엔드포인트</b>입니다. "
+                    + "웹 브라우저 리다이렉트 로그인이 아니라, 앱이 SDK 로 이미 받은 토큰을 서버로 넘기는 방식입니다."
+                    + "<br><br><b>요청 본문(JSON)</b>"
+                    + "<br>• <b>socialProvider</b>: 소셜 종류. <code>GOOGLE</code> 또는 <code>APPLE</code>"
+                    + "<br>• <b>socialToken</b>: 아래처럼 provider 별로 <b>넣는 값이 다릅니다.</b>"
+                    + "<br>&nbsp;&nbsp;- <b>GOOGLE</b> → 구글 네이티브 SDK 로그인 결과의 <code>serverAuthCode</code> "
+                    + "(offlineAccess=true 로 얻는 서버용 인가코드). 서버가 이 코드를 구글에 토큰으로 교환해 사용자 정보를 얻습니다."
+                    + "<br>&nbsp;&nbsp;- <b>APPLE</b> → 애플 네이티브 SDK(Sign in with Apple) 로그인 결과의 <code>identityToken</code> "
+                    + "(애플이 서명한 JWT). 서버가 애플 공개키(JWKS)로 검증해 사용자 정보를 얻습니다."
+                    + "<br><br><b>응답</b>: 성공 시 accessToken/refreshToken 을 <b>HttpOnly 쿠키</b>로 설정하고 200 을 반환합니다. (응답 본문 없음)")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200", description = "로그인 성공 (HttpOnly 쿠키 설정)"),

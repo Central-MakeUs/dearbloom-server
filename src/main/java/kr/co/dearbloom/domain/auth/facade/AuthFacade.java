@@ -7,6 +7,7 @@ import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.dto.NativeLoginRequest;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.service.AuthService;
+import kr.co.dearbloom.domain.auth.service.AppleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.GoogleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.auth.service.TokenService;
@@ -28,6 +29,7 @@ public class AuthFacade {
     private final TokenService tokenService;
     private final TokenProvider tokenProvider;
     private final GoogleNativeAuthService googleNativeAuthService;
+    private final AppleNativeAuthService appleNativeAuthService;
     private final OAuthOneTimeCodeService oAuthOneTimeCodeService;
 
     /**
@@ -75,7 +77,12 @@ public class AuthFacade {
                 yield oAuthAccountService.findOrCreateNativeAccount(
                         OAuthProvider.GOOGLE, userInfo.sub(), userInfo.email(), userInfo.name());
             }
-            default -> throw new CustomException(ErrorCode.UNSUPPORTED_OAUTH_PROVIDER);
+            case APPLE -> {
+                AppleNativeAuthService.AppleUserInfo userInfo =
+                        appleNativeAuthService.verifyIdentityToken(request.getSocialToken());
+                yield oAuthAccountService.findOrCreateNativeAccount(
+                        OAuthProvider.APPLE, userInfo.sub(), userInfo.email(), userInfo.name());
+            }
         };
 
         Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
