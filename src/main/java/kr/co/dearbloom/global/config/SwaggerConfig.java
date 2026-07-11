@@ -66,8 +66,8 @@ public class SwaggerConfig {
             "University",
             "File",
             "Dev - Member",
-            "Dev - Infra",
             "Dev - Response",
+            "Dev - Infra",
             "Health - Spring",
             "Health - Infra"
     );

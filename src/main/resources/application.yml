@@ -78,6 +78,12 @@ url:
   cors-origins: ${URL_CORS_ORIGINS:http://localhost:4000}
   oauth-callback: ${URL_OAUTH_CALLBACK:http://localhost:4000/api/auth/callback}
 
+apple:
+  client-ids: ${APPLE_CLIENT_IDS:}          # id_token aud 허용 목록(쉼표). 로컬 기본값은 빈 값(apple 미사용)
+  web:
+    client-id: ${APPLE_WEB_CLIENT_ID:}        # 웹 Services ID (예: com.dearbloom.service.dev)
+    redirect-uri: ${APPLE_WEB_REDIRECT_URI:}  # Apple 에 등록한 https 콜백 (…/oauth2/apple/callback)
+
 jwt:
   issuer: ${JWT_ISSUER:abc}
   secret_key: ${JWT_SECRET_KEY:abcdefgh1234567890}
