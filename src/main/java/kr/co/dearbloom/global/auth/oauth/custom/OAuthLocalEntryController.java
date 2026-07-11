@@ -30,7 +30,7 @@ public class OAuthLocalEntryController {
     private static final String ALLOWED_TARGET_PREFIX = "http://localhost:";
 
     @GetMapping("/oauth2/local-entry")
-    @Operation(summary = "하이브리드 로그인 요청", description = "표식 쿠키를 심고 구글 인증으로 리다이렉트합니다. target 은 localhost 만 허용.")
+    @Operation(summary = "하이브리드 로그인 요청", description = "구글만 가능. 표식 쿠키를 심고 구글 인증으로 리다이렉트합니다. target 은 localhost 만 허용.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "302", description = "구글 인증으로 리다이렉트 (표식 쿠키 설정)"),
