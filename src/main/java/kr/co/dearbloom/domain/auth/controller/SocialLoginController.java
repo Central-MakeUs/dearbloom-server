@@ -79,15 +79,14 @@ public class SocialLoginController {
 
     /** 애플 웹 로그인 진입 → 애플 인증 페이지로 리다이렉트 (state 쿠키 심음). */
     @GetMapping("/oauth2/apple/authorize")
-    @Operation(summary = "애플 웹 로그인 진입 (프론트가 여기로 이동)",
-            description = "웹 애플 로그인 버튼이 이 주소로 이동합니다. 서버가 state 쿠키를 심고 애플 인증 페이지로 302 리다이렉트합니다.")
+    @Operation(summary = "애플 웹 로그인 진입")
     public void appleAuthorize(HttpServletResponse response) throws IOException {
         response.sendRedirect(authFacade.appleWebAuthorizeUrl(response));
     }
 
     /** 애플이 form_post 로 보내는 콜백. 프론트가 직접 호출하지 않으므로 Swagger 에서 숨김. */
     @PostMapping("/oauth2/apple/callback")
-    @Operation(hidden = true, summary = "애플 웹 로그인 콜백 (애플→서버 전용)")
+    @Operation(hidden = true, summary = "애플 웹 로그인 콜백")
     public void appleCallback(
             @RequestParam(name = "id_token", required = false) String idToken,
             @RequestParam(name = "state", required = false) String state,
@@ -100,8 +99,7 @@ public class SocialLoginController {
 
     /** 구글 웹 로그인 진입 → Spring Security 진입 경로로 위임 리다이렉트. */
     @GetMapping("/oauth2/google/authorize")
-    @Operation(summary = "구글 웹 로그인 진입 (프론트가 여기로 이동)",
-            description = "웹 구글 로그인 버튼이 이 주소로 이동합니다. (추후 가입 role 쿠키를 심고) Spring Security 구글 진입 경로로 리다이렉트합니다.")
+    @Operation(summary = "구글 웹 로그인 진입")
     public void googleAuthorize(HttpServletResponse response) throws IOException {
         response.sendRedirect(authFacade.googleWebAuthorizeRedirect(response));
     }

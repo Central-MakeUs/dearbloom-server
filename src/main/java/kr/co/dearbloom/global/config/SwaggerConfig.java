@@ -57,12 +57,10 @@ public class SwaggerConfig {
                 .addServersItem(new Server().url("/"));
     }
 
-    // 태그 노출 순서. springdoc 이 컨트롤러에서 태그를 스캔·머지한 "뒤"에 실행되어 최종 순서를 강제한다.
-    // (OpenAPI 빈의 .tags() 로는 머지 과정에서 순서가 덮여 안 먹는 경우가 있어 customizer 로 처리)
-    // 여기 나열한 순서대로 표시되며, 목록에 없는 태그는 뒤로 밀린다. description 은 각 컨트롤러 @Tag 값 유지.
     private static final List<String> TAG_ORDER = List.of(
+            "Social Login",
+            "Social Login - Local Web",
             "Auth",
-            "OAuth - Local Entry",
             "Member",
             "University",
             "File",
