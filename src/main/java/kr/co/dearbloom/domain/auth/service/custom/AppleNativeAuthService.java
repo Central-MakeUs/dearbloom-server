@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.auth.service;
+package kr.co.dearbloom.domain.auth.service.custom;
 
 import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;

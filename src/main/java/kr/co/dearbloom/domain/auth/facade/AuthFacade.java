@@ -8,14 +8,16 @@ import kr.co.dearbloom.domain.auth.dto.NativeLoginRequest;
 import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.service.AuthService;
-import kr.co.dearbloom.domain.auth.service.AppleNativeAuthService;
-import kr.co.dearbloom.domain.auth.service.GoogleNativeAuthService;
+import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
+import kr.co.dearbloom.domain.auth.service.custom.GoogleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.auth.service.TokenService;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
+import kr.co.dearbloom.global.auth.oauth.custom.AppleWebLoginService;
+import kr.co.dearbloom.global.auth.oauth.custom.GoogleWebLoginService;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,8 @@ public class AuthFacade {
     private final GoogleNativeAuthService googleNativeAuthService;
     private final AppleNativeAuthService appleNativeAuthService;
     private final OAuthOneTimeCodeService oAuthOneTimeCodeService;
+    private final AppleWebLoginService appleWebLoginService;
+    private final GoogleWebLoginService googleWebLoginService;
 
     /**
      * accessToken 재발급. 회전(rotation) 미구현이라 refreshToken 자체는 그대로 돌려준다.
@@ -84,5 +88,21 @@ public class AuthFacade {
 
         Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
         authService.issueTokensAndSetCookies(member, httpRequest, httpResponse);
+    }
+
+    /** 애플 웹 로그인 진입 — 애플 인증 URL 생성 + state 쿠키 심기. (AppleWebLoginService 위임) */
+    public String appleWebAuthorizeUrl(HttpServletResponse response) {
+        return appleWebLoginService.createAuthorizeUrl(response);
+    }
+
+    /** 애플 웹 로그인 콜백 처리 — id_token 검증 → 회원 처리 → 쿠키 발급 후 리다이렉트 대상 반환. (위임) */
+    public String handleAppleWebCallback(String idToken, String state, String error,
+                                         HttpServletRequest request, HttpServletResponse response) {
+        return appleWebLoginService.handleCallback(idToken, state, error, request, response);
+    }
+
+    /** 구글 웹 로그인 진입 — Spring Security 진입 경로로 위임할 리다이렉트 대상 반환. (GoogleWebLoginService 위임) */
+    public String googleWebAuthorizeRedirect(HttpServletResponse response) {
+        return googleWebLoginService.resolveEntryRedirect(response);
     }
 }

@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
-import kr.co.dearbloom.domain.auth.service.AppleNativeAuthService;
+import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.entity.Member;
