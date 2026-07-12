@@ -4,11 +4,10 @@ import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.dearbloom.global.auth.oauth.custom.OAuthLocalEntryController;
+import kr.co.dearbloom.domain.auth.controller.SocialLoginLocalWebController;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,20 +70,20 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         getRedirectStrategy().sendRedirect(request, response, REDIRECT_PATH);
     }
 
-    /** 진입점(OAuthLocalEntryController)이 심은 표식 쿠키에서 로컬 콜백 URL 을 읽는다. 없으면 null. */
+    /** 진입점(SocialLocalWebLoginController)이 심은 표식 쿠키에서 로컬 콜백 URL 을 읽는다. 없으면 null. */
     private String readLocalTargetCookie(HttpServletRequest request) {
         if (request.getCookies() == null) {
             return null;
         }
         return Arrays.stream(request.getCookies())
-                .filter(c -> OAuthLocalEntryController.LOCAL_TARGET_COOKIE.equals(c.getName()))
+                .filter(c -> SocialLoginLocalWebController.LOCAL_TARGET_COOKIE.equals(c.getName()))
                 .map(c -> URLDecoder.decode(c.getValue(), StandardCharsets.UTF_8))
                 .findFirst()
                 .orElse(null);
     }
 
     private void deleteLocalTargetCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie(OAuthLocalEntryController.LOCAL_TARGET_COOKIE, "");
+        Cookie cookie = new Cookie(SocialLoginLocalWebController.LOCAL_TARGET_COOKIE, "");
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
