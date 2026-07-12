@@ -1,5 +1,6 @@
 package kr.co.dearbloom.domain.auth.service;
 
+import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.repository.OAuthAccountRepository;
@@ -95,13 +96,13 @@ public class OAuthAccountService {
 
     /** 네이티브 SDK 로그인용 — oauthId 로 계정을 조회하고 없으면 새로 만든다. */
     @Transactional
-    public OAuthAccount findOrCreateNativeAccount(OAuthProvider provider, String oauthId, String email, String name) {
-        return oAuthAccountRepository.findByOauthId(oauthId)
+    public OAuthAccount findOrCreateNativeAccount(OAuthProvider provider, SocialUserInfo userInfo) {
+        return oAuthAccountRepository.findByOauthId(userInfo.sub())
                 .orElseGet(() -> oAuthAccountRepository.save(OAuthAccount.builder()
                         .oauthProvider(provider)
-                        .oauthId(oauthId)
-                        .email(email)
-                        .name(name)
+                        .oauthId(userInfo.sub())
+                        .email(userInfo.email())
+                        .name(userInfo.name())
                         .build()));
     }
 }

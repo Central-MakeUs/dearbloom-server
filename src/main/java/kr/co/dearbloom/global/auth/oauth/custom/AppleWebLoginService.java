@@ -3,6 +3,7 @@ package kr.co.dearbloom.global.auth.oauth.custom;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.service.AppleNativeAuthService;
@@ -78,9 +79,8 @@ public class AppleWebLoginService {
             throw new CustomException(ErrorCode.PARAMETER_BAD_REQUEST);
         }
 
-        AppleNativeAuthService.AppleUserInfo userInfo = appleNativeAuthService.verifyIdentityToken(idToken);
-        OAuthAccount oauthAccount = oAuthAccountService.findOrCreateNativeAccount(
-                OAuthProvider.APPLE, userInfo.sub(), userInfo.email(), userInfo.name());
+        SocialUserInfo userInfo = appleNativeAuthService.verifyIdentityToken(idToken);
+        OAuthAccount oauthAccount = oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo);
 
         Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
         authService.issueTokensAndSetCookies(member, request, response);

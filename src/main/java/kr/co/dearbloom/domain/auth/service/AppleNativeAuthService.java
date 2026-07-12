@@ -1,5 +1,6 @@
 package kr.co.dearbloom.domain.auth.service;
 
+import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -48,9 +49,7 @@ public class AppleNativeAuthService {
         this.jwtDecoder = decoder;
     }
 
-    public record AppleUserInfo(String sub, String email, String name) {}
-
-    public AppleUserInfo verifyIdentityToken(String identityToken) {
+    public SocialUserInfo verifyIdentityToken(String identityToken) {
         try {
             Jwt jwt = jwtDecoder.decode(identityToken);
 
@@ -61,7 +60,7 @@ public class AppleNativeAuthService {
             String email = jwt.getClaimAsString("email");
             String resolvedEmail = (email != null) ? email : sub + "@privaterelay.appleid.com";
 
-            return new AppleUserInfo(sub, resolvedEmail, resolvedEmail);
+            return new SocialUserInfo(sub, resolvedEmail, resolvedEmail);
         } catch (JwtException e) {
             log.warn("[AppleNativeAuth] identityToken 검증 실패: {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_OAUTH_TOKEN);

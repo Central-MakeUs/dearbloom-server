@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.dto.NativeLoginRequest;
+import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.AppleNativeAuthService;
@@ -72,16 +73,12 @@ public class AuthFacade {
                              HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         OAuthAccount oauthAccount = switch (request.getSocialProvider()) {
             case GOOGLE -> {
-                GoogleNativeAuthService.GoogleUserInfo userInfo =
-                        googleNativeAuthService.exchangeServerAuthCode(request.getSocialToken());
-                yield oAuthAccountService.findOrCreateNativeAccount(
-                        OAuthProvider.GOOGLE, userInfo.sub(), userInfo.email(), userInfo.name());
+                SocialUserInfo userInfo = googleNativeAuthService.exchangeServerAuthCode(request.getSocialToken());
+                yield oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.GOOGLE, userInfo);
             }
             case APPLE -> {
-                AppleNativeAuthService.AppleUserInfo userInfo =
-                        appleNativeAuthService.verifyIdentityToken(request.getSocialToken());
-                yield oAuthAccountService.findOrCreateNativeAccount(
-                        OAuthProvider.APPLE, userInfo.sub(), userInfo.email(), userInfo.name());
+                SocialUserInfo userInfo = appleNativeAuthService.verifyIdentityToken(request.getSocialToken());
+                yield oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo);
             }
         };
 
