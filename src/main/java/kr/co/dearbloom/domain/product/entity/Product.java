@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.customer.entity;
+package kr.co.dearbloom.domain.product.entity;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.artist.entity.Artist;
@@ -9,19 +9,20 @@ import lombok.*;
 @Builder
 @Getter
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(
-        name = "uk_saved_artist_customer_artist",
-        columnNames = {"customer_id", "artist_id"}))
-public class SavedArtist {
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long savedArtistId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private Long productId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id", nullable = false)
     private Artist artist;
+
+    @Column(nullable = false)
+    private String productName;
+
+    private Integer price;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
 }
