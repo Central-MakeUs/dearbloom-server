@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.auth.service;
 
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.global.properties.JwtProperties;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,11 @@ public class TokenService {
 
     public String createAccessToken(Member member) {
         return tokenProvider.generateToken(member, jwtProperties.accessTokenExpiry());
+    }
+
+    /** activeRole 을 강제 지정해 Access Token 발급. 역할 전환(switch-role) 시 사용. */
+    public String createAccessToken(Member member, MemberRole overrideActiveRole) {
+        return tokenProvider.generateToken(member, jwtProperties.accessTokenExpiry(), overrideActiveRole);
     }
 
     public String issueRefreshToken(Member member, String ip, String deviceInfo) {

@@ -1,5 +1,7 @@
 package kr.co.dearbloom.global.auth.jwt;
 
+import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
+import kr.co.dearbloom.domain.customer.repository.CustomerRepository;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.auth.repository.OAuthAccountRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
@@ -29,6 +31,8 @@ public class TokenProvider {
     private final JwtProperties jwtProperties;
     private final OAuthAccountRepository oauthAccountRepository;
     private final MemberQueryService memberQueryService;
+    private final CustomerRepository customerRepository;
+    private final ArtistRepository artistRepository;
 
     public String generateToken(Member member, Duration expiredAt){
         return generateToken(member, expiredAt, null);
@@ -44,6 +48,7 @@ public class TokenProvider {
      * {
      *   "sub": "123",
      *   "activeRole": "ARTIST",
+     *   "activeProfileId": 45,
      *   "availableRoles": ["CUSTOMER", "ARTIST"],
      *   "iat": 1718000000,
      *   "exp": 1718000900
@@ -61,6 +66,7 @@ public class TokenProvider {
                 : member.getRecentRole() != null
                         ? member.getRecentRole().name()
                         : availableRoleNames.isEmpty() ? null : availableRoleNames.getFirst();
+        Long activeProfileId = resolveActiveProfileId(member, activeRoleName);
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ: JWT
@@ -70,10 +76,22 @@ public class TokenProvider {
                 .setSubject(member.getEmail()) // 내용 sub: member의 이메일
                 .claim("memberId", member.getMemberId()) // 클레임 id: memberId
                 .claim("activeRole", activeRoleName) // 클레임: 최근 접속 Role
+                .claim("activeProfileId", activeProfileId) // 클레임: activeRole 에 대응하는 Customer/Artist PK
                 .claim("availableRoles", availableRoleNames) // 클레임: 생성되어 있는 Role 목록
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.secretKey())
                 //서명: secretKey와 함께 해시값을 HS256 방식으로 암호화
                 .compact();
+    }
+
+    // activeRole 에 대응하는 Customer.id 또는 Artist.id 조회. activeRole 이 없거나 해당 프로필이 없으면 null.
+    private Long resolveActiveProfileId(Member member, String activeRoleName) {
+        if (activeRoleName == null) {
+            return null;
+        }
+        return switch (MemberRole.valueOf(activeRoleName)) {
+            case CUSTOMER -> customerRepository.findByMember(member).map(c -> c.getCustomerId()).orElse(null);
+            case ARTIST -> artistRepository.findByMember(member).map(a -> a.getArtistId()).orElse(null);
+        };
     }
 
     // JWT 토큰 유효성 검증 메서드
@@ -123,6 +141,12 @@ public class TokenProvider {
         Claims claims = getClaims(token);
         String activeRoleName = claims.get("activeRole", String.class);
         return activeRoleName != null ? MemberRole.valueOf(activeRoleName) : null;
+    }
+
+    // 토큰 기반으로 activeRole 에 대응하는 Customer/Artist PK 를 가져오는 메서드
+    public Long getActiveProfileId(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("activeProfileId", Long.class);
     }
 
     private Claims getClaims(String token) {

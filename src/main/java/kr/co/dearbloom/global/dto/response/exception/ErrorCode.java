@@ -19,6 +19,14 @@ public enum ErrorCode {
     REQUEST_UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "MEMBER-401", "요청 권한이 없는 사용자입니다."),
     NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER-409", "이미 존재하는 닉네임입니다."),
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER-409", "이미 존재하는 이메일입니다."),
+    ROLE_NOT_AVAILABLE(HttpStatus.FORBIDDEN, "MEMBER-403", "요청한 역할에 대한 프로필이 없습니다."),
+    ROLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "MEMBER-403", "현재 활성화된 역할로는 접근할 수 없습니다."),
+
+    /**
+     * Customer / Artist
+     */
+    CUSTOMER_NOT_FOUND(HttpStatus.NOT_FOUND, "CUSTOMER-404", "고객 정보를 찾을 수 없습니다."),
+    ARTIST_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTIST-404", "작가 정보를 찾을 수 없습니다."),
 
     /**
      * Notification

@@ -107,4 +107,8 @@ public class Member implements UserDetails {
     public void markAsArtist() {
         this.hasArtist = true;
     }
+
+    public void updateRecentRole(MemberRole recentRole) {
+        this.recentRole = recentRole;
+    }
 }
