@@ -35,4 +35,8 @@ public class Artist {
     private Set<Region> regions = new HashSet<>();
 
     private String profileImageUrl;
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
 }

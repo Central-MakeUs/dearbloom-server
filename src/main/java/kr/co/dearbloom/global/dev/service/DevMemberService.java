@@ -1,7 +1,7 @@
 package kr.co.dearbloom.global.dev.service;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistInfoResponse;
+import kr.co.dearbloom.domain.artist.dto.response.ArtistProfileResponse;
 import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerInfoResponse;
@@ -74,7 +74,7 @@ public class DevMemberService {
         return new DevMemberFullInfoResponse(
                 MemberInfoResponse.from(member),
                 CustomerInfoResponse.from(customer),
-                ArtistInfoResponse.from(artist)
+                ArtistProfileResponse.from(artist)
         );
     }
 }
