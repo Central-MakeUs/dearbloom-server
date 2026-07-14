@@ -29,9 +29,8 @@ public class ArtistController {
     @Operation(summary = "작가 프로필 이미지 업데이트",
             description = """
                     작가 프로필 이미지를 등록 혹은 수정합니다.<br>
-                    presigned 업로드로 받은 CDN fileUrl 을 넘겨주세요.
-                    
-                    갱신된 작가 프로필을 반환합니다.""")
+                    File API로 받은 presigned url로 S3에 이미지를 업로드 완료 후 fileUrl을 넘겨주세요.
+                    """)
     @ApiErrorCodes({ErrorCode.INVALID_FILE_URL})
     public ResponseEntity<ApiResponse<ArtistProfileResponse>> updateProfileImage(
             @CurrentArtist Artist artist,
