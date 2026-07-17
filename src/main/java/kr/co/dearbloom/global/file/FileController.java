@@ -32,14 +32,14 @@ public class FileController {
                     3. 업로드 성공 후, 받아둔 `fileUrl`을 해당 종류의 등록 API
                        (리뷰 이미지 / 작품 이미지 / 작가 프로필 이미지)에 함께 전송합니다.
 
-                    **prefix:** REVIEW(리뷰 파일) / PORTFOLIO(작품 파일) / ARTIST_PROFILE(작가 프로필 이미지) 중 하나
+                    **prefix:** REVIEW(리뷰 파일) / PORTFOLIO(작품 파일) / ARTIST_IMAGE(작가 대표 이미지) 중 하나
                     """
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200", description = "Presigned URL 발급 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "400", description = "잘못된 요청 (prefix가 REVIEW/PORTFOLIO/ARTIST_PROFILE 중 하나가 아니거나 fileName 누락)")
+                    responseCode = "400", description = "잘못된 요청 (prefix가 REVIEW/PORTFOLIO/ARTIST_IMAGE 중 하나가 아니거나 fileName 누락)")
     })
     public ResponseEntity<ApiResponse<PresignedUrlResponse>> getPresignedUrl(
             @RequestBody PresignedUrlRequest request

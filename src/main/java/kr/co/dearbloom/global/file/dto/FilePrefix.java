@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum FilePrefix {
     REVIEW("review", "리뷰 파일"),
     PORTFOLIO("portfolio", "작품 파일"),
-    ARTIST_PROFILE("profile/artist", "작가 프로필 이미지");
+    ARTIST_IMAGE("artist/image", "작가 이미지");
 
     private final String folder;
     private final String label;

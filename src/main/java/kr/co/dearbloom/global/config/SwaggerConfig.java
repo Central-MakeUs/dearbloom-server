@@ -8,8 +8,11 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import kr.co.dearbloom.global.auth.resolver.CurrentArtist;
+import kr.co.dearbloom.global.auth.resolver.CurrentCustomer;
 import kr.co.dearbloom.global.swagger.ErrorResponse;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +23,13 @@ import java.util.Map;
 
 @Configuration
 public class SwaggerConfig {
+    static {
+        // 리졸버가 토큰으로 주입하는 파라미터들. 등록하지 않으면 springdoc 이 이를 모르고
+        // Customer/Artist 엔티티를 query 파라미터로 펼쳐서 문서에 그린다.
+        // (@AuthenticationPrincipal 은 springdoc 기본 무시 목록에 이미 있음)
+        SpringDocUtils.getConfig().addAnnotationsToIgnore(CurrentArtist.class, CurrentCustomer.class);
+    }
+
     // 현재 서버 환경명 (예: "로컬", "개발", "운영"). Swagger 제목에 노출.
     @Value("${app.server-env-name}")
     private String serverEnvName;

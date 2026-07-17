@@ -4,23 +4,27 @@ import kr.co.dearbloom.domain.artist.entity.Artist;
 
 import java.util.List;
 
-public record ArtistProfileResponse(
+public record ArtistResponse(
         Long artistId,
         String nickname,
         String intro,
         List<String> regions,
-        String profileImageUrl
+        String packageInfo,
+        String travelFeeInfo,
+        String imageUrl
 ) {
-    public static ArtistProfileResponse from(Artist artist) {
+    public static ArtistResponse from(Artist artist) {
         if (artist == null) {
             return null;
         }
-        return new ArtistProfileResponse(
+        return new ArtistResponse(
                 artist.getArtistId(),
                 artist.getNickname(),
                 artist.getIntro(),
                 artist.getRegions().stream().map(Enum::name).toList(),
-                artist.getProfileImageUrl()
+                artist.getPackageInfo(),
+                artist.getTravelFeeInfo(),
+                artist.getImageUrl()
         );
     }
 }

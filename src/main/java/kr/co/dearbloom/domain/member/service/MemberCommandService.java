@@ -30,6 +30,13 @@ public class MemberCommandService {
                 .build());
     }
 
+    /** 작가 프로필 생성 직후 호출. hasArtist 를 올리고 최근 사용 모드를 ARTIST 로 맞춘다. */
+    public Member markAsArtist(Member member) {
+        member.markAsArtist();
+        member.updateRecentRole(MemberRole.ARTIST);
+        return memberRepository.save(member);
+    }
+
     /**
      * 고객 ↔ 작가 모드 전환. 요청한 role 에 대응하는 프로필(Customer/Artist)이 없으면 거부.
      * recentRole 을 갱신할 뿐 Access Token 재발급은 호출부(MemberFacade)의 책임.
