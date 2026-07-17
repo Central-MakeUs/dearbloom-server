@@ -4,6 +4,7 @@ import kr.co.dearbloom.global.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -42,6 +43,19 @@ public class GlobalExceptionHandler {
                 ErrorDetail.builder()
                         .code("VALIDATION-400")
                         .message(message)
+                        .build()
+        );
+        return ResponseEntity.status(400).body(response);
+    }
+
+    // 요청 본문을 읽을 수 없는 경우 처리 핸들러 (JSON 문법 오류 / enum 등 타입 변환 실패)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMessageNotReadable(HttpMessageNotReadableException e) {
+        log.info(e.getMessage(), e);
+        ApiResponse<Void> response = ApiResponse.error(
+                ErrorDetail.builder()
+                        .code("REQUEST-400")
+                        .message("요청 본문이 올바르지 않습니다.")
                         .build()
         );
         return ResponseEntity.status(400).body(response);

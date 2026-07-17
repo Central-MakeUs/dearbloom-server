@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.dearbloom.domain.member.entity.Member;
-import kr.co.dearbloom.domain.member.entity.MemberRole;
+import kr.co.dearbloom.global.dev.dto.DevLoginRole;
 import kr.co.dearbloom.global.dev.dto.DevLoginResponse;
 import kr.co.dearbloom.global.dev.dto.DevMemberAccountResponse;
 import kr.co.dearbloom.global.dev.dto.DevMemberFullInfoResponse;
@@ -42,13 +42,28 @@ public class DevMemberController {
 
     @PostMapping("/login/{memberId}")
     @Operation(summary = "테스트 계정 로그인", description = "테스트 계정으로 즉시 로그인하여 access/refresh 토큰을 발급합니다. <br>"
-            + "role 을 지정하면 해당 Role(고객/작가) 로 activeRole 을 강제합니다 (계정이 그 Role 을 갖고 있어야 함).")
+            + "<b>CUSTOMER / ARTIST</b>: 해당 Role 로 activeRole 을 강제합니다 (계정이 그 Role 을 갖고 있어야 함). <br>"
+            + "<b>ONBOARDING</b>: activeRole 없는 토큰을 발급해 온보딩(POST /api/artists) 을 테스트합니다 "
+            + "(계정에 프로필이 하나도 없어야 함 — /dev/member/accounts 에서 hasCustomer/hasArtist 가 모두 false 인 계정). <br>"
+            + "미지정 시 계정의 최근 접속 Role 을 사용합니다.")
     public ResponseEntity<ApiResponse<DevLoginResponse>> login(
             @PathVariable Long memberId,
-            @Parameter(description = "지정할 activeRole (미지정 시 계정의 최근 접속 Role 사용)")
-            @RequestParam(required = false) MemberRole role,
+            @Parameter(description = "로그인할 상태 (미지정 시 계정의 최근 접속 Role 사용)")
+            @RequestParam(required = false) DevLoginRole role,
             HttpServletRequest request) {
         return ResponseEntity.ok(ApiResponse.success(devMemberService.login(memberId, role, request)));
+    }
+
+    @PostMapping("/signup")
+    @Operation(summary = "온보딩용 새 계정 생성 + 로그인",
+            description = "프로필(Customer/Artist)이 하나도 없는 새 테스트 계정을 만들고 바로 로그인해 토큰을 발급합니다. <br>"
+                    + "온보딩은 계정당 한 번만 가능해서(두 번째부터 409), 재테스트하려면 매번 새 계정이 필요합니다. <br>"
+                    + "발급된 토큰으로 바로 <b>POST /api/artists</b> 를 호출하면 됩니다.")
+    public ResponseEntity<ApiResponse<DevLoginResponse>> signup(
+            @Parameter(description = "테스트 계정 이름 (뒤에 타임스탬프가 붙어 유일해집니다)", example = "온보딩테스트")
+            @RequestParam(defaultValue = "온보딩테스트") String name,
+            HttpServletRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(devMemberService.signup(name, request)));
     }
 
     @GetMapping("/me")
