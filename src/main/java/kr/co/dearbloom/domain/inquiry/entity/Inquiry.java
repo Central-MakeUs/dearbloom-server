@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.inquiry.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artist.entity.TimeSlot;
+import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import lombok.*;
 
@@ -23,8 +23,8 @@ public class Inquiry {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artist_id", nullable = false)
-    private Artist artist;
+    @JoinColumn(name = "artwork_id", nullable = false)
+    private Artwork artwork;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "time_slot_id")
