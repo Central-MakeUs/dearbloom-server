@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.product.entity;
+package kr.co.dearbloom.domain.artwork.entity;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.university.entity.University;
@@ -15,8 +15,8 @@ public class PortfolioFile {
     private Long portfolioFileId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "artwork_id", nullable = false)
+    private Artwork artwork;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "university_id")

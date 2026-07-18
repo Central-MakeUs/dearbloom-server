@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.reservation.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artist.entity.TimeSlot;
+import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import lombok.*;
@@ -28,8 +28,8 @@ public class Reservation {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artist_id", nullable = false)
-    private Artist artist;
+    @JoinColumn(name = "artwork_id", nullable = false)
+    private Artwork artwork;
 
     // 한 슬롯당 예약 하나 (동시 예약 방지)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -48,4 +48,12 @@ public class Reservation {
 
     @Column(columnDefinition = "TEXT")
     private String requestNote;             // 요청 사항
+
+    // ──────────────── 문의 당시 스냅샷 ────────────────
+    // 작가·작품이 이후 수정/삭제되어도 예약 시점 값을 보존한다.
+    private String artistNicknameSnapshot;  // 문의 당시 작가 닉네임
+
+    private String artworkNameSnapshot;     // 문의 당시 작품명
+
+    private Integer priceSnapshot;          // 문의 당시 가격
 }
