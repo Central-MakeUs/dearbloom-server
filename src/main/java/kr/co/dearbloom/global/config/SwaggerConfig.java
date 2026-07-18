@@ -71,6 +71,7 @@ public class SwaggerConfig {
             "Social Login - Local Web",
             "Auth",
             "Member",
+            "Customer",
             "Artist",
             "University",
             "File",

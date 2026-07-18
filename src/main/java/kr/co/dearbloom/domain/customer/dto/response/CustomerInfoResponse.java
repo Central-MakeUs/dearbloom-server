@@ -4,8 +4,7 @@ import kr.co.dearbloom.domain.customer.entity.Customer;
 
 public record CustomerInfoResponse(
         Long customerId,
-        String nickname,
-        Integer budget,
+        String name,
         Long universityId,
         String universityName
 ) {
@@ -15,8 +14,7 @@ public record CustomerInfoResponse(
         }
         return new CustomerInfoResponse(
                 customer.getCustomerId(),
-                customer.getNickname(),
-                customer.getBudget(),
+                customer.getName(),
                 customer.getUniversity() != null ? customer.getUniversity().getUniversityId() : null,
                 customer.getUniversity() != null ? customer.getUniversity().getName() : null
         );

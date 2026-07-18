@@ -25,6 +25,8 @@ public enum ErrorCode {
      * Customer / Artist
      */
     CUSTOMER_NOT_FOUND(HttpStatus.NOT_FOUND, "CUSTOMER-404", "고객 정보를 찾을 수 없습니다."),
+    CUSTOMER_ALREADY_EXISTS(HttpStatus.CONFLICT, "CUSTOMER-409", "이미 고객 프로필이 존재합니다."),
+    UNIVERSITY_NOT_FOUND(HttpStatus.NOT_FOUND, "UNIVERSITY-404", "학교 정보를 찾을 수 없습니다."),
     NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER-409", "이미 존재하는 닉네임입니다."),
     ARTIST_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTIST-404", "작가 정보를 찾을 수 없습니다."),
     ARTIST_ALREADY_EXISTS(HttpStatus.CONFLICT, "ARTIST-409", "이미 작가 프로필이 존재합니다."),
