@@ -23,7 +23,5 @@ public class Customer {
     @JoinColumn(name = "university_id")
     private University university;
 
-    private String nickname;
-
-    private Integer budget;
+    private String name;
 }

@@ -30,6 +30,13 @@ public class MemberCommandService {
                 .build());
     }
 
+    /** 고객 프로필 생성 직후 호출. hasCustomer 를 올리고 최근 사용 모드를 CUSTOMER 로 맞춘다. */
+    public Member markAsCustomer(Member member) {
+        member.markAsCustomer();
+        member.updateRecentRole(MemberRole.CUSTOMER);
+        return memberRepository.save(member);
+    }
+
     /** 작가 프로필 생성 직후 호출. hasArtist 를 올리고 최근 사용 모드를 ARTIST 로 맞춘다. */
     public Member markAsArtist(Member member) {
         member.markAsArtist();
