@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /** 온보딩(POST /api/artists) 경로 검증. */
 @SpringBootTest
 class ArtistCreateTest {
-    @Autowired ArtistFacade artistFacade;
+    @Autowired kr.co.dearbloom.domain.member.facade.MemberFacade memberFacade;
     @Autowired MemberRepository memberRepository;
     @Autowired TokenProvider tokenProvider;
 
@@ -36,7 +36,7 @@ class ArtistCreateTest {
         ReflectionTestUtils.setField(request, "nickname", nickname);
         ReflectionTestUtils.setField(request, "imageUrl",
                 "https://cdn.dearbloom.co.kr/profile/artist/a.webp");
-        ReflectionTestUtils.setField(request, "regions", Set.of(Region.SEOUL, Region.GYEONGGI));
+        ReflectionTestUtils.setField(request, "regionList", Set.of(Region.SEOUL, Region.GYEONGGI));
         return request;
     }
 
@@ -44,7 +44,7 @@ class ArtistCreateTest {
     void 작가_프로필을_생성하고_ARTIST_로_전환된_토큰을_반환한다() {
         Member member = newMember();
 
-        ArtistCreateResponse response = artistFacade.create(member, request("온보딩작가"));
+        ArtistCreateResponse response = memberFacade.createArtist(member, request("온보딩작가"));
 
         assertThat(response.artist().nickname()).isEqualTo("온보딩작가");
         assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
@@ -61,7 +61,7 @@ class ArtistCreateTest {
         ArtistCreateRequest request = request("이미지없는작가");
         ReflectionTestUtils.setField(request, "imageUrl", null);
 
-        ArtistCreateResponse response = artistFacade.create(member, request);
+        ArtistCreateResponse response = memberFacade.createArtist(member, request);
 
         assertThat(response.artist().imageUrl()).isNull();
         assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
@@ -70,9 +70,9 @@ class ArtistCreateTest {
     @Test
     void 이미_작가_프로필이_있으면_409_를_낸다() {
         Member member = newMember();
-        artistFacade.create(member, request("최초작가"));
+        memberFacade.createArtist(member, request("최초작가"));
 
-        assertThatThrownBy(() -> artistFacade.create(member, request("중복작가")))
+        assertThatThrownBy(() -> memberFacade.createArtist(member, request("중복작가")))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.ARTIST_ALREADY_EXISTS.getCode());
     }
