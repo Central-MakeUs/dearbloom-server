@@ -70,7 +70,6 @@ public class SwaggerConfig {
     private static final List<String> TAG_ORDER = List.of(
             "Social Login",
             "Social Login - Local Web",
-            "Auth",
             "Member",
             "Customer",
             "Saved Artwork",
