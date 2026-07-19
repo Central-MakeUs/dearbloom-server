@@ -72,7 +72,7 @@ public class SwaggerConfig {
             "Auth",
             "Member",
             "Customer",
-            "Save Artwork",
+            "Saved Artwork",
             "Artist",
             "Artwork",
             "University",
