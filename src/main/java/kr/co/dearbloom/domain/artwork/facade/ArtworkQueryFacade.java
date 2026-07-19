@@ -20,7 +20,7 @@ public class ArtworkQueryFacade {
 
     /**
      * 작품 상세 조회. 뷰어에 따라 노출 정보가 다르다.
-     * - 작가 본인: isMine=true, 저장(찜) 수 노출
+     * - 작가 본인: isMine=true, 저장 수 노출
      * - 비로그인 등 그 외: 기본 정보만
      * (고객 저장여부는 저장 기능 구현 후 추가 예정)
      */

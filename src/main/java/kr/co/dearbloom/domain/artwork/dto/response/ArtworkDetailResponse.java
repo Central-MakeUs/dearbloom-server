@@ -43,7 +43,7 @@ public record ArtworkDetailResponse(
         @Schema(description = "작가 본인이 조회하면 true, 그 외(비로그인 등)는 false", example = "false")
         Boolean isMine,
 
-        @Schema(description = "저장(찜) 수. 작가 본인이 조회할 때만 값이 있고, 그 외에는 null.", example = "12")
+        @Schema(description = "저장 수. 작가 본인이 조회할 때만 값이 있고, 그 외에는 null.", example = "12")
         Integer savedCount,
 
         @Schema(description = "작품 조회수. 작가 본인이 조회할 때만 값이 있고, 그 외에는 null. (집계는 추후 추가 예정)",

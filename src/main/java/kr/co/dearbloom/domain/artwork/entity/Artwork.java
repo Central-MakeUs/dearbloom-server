@@ -27,12 +27,12 @@ public class Artwork extends BaseTime {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // 고객이 이 작품을 저장(찜)한 수. 저장/취소 이벤트로 비동기 갱신되는 비정규화 카운트.
+    // 고객이 이 작품을 저장한 수
     @Builder.Default
     @Column(nullable = false)
     private Integer savedCount = 0;
 
-    // 작품 조회수. 카운팅은 추후 Redis 로 중복조회 어뷰징 방지하며 추가 예정(현재 미집계).
+    // 작품 조회수
     @Builder.Default
     @Column(nullable = false)
     private Integer viewCount = 0;

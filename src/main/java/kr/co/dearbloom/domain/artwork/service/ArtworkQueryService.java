@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.artwork.service;
 
 import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artwork.dto.response.ArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkThumbnailResponse;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
@@ -53,17 +54,40 @@ public class ArtworkQueryService {
         if (others.isEmpty()) {
             return List.of();
         }
-        // sortOrder 오름차순 조회 → 작품별 첫 사진이 대표 이미지. merge 시 먼저 들어온 값 유지.
-        Map<Long, String> representativeImage = portfolioFileRepository
-                .findByArtworkInOrderBySortOrderAsc(others).stream()
-                .collect(Collectors.toMap(
-                        file -> file.getArtwork().getArtworkId(),
-                        PortfolioFile::getFileUrl,
-                        (first, second) -> first));
+        Map<Long, String> representativeImage = representativeImageMap(others);
         return others.stream()
                 .map(artwork -> new ArtworkThumbnailResponse(
                         artwork.getArtworkId(),
                         representativeImage.get(artwork.getArtworkId())))
                 .toList();
+    }
+
+    /**
+     * 작품 목록을 리스트 카드(작품ID/제목/가격/작가닉네임/대표이미지)로 변환.
+     * 넘겨받은 순서를 그대로 유지한다(정렬은 호출부 책임).
+     */
+    public List<ArtworkSummaryResponse> getSummaries(List<Artwork> artworks) {
+        if (artworks.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, String> representativeImage = representativeImageMap(artworks);
+        return artworks.stream()
+                .map(artwork -> new ArtworkSummaryResponse(
+                        artwork.getArtworkId(),
+                        artwork.getArtworkName(),
+                        artwork.getPrice(),
+                        artwork.getArtist().getNickname(),
+                        artwork.getArtist().getRegions().stream().map(Enum::name).toList(),
+                        representativeImage.get(artwork.getArtworkId())))
+                .toList();
+    }
+
+    // 작품별 대표 이미지(sortOrder 가장 앞선 사진) URL 맵. 한 번의 조회로 N+1 회피.
+    private Map<Long, String> representativeImageMap(List<Artwork> artworks) {
+        return portfolioFileRepository.findByArtworkInOrderBySortOrderAsc(artworks).stream()
+                .collect(Collectors.toMap(
+                        file -> file.getArtwork().getArtworkId(),
+                        PortfolioFile::getFileUrl,
+                        (first, second) -> first));
     }
 }

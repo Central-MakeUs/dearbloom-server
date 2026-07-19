@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.global.entity.BaseTime;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +32,9 @@ public class Artist extends BaseTime {
     private String intro; // 소개
 
     // 활동지역(다중 선택). artist_region 테이블에 작가별 여러 지역 저장.
+    // 목록 조회에서 작가별 regions LAZY 로딩이 N+1 이 되므로 @BatchSize 로 IN 절 묶음 조회.
     @Builder.Default
+    @BatchSize(size = 100)
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "artist_region", joinColumns = @JoinColumn(name = "artist_id"))
     @Enumerated(EnumType.STRING)

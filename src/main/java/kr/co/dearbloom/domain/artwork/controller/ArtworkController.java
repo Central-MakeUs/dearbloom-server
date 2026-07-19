@@ -42,7 +42,7 @@ public class ArtworkController {
     @Operation(summary = "작품 상세 조회",
             description = """
                     작품 상세를 조회합니다. 로그인하지 않아도 조회할 수 있습니다.<br>
-                    작가 본인이 자신의 작품을 조회하면 <b>isMine=true</b> 와 함께 저장(찜) 수(savedCount)가 노출됩니다.<br>
+                    작가 본인이 자신의 작품을 조회하면 <b>isMine=true</b> 와 함께 저장 수(savedCount)가 노출됩니다.<br>
                     그 외(비로그인 등)에는 isMine=false, savedCount 는 null 입니다.<br>
                     (고객의 저장 여부는 저장 기능 제공 후 추가될 예정입니다.)
                     """)
