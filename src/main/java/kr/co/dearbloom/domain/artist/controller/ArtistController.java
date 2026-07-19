@@ -46,31 +46,6 @@ public class ArtistController {
     private final ArtistFacade artistFacade;
     private final ArtworkQueryFacade artworkQueryFacade;
 
-    @PostMapping
-    @Operation(summary = "작가 계정 생성 (온보딩)",
-            description = """
-                    닉네임 / 활동 지역 / 대표 이미지를 한 번에 받아 작가 프로필을 생성합니다.<br>
-                    닉네임과 활동 지역은 필수, <b>대표 이미지는 선택</b>입니다 — 보내지 않으면 이미지 없이 생성되며
-                    이후 대표 이미지 수정 API 로 등록할 수 있습니다.<br>
-                    회원가입 직후의 토큰에는 작가 프로필이 없으므로, 이 API 는
-                    <b>activeRole 이 ARTIST 로 갱신된 새 accessToken</b> 을 함께 반환합니다 <br>
-                    — 응답받는 즉시 기존 accessToken 을 교체해야 이후 작가 API 를 호출할 수 있습니다.<br>
-                    refreshToken 은 재발급하지 않으며 그대로 사용합니다.<br>
-                    이미 작가 프로필이 있으면 409 를 반환합니다.<br><br>
-                    <b>regions 가능한 값</b><br>
-                    SEOUL, GYEONGGI, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON, ULSAN, SEJONG,
-                    GANGWON, CHUNGBUK, CHUNGNAM, JEONBUK, JEONNAM, GYEONGBUK, GYEONGNAM, JEJU
-                    """)
-    @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.INVALID_FILE_URL, ErrorCode.ARTIST_ALREADY_EXISTS})
-    public ResponseEntity<ApiResponse<ArtistCreateResponse>> create(
-            @AuthenticationPrincipal Member member,
-            @RequestBody @Valid ArtistCreateRequest request
-    ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
-                artistFacade.create(member, request)
-        ));
-    }
-
     @GetMapping("/me")
     @Operation(summary = "작가 정보 조회",
             description = """

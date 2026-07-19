@@ -4,8 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.dearbloom.domain.artist.dto.request.ArtistCreateRequest;
+import kr.co.dearbloom.domain.artist.dto.response.ArtistCreateResponse;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshRequest;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
+import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;
+import kr.co.dearbloom.domain.customer.dto.response.CustomerCreateResponse;
 import kr.co.dearbloom.domain.member.dto.MemberInfoResponse;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchRequest;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
@@ -70,6 +74,52 @@ public class MemberController {
         return ResponseEntity.ok(
                 ApiResponse.success(memberFacade.switchRole(member, request.getRole()))
         );
+    }
+
+    @PostMapping("/customer")
+    @Operation(summary = "고객 계정 생성 (온보딩)",
+            description = """
+                    실명 / 학교를 받아 고객 프로필을 생성합니다.<br>
+                    이름은 2-5자의 한글 또는 영문 실명, 학교는 한 곳만 선택합니다(선택 항목).<br>
+                    회원가입 직후의 토큰에는 고객 프로필이 없으므로, 이 API 는
+                    <b>activeRole 이 CUSTOMER 로 갱신된 새 accessToken</b> 을 함께 반환합니다 <br>
+                    — 응답받는 즉시 기존 accessToken 을 교체해야 이후 고객 API 를 호출할 수 있습니다.<br>
+                    refreshToken 은 재발급하지 않으며 그대로 사용합니다.<br>
+                    이미 고객 프로필이 있으면 409 를 반환합니다.
+                    """)
+    @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.UNIVERSITY_NOT_FOUND, ErrorCode.CUSTOMER_ALREADY_EXISTS})
+    public ResponseEntity<ApiResponse<CustomerCreateResponse>> createCustomer(
+            @AuthenticationPrincipal Member member,
+            @RequestBody @Valid CustomerCreateRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                memberFacade.createCustomer(member, request)
+        ));
+    }
+
+    @PostMapping("/artist")
+    @Operation(summary = "작가 계정 생성 (온보딩)",
+            description = """
+                    닉네임 / 활동 지역 / 대표 이미지를 한 번에 받아 작가 프로필을 생성합니다.<br>
+                    닉네임과 활동 지역은 필수, <b>대표 이미지는 선택</b>입니다 — 보내지 않으면 이미지 없이 생성되며
+                    이후 대표 이미지 수정 API 로 등록할 수 있습니다.<br>
+                    회원가입 직후의 토큰에는 작가 프로필이 없으므로, 이 API 는
+                    <b>activeRole 이 ARTIST 로 갱신된 새 accessToken</b> 을 함께 반환합니다 <br>
+                    — 응답받는 즉시 기존 accessToken 을 교체해야 이후 작가 API 를 호출할 수 있습니다.<br>
+                    refreshToken 은 재발급하지 않으며 그대로 사용합니다.<br>
+                    이미 작가 프로필이 있으면 409 를 반환합니다.<br><br>
+                    <b>regions 가능한 값</b><br>
+                    SEOUL, GYEONGGI, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON, ULSAN, SEJONG,
+                    GANGWON, CHUNGBUK, CHUNGNAM, JEONBUK, JEONNAM, GYEONGBUK, GYEONGNAM, JEJU
+                    """)
+    @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.INVALID_FILE_URL, ErrorCode.ARTIST_ALREADY_EXISTS})
+    public ResponseEntity<ApiResponse<ArtistCreateResponse>> createArtist(
+            @AuthenticationPrincipal Member member,
+            @RequestBody @Valid ArtistCreateRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                memberFacade.createArtist(member, request)
+        ));
     }
 
     @PostMapping("/refresh")
