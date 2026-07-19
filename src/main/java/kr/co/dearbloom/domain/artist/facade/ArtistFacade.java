@@ -5,6 +5,7 @@ import kr.co.dearbloom.domain.artist.dto.request.ArtistIntroUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistPricingUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistRegionUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.response.ArtistCreateResponse;
+import kr.co.dearbloom.domain.artist.dto.response.ArtistDetailResponse;
 import kr.co.dearbloom.domain.artist.dto.response.ArtistResponse;
 import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artist.service.ArtistCommandService;
@@ -53,8 +54,8 @@ public class ArtistFacade {
     }
 
     // regions 를 함께 조회하므로 매핑 시점에 이미 초기화되어 있다.
-    public ArtistResponse getMyInfo(Artist artist) {
-        return ArtistResponse.from(
+    public ArtistDetailResponse getMyInfo(Artist artist) {
+        return ArtistDetailResponse.from(
                 artistQueryService.getWithRegions(artist.getArtistId())
         );
     }
@@ -87,7 +88,7 @@ public class ArtistFacade {
     @Transactional
     public ArtistResponse updateRegions(Artist artist, ArtistRegionUpdateRequest request) {
         return ArtistResponse.from(
-                artistCommandService.updateRegions(artist, request.getRegions())
+                artistCommandService.updateRegions(artist, request.getRegionList())
         );
     }
 

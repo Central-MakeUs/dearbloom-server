@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import kr.co.dearbloom.domain.artist.dto.response.ArtistResponse;
 import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
-import kr.co.dearbloom.domain.customer.dto.response.CustomerInfoResponse;
+import kr.co.dearbloom.domain.customer.dto.response.CustomerResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.customer.repository.CustomerRepository;
 import kr.co.dearbloom.domain.member.dto.MemberInfoResponse;
@@ -105,7 +105,7 @@ public class DevMemberService {
 
         return new DevMemberFullInfoResponse(
                 MemberInfoResponse.from(member),
-                CustomerInfoResponse.from(customer),
+                CustomerResponse.from(customer),
                 ArtistResponse.from(artist)
         );
     }

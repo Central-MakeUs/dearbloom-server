@@ -47,7 +47,7 @@ class ArtistCreateTest {
         ArtistCreateResponse response = artistFacade.create(member, request("온보딩작가"));
 
         assertThat(response.artist().nickname()).isEqualTo("온보딩작가");
-        assertThat(response.artist().regions()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
         // 새 토큰으로 이후 @CurrentArtist API 가 동작해야 하므로 두 클레임이 채워져야 한다
         assertThat(tokenProvider.getActiveRole(response.accessToken())).isEqualTo(MemberRole.ARTIST);
         assertThat(tokenProvider.getActiveProfileId(response.accessToken()))
@@ -64,7 +64,7 @@ class ArtistCreateTest {
         ArtistCreateResponse response = artistFacade.create(member, request);
 
         assertThat(response.artist().imageUrl()).isNull();
-        assertThat(response.artist().regions()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
     }
 
     @Test

@@ -32,6 +32,12 @@ public enum ErrorCode {
     ARTIST_ALREADY_EXISTS(HttpStatus.CONFLICT, "ARTIST-409", "이미 작가 프로필이 존재합니다."),
 
     /**
+     * Artwork
+     */
+    ARTWORK_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTWORK-404", "작품을 찾을 수 없습니다."),
+    ARTWORK_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ARTWORK-403", "해당 작품에 접근할 권한이 없습니다."),
+
+    /**
      * Notification
      */
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION-404", "알림을 찾을 수 없거나 접근 권한이 없습니다."),

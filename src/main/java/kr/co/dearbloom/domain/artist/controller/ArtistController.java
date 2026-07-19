@@ -10,6 +10,7 @@ import kr.co.dearbloom.domain.artist.dto.request.ArtistPricingUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistImageUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistRegionUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.response.ArtistCreateResponse;
+import kr.co.dearbloom.domain.artist.dto.response.ArtistDetailResponse;
 import kr.co.dearbloom.domain.artist.dto.response.ArtistResponse;
 import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artist.facade.ArtistFacade;
@@ -56,8 +57,8 @@ public class ArtistController {
     @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.INVALID_FILE_URL, ErrorCode.ARTIST_ALREADY_EXISTS})
     public ResponseEntity<ApiResponse<ArtistCreateResponse>> create(
             @AuthenticationPrincipal Member member,
-            @RequestBody @Valid ArtistCreateRequest request) {
-
+            @RequestBody @Valid ArtistCreateRequest request
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
                 artistFacade.create(member, request)
         ));
@@ -71,9 +72,9 @@ public class ArtistController {
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> getMyInfo(
-            @CurrentArtist Artist artist) {
-
+    public ResponseEntity<ApiResponse<ArtistDetailResponse>> getMyInfo(
+            @CurrentArtist Artist artist
+    ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artistFacade.getMyInfo(artist)
         ));
@@ -89,8 +90,8 @@ public class ArtistController {
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
     public ResponseEntity<ApiResponse<ArtistResponse>> updateImage(
             @CurrentArtist Artist artist,
-            @RequestBody @Valid ArtistImageUpdateRequest request) {
-
+            @RequestBody @Valid ArtistImageUpdateRequest request
+    ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artistFacade.updateImage(artist, request.getArtistImageUrl())
         ));
@@ -106,8 +107,8 @@ public class ArtistController {
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
     public ResponseEntity<ApiResponse<ArtistResponse>> updateNickname(
             @CurrentArtist Artist artist,
-            @RequestBody @Valid ArtistNicknameUpdateRequest request) {
-
+            @RequestBody @Valid ArtistNicknameUpdateRequest request
+    ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artistFacade.updateNickname(artist, request.getNickname())
         ));
@@ -126,8 +127,8 @@ public class ArtistController {
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
     public ResponseEntity<ApiResponse<ArtistResponse>> updateRegions(
             @CurrentArtist Artist artist,
-            @RequestBody @Valid ArtistRegionUpdateRequest request) {
-
+            @RequestBody @Valid ArtistRegionUpdateRequest request
+    ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artistFacade.updateRegions(artist, request)
         ));
@@ -142,8 +143,8 @@ public class ArtistController {
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
     public ResponseEntity<ApiResponse<ArtistResponse>> updateIntro(
             @CurrentArtist Artist artist,
-            @RequestBody @Valid ArtistIntroUpdateRequest request) {
-
+            @RequestBody @Valid ArtistIntroUpdateRequest request
+    ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artistFacade.updateIntro(artist, request)
         ));
@@ -175,8 +176,8 @@ public class ArtistController {
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
     public ResponseEntity<ApiResponse<ArtistResponse>> deleteTravelFeeInfo(
-            @CurrentArtist Artist artist) {
-
+            @CurrentArtist Artist artist
+    ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artistFacade.deleteTravelFeeInfo(artist)
         ));
@@ -190,8 +191,8 @@ public class ArtistController {
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
     public ResponseEntity<ApiResponse<ArtistResponse>> deletePackageInfo(
-            @CurrentArtist Artist artist) {
-
+            @CurrentArtist Artist artist
+    ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artistFacade.deletePackageInfo(artist)
         ));

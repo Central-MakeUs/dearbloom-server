@@ -7,6 +7,6 @@ public record CustomerCreateResponse(
         String accessToken,
 
         @Schema(description = "생성된 고객 프로필")
-        CustomerInfoResponse customer
+        CustomerResponse customer
 ) {
 }
