@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -27,11 +29,14 @@ public class SavedArtworkFacade {
         savedArtworkCommandService.save(customer, artwork);
     }
 
-    // 내 저장 목록(저장 최신순).
+    // 내 저장 목록(저장 최신순). 전부 저장한 작품이므로 isSaved 는 모두 true.
     @Transactional(readOnly = true)
     public List<ArtworkSummaryResponse> getSavedList(Customer customer) {
         List<Artwork> artworks = savedArtworkQueryService.getSavedArtworks(customer);
-        return artworkQueryService.getSummaries(artworks);
+        Set<Long> savedArtworkIds = artworks.stream()
+                .map(Artwork::getArtworkId)
+                .collect(Collectors.toSet());
+        return artworkQueryService.getSummaries(artworks, savedArtworkIds);
     }
 
     @Transactional

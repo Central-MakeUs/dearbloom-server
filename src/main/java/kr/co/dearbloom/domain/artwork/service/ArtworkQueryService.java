@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.artwork.service;
 
 import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkThumbnailResponse;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +46,31 @@ public class ArtworkQueryService {
         return portfolioFileRepository.findByArtworkOrderBySortOrderAsc(artwork);
     }
 
+    // 전체 작품을 최신순으로 리스트 카드 형태로 조회. savedArtworkIds 는 고객이 저장한 작품 id 집합(없으면 null).
+    public List<ArtworkSummaryResponse> getAllLatestSummaries(Set<Long> savedArtworkIds) {
+        return getSummaries(artworkRepository.findAllWithArtistOrderByCreatedAtDesc(), savedArtworkIds);
+    }
+
+    // 특정 작가의 작품을 최신순으로 작가용 카드(저장 수/조회수 포함)로 조회.
+    public List<ArtistArtworkSummaryResponse> getArtistArtworkSummaries(Artist artist) {
+        List<Artwork> artworks = artworkRepository.findByArtistWithArtistOrderByCreatedAtDesc(artist);
+        if (artworks.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, String> representativeImage = representativeImageMap(artworks);
+        return artworks.stream()
+                .map(artwork -> new ArtistArtworkSummaryResponse(
+                        artwork.getArtworkId(),
+                        artwork.getArtworkName(),
+                        artwork.getPrice(),
+                        artwork.getArtist().getNickname(),
+                        artwork.getArtist().getRegions().stream().map(Enum::name).toList(),
+                        representativeImage.get(artwork.getArtworkId()),
+                        artwork.getSavedCount(),
+                        artwork.getViewCount()))
+                .toList();
+    }
+
     /**
      * 이 작가의 다른 작품(현재 작품 제외)을 저장 많은 순으로, 각 작품의 대표 이미지 1장과 함께 조회.
      * 대표 이미지는 sortOrder 가 가장 앞선 사진.
@@ -63,10 +90,10 @@ public class ArtworkQueryService {
     }
 
     /**
-     * 작품 목록을 리스트 카드(작품ID/제목/가격/작가닉네임/대표이미지)로 변환.
-     * 넘겨받은 순서를 그대로 유지한다(정렬은 호출부 책임).
+     * 작품 목록을 리스트 카드로 변환. 넘겨받은 순서를 그대로 유지한다(정렬은 호출부 책임).
+     * savedArtworkIds 가 null 이면 isSaved 는 전부 null(비로그인 등), 있으면 포함 여부로 채운다.
      */
-    public List<ArtworkSummaryResponse> getSummaries(List<Artwork> artworks) {
+    public List<ArtworkSummaryResponse> getSummaries(List<Artwork> artworks, Set<Long> savedArtworkIds) {
         if (artworks.isEmpty()) {
             return List.of();
         }
@@ -78,7 +105,8 @@ public class ArtworkQueryService {
                         artwork.getPrice(),
                         artwork.getArtist().getNickname(),
                         artwork.getArtist().getRegions().stream().map(Enum::name).toList(),
-                        representativeImage.get(artwork.getArtworkId())))
+                        representativeImage.get(artwork.getArtworkId()),
+                        savedArtworkIds == null ? null : savedArtworkIds.contains(artwork.getArtworkId())))
                 .toList();
     }
 

@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-/** 작품 리스트 항목(카드). 목록/저장목록 등 리스트 조회에서 사용. */
-public record ArtworkSummaryResponse(
+/** 작가 본인 작품 리스트 항목(카드). 기본 카드 + 저장 수/조회수(작가 전용 지표). */
+public record ArtistArtworkSummaryResponse(
         @Schema(description = "작품 ID", example = "1")
         Long artworkId,
 
@@ -25,8 +25,10 @@ public record ArtworkSummaryResponse(
                 example = "https://cdn.dearbloom.co.kr/artwork/uuid.webp")
         String thumbnailUrl,
 
-        @Schema(description = "내가 저장한 작품인지 여부. 고객 조회 시에만 값이 있고, 비로그인은 null.",
-                example = "false")
-        Boolean isSaved
+        @Schema(description = "저장 수", example = "12")
+        Integer savedCount,
+
+        @Schema(description = "조회수 (집계는 추후 추가 예정)", example = "0")
+        Integer viewCount
 ) {
 }
