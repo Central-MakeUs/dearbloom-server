@@ -1,10 +1,15 @@
 package kr.co.dearbloom.domain.member.facade;
 
+import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.service.TokenService;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.service.MemberCommandService;
+import kr.co.dearbloom.domain.member.service.MemberQueryService;
+import kr.co.dearbloom.global.auth.jwt.TokenProvider;
+import kr.co.dearbloom.global.dto.response.exception.CustomException;
+import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +17,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MemberFacade {
     private final MemberCommandService memberCommandService;
+    private final MemberQueryService memberQueryService;
     private final TokenService tokenService;
+    private final TokenProvider tokenProvider;
 
     /**
      * 고객 ↔ 작가 모드 전환. 대상 role 의 프로필 보유 여부를 서버가 재검증한 뒤
@@ -23,5 +30,23 @@ public class MemberFacade {
         Member updated = memberCommandService.switchActiveRole(member, role);
         String accessToken = tokenService.createAccessToken(updated, role);
         return new RoleSwitchResponse(accessToken, role);
+    }
+
+    /**
+     * accessToken 재발급. 회전(rotation) 미구현이라 refreshToken 자체는 그대로 돌려준다.
+     */
+    public TokenRefreshResponse refresh(String refreshToken) {
+        if (!tokenProvider.validToken(refreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
+        Long memberId = tokenProvider.getMemberId(refreshToken);
+        Member member = memberQueryService.getByMemberIdOrThrow(memberId);
+        String newAccessToken = tokenService.createAccessToken(member);
+        return new TokenRefreshResponse(newAccessToken, refreshToken);
+    }
+
+    /** 로그아웃. Redis 의 refreshToken 세션을 삭제해 무효화한다. */
+    public void logout(Long memberId) {
+        tokenService.logout(memberId);
     }
 }

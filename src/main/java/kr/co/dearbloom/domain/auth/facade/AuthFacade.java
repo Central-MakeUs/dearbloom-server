@@ -14,12 +14,9 @@ import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.auth.service.TokenService;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
-import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
 import kr.co.dearbloom.global.auth.oauth.custom.AppleWebLoginService;
 import kr.co.dearbloom.global.auth.oauth.custom.GoogleWebLoginService;
-import kr.co.dearbloom.global.dto.response.exception.CustomException;
-import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,28 +27,11 @@ public class AuthFacade {
     private final OAuthAccountService oAuthAccountService;
     private final AuthService authService;
     private final TokenService tokenService;
-    private final TokenProvider tokenProvider;
     private final GoogleNativeAuthService googleNativeAuthService;
     private final AppleNativeAuthService appleNativeAuthService;
     private final OAuthOneTimeCodeService oAuthOneTimeCodeService;
     private final AppleWebLoginService appleWebLoginService;
     private final GoogleWebLoginService googleWebLoginService;
-
-    /**
-     * accessToken 재발급. 회전(rotation) 미구현이라 refreshToken 자체는 그대로 돌려준다.
-     * (RefreshTokenSessionService 의 rotation 전용 메서드가 주석 처리된 상태를 그대로 유지)
-     */
-    public TokenRefreshResponse refresh(String refreshToken) {
-        if (!tokenProvider.validToken(refreshToken)) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
-        }
-
-        Long memberId = tokenProvider.getMemberId(refreshToken);
-        Member member = memberQueryService.getByMemberIdOrThrow(memberId);
-        String newAccessToken = tokenService.createAccessToken(member);
-
-        return new TokenRefreshResponse(newAccessToken, refreshToken);
-    }
 
     /**
      * 하이브리드 로그인(로컬 웹 ↔ 개발 서버) 전용 oneTimeCode → 토큰 교환.
@@ -62,10 +42,6 @@ public class AuthFacade {
         Long memberId = oAuthOneTimeCodeService.consume(oneTimeCode);
         Member member = memberQueryService.getByMemberIdOrThrow(memberId);
         return authService.issueTokens(member, httpRequest);
-    }
-
-    public void logout(Long memberId) {
-        tokenService.logout(memberId);
     }
 
     /**
