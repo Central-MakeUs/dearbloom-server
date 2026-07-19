@@ -36,6 +36,7 @@ public enum ErrorCode {
      */
     ARTWORK_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTWORK-404", "작품을 찾을 수 없습니다."),
     ARTWORK_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ARTWORK-403", "해당 작품에 접근할 권한이 없습니다."),
+    ARTWORK_ALREADY_SAVED(HttpStatus.CONFLICT, "ARTWORK-409", "이미 저장한 작품입니다."),
 
     /**
      * Notification
