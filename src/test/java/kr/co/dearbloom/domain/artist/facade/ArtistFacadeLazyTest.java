@@ -48,7 +48,7 @@ class ArtistFacadeLazyTest {
         ArtistResponse response =
                 artistFacade.updateImage(detached, "https://cdn.dearbloom.co.kr/a.webp");
 
-        assertThat(response.regions()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
     }
 
     @Test
@@ -57,6 +57,6 @@ class ArtistFacadeLazyTest {
 
         ArtistResponse response = artistFacade.updateNickname(detached, uniqueNickname());
 
-        assertThat(response.regions()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
     }
 }

@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.artwork.entity;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.global.entity.BaseTime;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -9,7 +10,7 @@ import lombok.*;
 @Builder
 @Getter
 @Entity
-public class Artwork {
+public class Artwork extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long artworkId;
@@ -25,4 +26,38 @@ public class Artwork {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    // 고객이 이 작품을 저장(찜)한 수. 저장/취소 이벤트로 비동기 갱신되는 비정규화 카운트.
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer savedCount = 0;
+
+    // 작품 조회수. 카운팅은 추후 Redis 로 중복조회 어뷰징 방지하며 추가 예정(현재 미집계).
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer viewCount = 0;
+
+    // null 인 항목은 변경하지 않는다(PATCH)
+    public void updateBasicInfo(String title, Integer price) {
+        if (title != null) {
+            this.artworkName = title;
+        }
+        if (price != null) {
+            this.price = price;
+        }
+    }
+
+    public void increaseSavedCount() {
+        this.savedCount++;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
+
+    public void decreaseSavedCount() {
+        if (this.savedCount > 0) {
+            this.savedCount--;
+        }
+    }
 }

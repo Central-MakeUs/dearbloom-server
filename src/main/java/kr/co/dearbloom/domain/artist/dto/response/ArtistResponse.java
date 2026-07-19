@@ -8,7 +8,7 @@ public record ArtistResponse(
         Long artistId,
         String nickname,
         String intro,
-        List<String> regions,
+        List<String> regionList,
         String packageInfo,
         String travelFeeInfo,
         String imageUrl

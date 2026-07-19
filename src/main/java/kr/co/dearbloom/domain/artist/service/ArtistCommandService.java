@@ -30,7 +30,7 @@ public class ArtistCommandService {
                 .member(member)
                 .nickname(request.getNickname())
                 .imageUrl(request.getImageUrl())
-                .regions(new HashSet<>(request.getRegions()))
+                .regions(new HashSet<>(request.getRegionList()))
                 .build());
     }
 

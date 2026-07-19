@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.artist.entity;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.global.entity.BaseTime;
 import lombok.*;
 
 import java.util.HashSet;
@@ -12,7 +13,7 @@ import java.util.Set;
 @Builder
 @Getter
 @Entity
-public class Artist {
+public class Artist extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long artistId;

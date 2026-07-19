@@ -40,8 +40,8 @@ public class CustomerController {
     @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.UNIVERSITY_NOT_FOUND, ErrorCode.CUSTOMER_ALREADY_EXISTS})
     public ResponseEntity<ApiResponse<CustomerCreateResponse>> create(
             @AuthenticationPrincipal Member member,
-            @RequestBody @Valid CustomerCreateRequest request) {
-
+            @RequestBody @Valid CustomerCreateRequest request
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
                 customerFacade.create(member, request)
         ));

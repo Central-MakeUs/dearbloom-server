@@ -2,6 +2,8 @@ package kr.co.dearbloom.domain.artwork.entity;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.university.entity.University;
+import kr.co.dearbloom.global.entity.BaseTime;
+import kr.co.dearbloom.global.file.FileType;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -9,7 +11,7 @@ import lombok.*;
 @Builder
 @Getter
 @Entity
-public class PortfolioFile {
+public class PortfolioFile extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long portfolioFileId;
@@ -25,7 +27,8 @@ public class PortfolioFile {
     @Column(nullable = false)
     private String fileUrl;
 
-    private String fileType;
+    @Enumerated(EnumType.STRING)
+    private FileType fileType;
 
     private Integer sortOrder;
 }

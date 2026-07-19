@@ -3,7 +3,7 @@ package kr.co.dearbloom.domain.customer.facade;
 import kr.co.dearbloom.domain.auth.service.TokenService;
 import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerCreateResponse;
-import kr.co.dearbloom.domain.customer.dto.response.CustomerInfoResponse;
+import kr.co.dearbloom.domain.customer.dto.response.CustomerResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.customer.service.CustomerCommandService;
 import kr.co.dearbloom.domain.member.entity.Member;
@@ -34,7 +34,7 @@ public class CustomerFacade {
         Customer customer = customerCommandService.create(updated, request.getName(), university);
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
-                CustomerInfoResponse.from(customer)
+                CustomerResponse.from(customer)
         );
     }
 }
