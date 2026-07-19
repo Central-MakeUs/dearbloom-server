@@ -9,6 +9,7 @@ import kr.co.dearbloom.domain.university.entity.University;
 import java.util.List;
 import java.util.Objects;
 
+/** 공개/고객용 작품 상세. 작가 본인용 지표(저장 수/조회수)는 별도 응답(ArtistArtworkDetailResponse). */
 public record ArtworkDetailResponse(
         @Schema(description = "작품 ID", example = "1")
         Long artworkId,
@@ -40,36 +41,31 @@ public record ArtworkDetailResponse(
         @Schema(description = "이 작가의 다른 작품 목록(현재 작품 제외, 저장 많은 순). 각 항목은 작품 ID와 대표 이미지 1장.")
         List<ArtworkThumbnailResponse> otherArtworkList,
 
-        @Schema(description = "작가 본인이 조회하면 true, 그 외(비로그인 등)는 false", example = "false")
-        Boolean isMine,
-
-        @Schema(description = "저장 수. 작가 본인이 조회할 때만 값이 있고, 그 외에는 null.", example = "12")
-        Integer savedCount,
-
-        @Schema(description = "작품 조회수. 작가 본인이 조회할 때만 값이 있고, 그 외에는 null. (집계는 추후 추가 예정)",
-                example = "0")
-        Integer viewCount
+        @Schema(description = "내가 저장한 작품인지 여부. 고객 조회 시에만 값이 있고, 비로그인은 null.", example = "false")
+        Boolean isSaved
 ) {
     public static ArtworkDetailResponse of(Artwork artwork, Artist artist, List<PortfolioFile> files,
-                                           List<ArtworkThumbnailResponse> otherArtworkList, boolean isMine) {
+                                           List<ArtworkThumbnailResponse> otherArtworkList, Boolean isSaved) {
         return new ArtworkDetailResponse(
                 artwork.getArtworkId(),
                 artwork.getArtworkName(),
                 artwork.getPrice(),
                 files.stream().map(ArtworkPhotoResponse::from).toList(),
-                files.stream()
-                        .map(PortfolioFile::getUniversity)
-                        .filter(Objects::nonNull)
-                        .map(University::getName)
-                        .distinct()
-                        .toList(),
+                schoolNames(files),
                 artist.getTravelFeeInfo(),
                 artist.getPackageInfo(),
                 ArtworkArtistResponse.from(artist),
                 otherArtworkList,
-                isMine,
-                isMine ? artwork.getSavedCount() : null,
-                isMine ? artwork.getViewCount() : null
+                isSaved
         );
+    }
+
+    static List<String> schoolNames(List<PortfolioFile> files) {
+        return files.stream()
+                .map(PortfolioFile::getUniversity)
+                .filter(Objects::nonNull)
+                .map(University::getName)
+                .distinct()
+                .toList();
     }
 }

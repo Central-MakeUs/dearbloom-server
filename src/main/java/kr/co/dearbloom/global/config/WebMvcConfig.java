@@ -2,6 +2,7 @@ package kr.co.dearbloom.global.config;
 
 import kr.co.dearbloom.global.auth.resolver.CurrentArtistArgumentResolver;
 import kr.co.dearbloom.global.auth.resolver.CurrentCustomerArgumentResolver;
+import kr.co.dearbloom.global.auth.resolver.CurrentViewerArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -17,10 +18,12 @@ import java.util.List;
 public class WebMvcConfig implements WebMvcConfigurer {
     private final CurrentCustomerArgumentResolver currentCustomerArgumentResolver;
     private final CurrentArtistArgumentResolver currentArtistArgumentResolver;
+    private final CurrentViewerArgumentResolver currentViewerArgumentResolver;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(currentCustomerArgumentResolver);
         resolvers.add(currentArtistArgumentResolver);
+        resolvers.add(currentViewerArgumentResolver);
     }
 }
