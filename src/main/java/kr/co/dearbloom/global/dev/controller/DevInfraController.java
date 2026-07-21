@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/dev/infra")
 @Tag(name = "Dev - Infra", description = "[백엔드 전용] 외부 인프라 테스트 API")
+@Profile("!prod")
 public class DevInfraController {
     private final StringRedisTemplate stringRedisTemplate;
 
