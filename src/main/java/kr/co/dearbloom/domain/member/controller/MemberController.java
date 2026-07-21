@@ -109,7 +109,7 @@ public class MemberController {
                     refreshToken 은 재발급하지 않으며 그대로 사용합니다.<br>
                     이미 작가 프로필이 있으면 409 를 반환합니다.<br><br>
                     <b>regions 가능한 값</b><br>
-                    SEOUL, GYEONGGI, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON, ULSAN, SEJONG,
+                    SEOUL, GYEONGGI_NORTH, GYEONGGI_SOUTH, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON_SEJONG, ULSAN,
                     GANGWON, CHUNGBUK, CHUNGNAM, JEONBUK, JEONNAM, GYEONGBUK, GYEONGNAM, JEJU
                     """)
     @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.INVALID_FILE_URL, ErrorCode.ARTIST_ALREADY_EXISTS})

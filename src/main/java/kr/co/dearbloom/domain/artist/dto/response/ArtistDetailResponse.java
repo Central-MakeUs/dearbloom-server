@@ -16,7 +16,7 @@ public record ArtistDetailResponse(
         @Schema(description = "작가 소개. 미등록 시 null.", example = "촬영 전 상담부터 보정까지 정성을 담아 진행합니다.")
         String intro,
 
-        @Schema(description = "활동 지역 목록", example = "[\"SEOUL\", \"GYEONGGI\"]")
+        @Schema(description = "활동 지역 목록", example = "[\"SEOUL\", \"GYEONGGI_NORTH\"]")
         List<String> regionList,
 
         @Schema(description = "패키지 정보(자유 형식 텍스트). 미등록 시 null.",

@@ -1,4 +1,4 @@
-name: 🟢Backend CI/CD Dev
+name: 🔵 Backend CI/CD Dev
 
 on:
   workflow_dispatch:

@@ -130,7 +130,7 @@ public class ArtistController {
                     작가 활동 지역을 수정합니다. 최초 등록은 작가 프로필 생성 API 에서 처리합니다.<br>
                     보낸 값으로 전체 교체되며, 최소 1개 이상 필수입니다.<br><br>
                     <b>regions 가능한 값</b><br>
-                    SEOUL, GYEONGGI, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON, ULSAN, SEJONG,
+                    SEOUL, GYEONGGI_NORTH, GYEONGGI_SOUTH, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON_SEJONG, ULSAN,
                     GANGWON, CHUNGBUK, CHUNGNAM, JEONBUK, JEONNAM, GYEONGBUK, GYEONGNAM, JEJU
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,

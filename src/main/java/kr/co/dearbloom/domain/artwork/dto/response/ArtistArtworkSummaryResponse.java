@@ -24,7 +24,7 @@ public record ArtistArtworkSummaryResponse(
         @Schema(description = "작가 닉네임", example = "블루밍데이즈 스냅")
         String artistNickname,
 
-        @Schema(description = "작가 활동 지역 목록", example = "[\"SEOUL\", \"GYEONGGI\"]")
+        @Schema(description = "작가 활동 지역 목록", example = "[\"SEOUL\", \"GYEONGGI_NORTH\"]")
         List<String> artistRegionList,
 
         @Schema(description = "대표 이미지 CDN URL(sortOrder 가 가장 앞선 사진). 사진이 없으면 null.",

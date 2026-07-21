@@ -7,14 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Region {
     SEOUL("서울"),
-    GYEONGGI("경기"),
+    GYEONGGI_NORTH("경기 북부"),
+    GYEONGGI_SOUTH("경기 남부"),
     INCHEON("인천"),
     BUSAN("부산"),
     DAEGU("대구"),
     GWANGJU("광주"),
-    DAEJEON("대전"),
+    DAEJEON_SEJONG("대전/세종"),
     ULSAN("울산"),
-    SEJONG("세종"),
     GANGWON("강원"),
     CHUNGBUK("충북"),
     CHUNGNAM("충남"),

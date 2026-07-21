@@ -1,4 +1,4 @@
-name: 🔴Backend CI/CD Prod
+name: 🔴 Backend CI/CD Prod
 
 on:
   push:

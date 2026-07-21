@@ -36,7 +36,7 @@ class ArtistFacadeLazyTest {
         Artist saved = artistRepository.save(Artist.builder()
                 .member(member)
                 .nickname(uniqueNickname())
-                .regions(Set.of(Region.SEOUL, Region.GYEONGGI))
+                .regions(Set.of(Region.SEOUL, Region.GYEONGGI_NORTH))
                 .build());
         return artistRepository.findById(saved.getArtistId()).orElseThrow();
     }
@@ -48,7 +48,7 @@ class ArtistFacadeLazyTest {
         ArtistResponse response =
                 artistFacade.updateImage(detached, "https://cdn.dearbloom.co.kr/a.webp");
 
-        assertThat(response.regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI_NORTH");
     }
 
     @Test
@@ -57,6 +57,6 @@ class ArtistFacadeLazyTest {
 
         ArtistResponse response = artistFacade.updateNickname(detached, uniqueNickname());
 
-        assertThat(response.regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI_NORTH");
     }
 }

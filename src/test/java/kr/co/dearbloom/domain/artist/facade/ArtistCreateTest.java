@@ -36,7 +36,7 @@ class ArtistCreateTest {
         ReflectionTestUtils.setField(request, "nickname", nickname);
         ReflectionTestUtils.setField(request, "imageUrl",
                 "https://cdn.dearbloom.co.kr/profile/artist/a.webp");
-        ReflectionTestUtils.setField(request, "regionList", Set.of(Region.SEOUL, Region.GYEONGGI));
+        ReflectionTestUtils.setField(request, "regionList", Set.of(Region.SEOUL, Region.GYEONGGI_NORTH));
         return request;
     }
 
@@ -47,7 +47,7 @@ class ArtistCreateTest {
         ArtistCreateResponse response = memberFacade.createArtist(member, request("온보딩작가"));
 
         assertThat(response.artist().nickname()).isEqualTo("온보딩작가");
-        assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI_NORTH");
         // 새 토큰으로 이후 @CurrentArtist API 가 동작해야 하므로 두 클레임이 채워져야 한다
         assertThat(tokenProvider.getActiveRole(response.accessToken())).isEqualTo(MemberRole.ARTIST);
         assertThat(tokenProvider.getActiveProfileId(response.accessToken()))
@@ -64,7 +64,7 @@ class ArtistCreateTest {
         ArtistCreateResponse response = memberFacade.createArtist(member, request);
 
         assertThat(response.artist().imageUrl()).isNull();
-        assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI");
+        assertThat(response.artist().regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI_NORTH");
     }
 
     @Test
