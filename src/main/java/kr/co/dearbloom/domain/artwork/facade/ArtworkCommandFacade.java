@@ -30,7 +30,8 @@ public class ArtworkCommandFacade {
      */
     @Transactional
     public ArtworkResponse create(Artist artist, ArtworkCreateRequest request) {
-        Artwork artwork = artworkCommandService.create(artist, request.getTitle(), request.getPrice());
+        Artwork artwork = artworkCommandService.create(artist, request.getTitle(), request.getPrice(),
+                request.getMinHeadCount(), request.getMaxHeadCount());
         List<PortfolioFile> saved = artworkCommandService.savePortfolioFiles(
                 portfolioFileFactory.create(artwork, request.getPhotoList()));
         return ArtworkResponse.of(artwork, saved);

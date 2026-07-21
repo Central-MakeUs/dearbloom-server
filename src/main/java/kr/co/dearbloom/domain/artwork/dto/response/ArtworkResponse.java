@@ -10,6 +10,8 @@ public record ArtworkResponse(
         Long artworkId,
         String title,
         Integer price,
+        Integer minHeadCount,
+        Integer maxHeadCount,
         List<ArtworkPhotoResponse> photoList
 ) {
     public static ArtworkResponse of(Artwork artwork, List<PortfolioFile> files) {
@@ -17,6 +19,8 @@ public record ArtworkResponse(
                 artwork.getArtworkId(),
                 artwork.getArtworkName(),
                 artwork.getPrice(),
+                artwork.getMinHeadCount(),
+                artwork.getMaxHeadCount(),
                 files.stream().map(ArtworkPhotoResponse::from).toList()
         );
     }

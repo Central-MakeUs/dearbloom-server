@@ -76,11 +76,17 @@ public class ArtworkController {
     @PostMapping
     @Operation(summary = "작품 등록",
             description = """
-                    작품 제목 / 기본 가격과 사진들을 받아 작품을 등록합니다.<br>
+                    작품 제목 / 기본 가격 / 촬영 가능 인원과 사진들을 받아 작품을 등록합니다.<br>
                     사진은 1장 이상 필수이며, 각 사진마다 학교 ID 를 1개씩 라벨링할 수 있습니다
                     (학교는 선택이라 null 가능).<br>
                     사진은 등록한 순서대로 정렬됩니다(임시). 각 fileUrl 은 File API 의 presigned URL 로
-                    S3 업로드를 완료한 뒤의 CDN URL 이어야 합니다.
+                    S3 업로드를 완료한 뒤의 CDN URL 이어야 합니다.<br><br>
+                    <b>촬영 가능 인원(minHeadCount / maxHeadCount)</b><br>
+                    인원은 1~6명 범위이며, 화면 표기에 따라 아래처럼 조합합니다.<br>
+                    - <b>"N인"</b> (예: 2인): minHeadCount=2, maxHeadCount=2 (동일한 값)<br>
+                    - <b>"N~M인"</b> (예: 2~4인): minHeadCount=2, maxHeadCount=4<br>
+                    - <b>"N인 이상"</b> (예: 3인 이상): minHeadCount=3, <b>maxHeadCount 는 보내지 않음(null)</b><br>
+                    maxHeadCount 를 보내는 경우 minHeadCount 보다 작을 수 없습니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.ARTIST_NOT_FOUND, ErrorCode.INVALID_FILE_URL, ErrorCode.UNIVERSITY_NOT_FOUND})

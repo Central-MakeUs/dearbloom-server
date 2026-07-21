@@ -24,6 +24,11 @@ public class Artwork extends BaseTime {
 
     private Integer price;
 
+    // 촬영 가능 인원. 1~6 범위. maxHeadCount 가 null 이면 "N인 이상"(제한 없음).
+    private Integer minHeadCount;
+
+    private Integer maxHeadCount;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

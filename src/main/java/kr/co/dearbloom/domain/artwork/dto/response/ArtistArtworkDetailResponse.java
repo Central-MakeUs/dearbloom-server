@@ -18,6 +18,12 @@ public record ArtistArtworkDetailResponse(
         @Schema(description = "기본 가격(원)", example = "200000")
         Integer price,
 
+        @Schema(description = "최소 촬영 인원(1~6)", example = "2")
+        Integer minHeadCount,
+
+        @Schema(description = "최대 촬영 인원(1~6). null 이면 minHeadCount인 이상(제한 없음).", example = "3")
+        Integer maxHeadCount,
+
         @Schema(description = "작품 사진 목록. sortOrder 오름차순으로 정렬됩니다.")
         List<ArtworkPhotoResponse> photoList,
 
@@ -48,6 +54,8 @@ public record ArtistArtworkDetailResponse(
                 artwork.getArtworkId(),
                 artwork.getArtworkName(),
                 artwork.getPrice(),
+                artwork.getMinHeadCount(),
+                artwork.getMaxHeadCount(),
                 files.stream().map(ArtworkPhotoResponse::from).toList(),
                 ArtworkDetailResponse.schoolNames(files),
                 artist.getTravelFeeInfo(),

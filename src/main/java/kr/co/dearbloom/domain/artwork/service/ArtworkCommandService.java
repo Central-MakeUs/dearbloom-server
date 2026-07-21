@@ -18,11 +18,13 @@ public class ArtworkCommandService {
     private final ArtworkRepository artworkRepository;
     private final PortfolioFileRepository portfolioFileRepository;
 
-    public Artwork create(Artist artist, String title, Integer price) {
+    public Artwork create(Artist artist, String title, Integer price, Integer minHeadCount, Integer maxHeadCount) {
         return artworkRepository.save(Artwork.builder()
                 .artist(artist)
                 .artworkName(title)
                 .price(price)
+                .minHeadCount(minHeadCount)
+                .maxHeadCount(maxHeadCount)
                 .build());
     }
 

@@ -15,6 +15,12 @@ public record ArtistArtworkSummaryResponse(
         @Schema(description = "기본 가격(원)", example = "200000")
         Integer price,
 
+        @Schema(description = "최소 촬영 인원(1~6)", example = "2")
+        Integer minHeadCount,
+
+        @Schema(description = "최대 촬영 인원(1~6). null 이면 minHeadCount인 이상(제한 없음).", example = "3")
+        Integer maxHeadCount,
+
         @Schema(description = "작가 닉네임", example = "블루밍데이즈 스냅")
         String artistNickname,
 
