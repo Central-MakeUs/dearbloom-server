@@ -1,6 +1,6 @@
 package kr.co.dearbloom.global.auth.oauth;
 
-import kr.co.dearbloom.domain.member.entity.OAuthAccount;
+import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

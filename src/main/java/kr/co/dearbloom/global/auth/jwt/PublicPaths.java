@@ -9,7 +9,6 @@ import java.util.stream.Stream;
  * - WebSecurityConfig: antPatterns()로 requestMatchers에 사용
  */
 public final class PublicPaths {
-
     private PublicPaths() {}
 
     /** 인증 불필요 — 토큰 검증 자체를 스킵 (TokenAuthenticationFilter) */
@@ -24,7 +23,9 @@ public final class PublicPaths {
 
     /** SKIP_TOKEN_PREFIXES 에 매칭되더라도 예외적으로 토큰 검증을 수행하는 경로 (예: dev 인증 확인용) */
     public static final List<String> SKIP_TOKEN_EXCEPTIONS = List.of(
-            "/dev/member/me"
+            "/dev/member/me",
+            // logout 은 /api/auth/ 하위라 기본적으로 스킵 대상이지만, @AuthenticationPrincipal 로 회원을 식별해야 하므로 예외 처리
+            "/api/auth/logout"
     );
 
     /** 비로그인도 접근 가능 — 토큰 있으면 인증 설정, 없으면 비로그인으로 통과 */

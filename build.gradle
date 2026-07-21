@@ -14,6 +14,12 @@ java {
     }
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -21,6 +27,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
@@ -43,11 +50,21 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
+    // QueryDSL
+    implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Observability
     implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+
+    // AWS S3
+    implementation platform('software.amazon.awssdk:bom:2.28.16')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {

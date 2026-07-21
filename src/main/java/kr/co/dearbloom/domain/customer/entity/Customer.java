@@ -3,6 +3,7 @@ package kr.co.dearbloom.domain.customer.entity;
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.university.entity.University;
+import kr.co.dearbloom.global.entity.BaseTime;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -10,7 +11,7 @@ import lombok.*;
 @Builder
 @Getter
 @Entity
-public class Customer {
+public class Customer extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerId;
@@ -23,7 +24,5 @@ public class Customer {
     @JoinColumn(name = "university_id")
     private University university;
 
-    private String nickname;
-
-    private Integer budget;
+    private String name;
 }

@@ -23,7 +23,6 @@ import java.util.List;
 @Tag(name = "Dev - Response", description = "API 공통 응답 형태 예시")
 @Profile("!prod")
 public class DevResponseController {
-
     @GetMapping("/success/data")
     @Operation(summary = "성공 응답 예시 (단건)")
     public ResponseEntity<ApiResponse<SampleMemberResponse>> successExample() {

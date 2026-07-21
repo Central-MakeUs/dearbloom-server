@@ -1,14 +1,12 @@
 package kr.co.dearbloom.global.config;
 
-import kr.co.dearbloom.domain.member.service.RefreshTokenSessionService;
-import kr.co.dearbloom.domain.member.service.OAuthAccountService;
-import kr.co.dearbloom.domain.member.service.MemberService;
+import kr.co.dearbloom.domain.auth.service.AuthService;
+import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
 import kr.co.dearbloom.global.auth.jwt.TokenAuthenticationFilter;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.global.auth.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import kr.co.dearbloom.global.auth.oauth.OAuth2SuccessHandler;
 import kr.co.dearbloom.global.auth.oauth.OAuth2UserCustomService;
-import kr.co.dearbloom.global.properties.JwtProperties;
 import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +29,8 @@ public class WebSecurityConfig {
     private final TokenProvider tokenProvider;
     private final ObjectMapper objectMapper;
     private final OAuth2UserCustomService oAuth2UserCustomService;
-    private final RefreshTokenSessionService refreshTokenSessionService;
-    private final MemberService memberService;
-    private final OAuthAccountService oAuthAccountService;
-    private final JwtProperties jwtProperties;
-    private final kr.co.dearbloom.global.properties.CookieProperties cookieProperties;
+    private final AuthService authService;
+    private final OAuthOneTimeCodeService oAuthOneTimeCodeService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -90,13 +85,9 @@ public class WebSecurityConfig {
     @Bean
     public OAuth2SuccessHandler oAuth2SuccessHandler() {
         return new OAuth2SuccessHandler(
-                tokenProvider,
-                refreshTokenSessionService,
+                authService,
                 oAuth2AuthorizationRequestBasedOnCookieRepository(),
-                memberService,
-                oAuthAccountService,
-                jwtProperties,
-                cookieProperties
+                oAuthOneTimeCodeService
         );
     }
 }
