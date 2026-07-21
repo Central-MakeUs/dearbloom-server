@@ -1,7 +1,6 @@
 package kr.co.dearbloom.domain.artist.service;
 
 import kr.co.dearbloom.domain.artist.dto.request.ArtistCreateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistPricingUpdateRequest;
 import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artist.entity.Region;
 import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
@@ -57,18 +56,8 @@ public class ArtistCommandService {
         return managed;
     }
 
-    public Artist updatePricing(Artist artist, ArtistPricingUpdateRequest request) {
-        artist.updatePricing(request.getTravelFeeInfo(), request.getPackageInfo());
-        return artistRepository.save(artist);
-    }
-
-    public Artist deleteTravelFeeInfo(Artist artist) {
-        artist.deleteTravelFeeInfo();
-        return artistRepository.save(artist);
-    }
-
-    public Artist deletePackageInfo(Artist artist) {
-        artist.deletePackageInfo();
+    public Artist updateEtcInfo(Artist artist, String etcInfo) {
+        artist.updateEtcInfo(etcInfo);
         return artistRepository.save(artist);
     }
 }

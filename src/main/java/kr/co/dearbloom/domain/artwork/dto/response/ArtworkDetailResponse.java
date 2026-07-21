@@ -3,6 +3,7 @@ package kr.co.dearbloom.domain.artwork.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
+import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 import kr.co.dearbloom.domain.university.entity.University;
 
@@ -17,9 +18,6 @@ public record ArtworkDetailResponse(
         @Schema(description = "작품명", example = "야외 개인 졸업스냅")
         String title,
 
-        @Schema(description = "기본 가격(원)", example = "200000")
-        Integer price,
-
         @Schema(description = "최소 촬영 인원(1~6)", example = "2")
         Integer minHeadCount,
 
@@ -33,13 +31,8 @@ public record ArtworkDetailResponse(
                 example = "[\"서울대\", \"연세대\", \"고려대\"]")
         List<String> schoolNameList,
 
-        @Schema(description = "출장비 안내. 작가가 자유 형식으로 등록한 텍스트(줄바꿈 포함). 미등록 시 null.",
-                example = "서울 전지역 - 무료\n경기(성남/하남/구리) - 50,000원")
-        String travelFeeInfo,
-
-        @Schema(description = "패키지 정보. 작가가 자유 형식으로 등록한 텍스트(줄바꿈 포함). 미등록 시 null.",
-                example = "[개인스냅 Basic]\n-최종보정본 7장 + 원본 제공\n-가격 : 20만원")
-        String packageInfo,
+        @Schema(description = "작품 패키지 목록")
+        List<ArtworkPackageResponse> packageList,
 
         @Schema(description = "작가 정보(닉네임 / 소개 / 활동 지역)")
         ArtworkArtistResponse artist,
@@ -51,17 +44,16 @@ public record ArtworkDetailResponse(
         Boolean isSaved
 ) {
     public static ArtworkDetailResponse of(Artwork artwork, Artist artist, List<PortfolioFile> files,
+                                           List<ArtworkPackage> packages,
                                            List<ArtworkThumbnailResponse> otherArtworkList, Boolean isSaved) {
         return new ArtworkDetailResponse(
                 artwork.getArtworkId(),
                 artwork.getArtworkName(),
-                artwork.getPrice(),
                 artwork.getMinHeadCount(),
                 artwork.getMaxHeadCount(),
                 files.stream().map(ArtworkPhotoResponse::from).toList(),
                 schoolNames(files),
-                artist.getTravelFeeInfo(),
-                artist.getPackageInfo(),
+                packages.stream().map(ArtworkPackageResponse::from).toList(),
                 ArtworkArtistResponse.from(artist),
                 otherArtworkList,
                 isSaved
