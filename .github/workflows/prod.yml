@@ -1,23 +1,15 @@
-name: 🟢Backend CI/CD Dev
+name: 🔴Backend CI/CD Prod
 
 on:
-  workflow_dispatch:
-
-env:
-  DOCKER_IMAGE: dearbloom-server:latest
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
-    if: github.actor == 'chyun5197'
-    runs-on: [self-hosted, dev, dearbloom]
+    runs-on: [self-hosted, prod, dearbloom]
 
     steps:
-      - name: Verify actor
-        if: github.actor != 'chyun5197'
-        run: |
-          echo "::error::이 워크플로우는 너구리만 실행할 수 있습니다. (실행자: ${{ github.actor }})"
-          exit 1
-
       - name: Git Checkout
         uses: actions/checkout@v4
 
@@ -36,18 +28,18 @@ jobs:
           ./gradlew clean build -x test --no-daemon --max-workers=1
         env:
           GRADLE_OPTS: >-
-            -Xmx320m
-            -XX:MaxMetaspaceSize=128m
-            -XX:ReservedCodeCacheSize=64m
+            -Xmx768m
+            -XX:MaxMetaspaceSize=256m
+            -XX:ReservedCodeCacheSize=96m
             -XX:+UseSerialGC
             -Dorg.gradle.daemon=false
             -Dorg.gradle.workers.max=1
 
       - name: Build Docker image
-        run: docker build -f Dockerfile -t ${{ env.DOCKER_IMAGE }} .
+        run: docker build -f Dockerfile -t ${{ secrets.DOCKER_IMAGE }} .
 
       - name: Deploy with Docker Compose
-        working-directory: /home/ubuntu/app
+        working-directory: ${{ secrets.DOCKER_COMPOSE_DIR }}
         run: |
-          docker compose up -d --no-deps --force-recreate dearbloom-server
+          docker compose up -d --no-deps --force-recreate ${{ secrets.DOCKER_CONTAINER }}
           docker image prune -f
