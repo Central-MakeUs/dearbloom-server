@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import kr.co.dearbloom.domain.artist.entity.Artist;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkCreateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPhotoUpdateRequest;
-import kr.co.dearbloom.domain.artwork.dto.request.ArtworkBasicInfoUpdateRequest;
+import kr.co.dearbloom.domain.artwork.dto.request.ArtworkTitleUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkDetailResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkSummaryResponse;
@@ -76,7 +76,9 @@ public class ArtworkController {
     @PostMapping
     @Operation(summary = "작품 등록",
             description = """
-                    작품 제목 / 기본 가격 / 촬영 가능 인원과 사진들을 받아 작품을 등록합니다.<br>
+                    작품 제목 / 촬영 가능 인원 / 패키지들 / 사진들을 받아 작품을 등록합니다.<br>
+                    <b>패키지는 1개 이상 필수</b>이며, 리스트 화면에는 패키지 중 최저가가 노출됩니다.
+                    (가격은 작품이 아니라 각 패키지에 있습니다.)<br>
                     사진은 1장 이상 필수이며, 각 사진마다 학교 ID 를 1개씩 라벨링할 수 있습니다
                     (학교는 선택이라 null 가능).<br>
                     사진은 등록한 순서대로 정렬됩니다(임시). 각 fileUrl 은 File API 의 presigned URL 로
@@ -99,23 +101,23 @@ public class ArtworkController {
         ));
     }
 
-    @PatchMapping("/{artworkId}")
-    @Operation(summary = "작품 기본 정보 수정 (제목/가격)",
+    @PatchMapping("/{artworkId}/title")
+    @Operation(summary = "작품 제목 수정",
             description = """
-                    작품의 제목·기본 가격만 부분 수정합니다. <b>사진은 이 API 로 변경되지 않습니다</b>
+                    작품의 제목을 수정합니다. <b>사진·패키지는 이 API 로 변경되지 않습니다</b>
                     (사진 변경은 사진 교체 API 사용).<br>
-                    보내지 않거나 null 인 항목은 그대로 유지됩니다. 본인 작품만 수정할 수 있습니다.<br>
-                    응답에는 변경된 기본 정보와 함께 기존 사진 목록도 포함됩니다.
+                    title 을 보내지 않거나 null 이면 변경하지 않습니다. 본인 작품만 수정할 수 있습니다.<br>
+                    응답에는 변경된 작품 정보와 함께 기존 패키지·사진 목록도 포함됩니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.ARTIST_NOT_FOUND, ErrorCode.ARTWORK_NOT_FOUND, ErrorCode.ARTWORK_ACCESS_DENIED})
-    public ResponseEntity<ApiResponse<ArtworkResponse>> updateBasicInfo(
+    public ResponseEntity<ApiResponse<ArtworkResponse>> updateTitle(
             @CurrentArtist Artist artist,
             @PathVariable Long artworkId,
-            @RequestBody @Valid ArtworkBasicInfoUpdateRequest request
+            @RequestBody @Valid ArtworkTitleUpdateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                artworkCommandFacade.updateBasicInfo(artist, artworkId, request)
+                artworkCommandFacade.updateTitle(artist, artworkId, request)
         ));
     }
 

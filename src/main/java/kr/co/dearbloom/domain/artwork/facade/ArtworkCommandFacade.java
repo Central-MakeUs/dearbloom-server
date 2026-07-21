@@ -1,14 +1,16 @@
 package kr.co.dearbloom.domain.artwork.facade;
 
 import kr.co.dearbloom.domain.artist.entity.Artist;
-import kr.co.dearbloom.domain.artwork.dto.request.ArtworkBasicInfoUpdateRequest;
+import kr.co.dearbloom.domain.artwork.dto.request.ArtworkTitleUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkCreateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPhotoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkResponse;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
+import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 import kr.co.dearbloom.domain.artwork.service.ArtworkCommandService;
 import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
+import kr.co.dearbloom.domain.artwork.util.ArtworkPackageFactory;
 import kr.co.dearbloom.domain.artwork.util.PortfolioFileFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,7 @@ public class ArtworkCommandFacade {
     private final ArtworkCommandService artworkCommandService;
     private final ArtworkQueryService artworkQueryService;
     private final PortfolioFileFactory portfolioFileFactory;
+    private final ArtworkPackageFactory artworkPackageFactory;
 
     /**
      * 작품 등록. 제목·기본 가격과 사진들을 받아 작품을 만든다.
@@ -30,22 +33,25 @@ public class ArtworkCommandFacade {
      */
     @Transactional
     public ArtworkResponse create(Artist artist, ArtworkCreateRequest request) {
-        Artwork artwork = artworkCommandService.create(artist, request.getTitle(), request.getPrice(),
+        Artwork artwork = artworkCommandService.create(artist, request.getTitle(),
                 request.getMinHeadCount(), request.getMaxHeadCount());
-        List<PortfolioFile> saved = artworkCommandService.savePortfolioFiles(
+        List<ArtworkPackage> packages = artworkCommandService.savePackages(
+                artworkPackageFactory.create(artwork, request.getPackageList()));
+        List<PortfolioFile> files = artworkCommandService.savePortfolioFiles(
                 portfolioFileFactory.create(artwork, request.getPhotoList()));
-        return ArtworkResponse.of(artwork, saved);
+        return ArtworkResponse.of(artwork, packages, files);
     }
 
     /**
-     * 제목·가격 부분 수정. null 인 항목은 그대로 둔다. 사진은 건드리지 않는다.
-     * 소유권을 검증한 뒤 사진까지 포함한 전체 상세를 돌려준다.
+     * 제목 부분 수정. null 이면 그대로 둔다. 사진·패키지는 건드리지 않는다.
+     * 소유권을 검증한 뒤 패키지·사진까지 포함한 전체를 돌려준다.
      */
     @Transactional
-    public ArtworkResponse updateBasicInfo(Artist artist, Long artworkId, ArtworkBasicInfoUpdateRequest request) {
+    public ArtworkResponse updateTitle(Artist artist, Long artworkId, ArtworkTitleUpdateRequest request) {
         Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);
-        artworkCommandService.updateBasicInfo(artwork, request.getTitle(), request.getPrice());
-        return ArtworkResponse.of(artwork, artworkQueryService.getPortfolioFiles(artwork));
+        artworkCommandService.updateTitle(artwork, request.getTitle());
+        return ArtworkResponse.of(artwork, artworkQueryService.getPackages(artwork),
+                artworkQueryService.getPortfolioFiles(artwork));
     }
 
     /**
@@ -57,7 +63,7 @@ public class ArtworkCommandFacade {
         Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);
         List<PortfolioFile> replacedPortfolioFiles = artworkCommandService.replacePortfolioFiles(
                 artwork, portfolioFileFactory.create(artwork, request.getPhotoList()));
-        return ArtworkResponse.of(artwork, replacedPortfolioFiles);
+        return ArtworkResponse.of(artwork, artworkQueryService.getPackages(artwork), replacedPortfolioFiles);
     }
 
     /**

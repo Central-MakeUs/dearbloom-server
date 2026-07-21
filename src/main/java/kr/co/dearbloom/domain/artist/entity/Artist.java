@@ -41,17 +41,22 @@ public class Artist extends BaseTime {
     @Column(name = "region", nullable = false)
     private Set<Region> regions = new HashSet<>();
 
-    // ──────────────── 촬영 정보 ────────────────
-    // 출장비 안내. 작가가 자유 형식으로 등록.
-    @Column(columnDefinition = "TEXT")
-    private String travelFeeInfo;
+    // ──────────────── 작가 포인트 ────────────────
+    private Integer point;
 
-    // 패키지 정보. 작가가 자유 형식으로 등록.
+    // 기타 안내(촬영 취소·환불 규정 등). 작가가 자유 형식으로 등록.
     @Column(columnDefinition = "TEXT")
-    private String packageInfo;
+    private String etcInfo;
 
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    // null 이면 변경하지 않는다(PATCH). 빈 문자열은 비우기.
+    public void updateEtcInfo(String etcInfo) {
+        if (etcInfo != null) {
+            this.etcInfo = etcInfo;
+        }
     }
 
     public void updateNickname(String nickname) {
@@ -66,23 +71,5 @@ public class Artist extends BaseTime {
     public void updateRegions(Set<Region> regions) {
         this.regions.clear();
         this.regions.addAll(regions);
-    }
-
-    // null 인 항목은 변경하지 않는다(PATCH)
-    public void updatePricing(String travelFeeInfo, String packageInfo) {
-        if (travelFeeInfo != null) {
-            this.travelFeeInfo = travelFeeInfo;
-        }
-        if (packageInfo != null) {
-            this.packageInfo = packageInfo;
-        }
-    }
-
-    public void deleteTravelFeeInfo() {
-        this.travelFeeInfo = null;
-    }
-
-    public void deletePackageInfo() {
-        this.packageInfo = null;
     }
 }

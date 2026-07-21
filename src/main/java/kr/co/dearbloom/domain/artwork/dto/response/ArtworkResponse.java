@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.artwork.dto.response;
 
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
+import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 
 import java.util.List;
@@ -9,18 +10,18 @@ import java.util.List;
 public record ArtworkResponse(
         Long artworkId,
         String title,
-        Integer price,
         Integer minHeadCount,
         Integer maxHeadCount,
+        List<ArtworkPackageResponse> packageList,
         List<ArtworkPhotoResponse> photoList
 ) {
-    public static ArtworkResponse of(Artwork artwork, List<PortfolioFile> files) {
+    public static ArtworkResponse of(Artwork artwork, List<ArtworkPackage> packages, List<PortfolioFile> files) {
         return new ArtworkResponse(
                 artwork.getArtworkId(),
                 artwork.getArtworkName(),
-                artwork.getPrice(),
                 artwork.getMinHeadCount(),
                 artwork.getMaxHeadCount(),
+                packages.stream().map(ArtworkPackageResponse::from).toList(),
                 files.stream().map(ArtworkPhotoResponse::from).toList()
         );
     }

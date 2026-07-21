@@ -3,9 +3,9 @@ package kr.co.dearbloom.domain.artist.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import kr.co.dearbloom.domain.artist.dto.request.ArtistEtcInfoUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistIntroUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistNicknameUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistPricingUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistImageUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.request.ArtistRegionUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.response.ArtistDetailResponse;
@@ -160,51 +160,20 @@ public class ArtistController {
         ));
     }
 
-    @PatchMapping("/me/pricing")
-    @Operation(summary = "촬영 정보 업데이트",
+    @PatchMapping("/me/etc-info")
+    @Operation(summary = "작가 기타 안내 수정",
             description = """
-                    출장비 / 패키지 정보를 한 번에 수정합니다.<br>
-                    보내지 않거나 null 인 항목은 변경하지 않습니다.<br>
-                    travelFeeInfo, packageInfo 는 줄바꿈이 포함된 자유 형식 텍스트입니다.
+                    기타 안내(촬영 취소·환불 규정 등 자유 형식 텍스트)를 수정합니다. 빈 문자열을 보내면 비웁니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> updatePricing(
+    public ResponseEntity<ApiResponse<ArtistResponse>> updateEtcInfo(
             @CurrentArtist Artist artist,
-            @RequestBody @Valid ArtistPricingUpdateRequest request) {
-
-        return ResponseEntity.ok(ApiResponse.success(
-                artistFacade.updatePricing(artist, request)
-        ));
-    }
-
-    @DeleteMapping("/me/pricing/travel-fee")
-    @Operation(summary = "출장비 삭제",
-            description = """
-                    출장비 정보를 삭제합니다. 출장비만 비워지고 다른 정보는 그대로 유지됩니다.
-                    """)
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
-            ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> deleteTravelFeeInfo(
-            @CurrentArtist Artist artist
+            @RequestBody @Valid ArtistEtcInfoUpdateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                artistFacade.deleteTravelFeeInfo(artist)
+                artistFacade.updateEtcInfo(artist, request)
         ));
     }
 
-    @DeleteMapping("/me/pricing/package")
-    @Operation(summary = "패키지 정보 삭제",
-            description = """
-                    패키지 정보를 삭제합니다. 패키지 정보만 비워지고 다른 정보는 그대로 유지됩니다.
-                    """)
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
-            ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> deletePackageInfo(
-            @CurrentArtist Artist artist
-    ) {
-        return ResponseEntity.ok(ApiResponse.success(
-                artistFacade.deletePackageInfo(artist)
-        ));
-    }
 }

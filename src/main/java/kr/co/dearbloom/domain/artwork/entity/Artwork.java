@@ -22,8 +22,6 @@ public class Artwork extends BaseTime {
     @Column(nullable = false)
     private String artworkName;
 
-    private Integer price;
-
     // 촬영 가능 인원. 1~6 범위. maxHeadCount 가 null 이면 "N인 이상"(제한 없음).
     private Integer minHeadCount;
 
@@ -42,13 +40,10 @@ public class Artwork extends BaseTime {
     @Column(nullable = false)
     private Integer viewCount = 0;
 
-    // null 인 항목은 변경하지 않는다(PATCH)
-    public void updateBasicInfo(String title, Integer price) {
+    // null 이면 변경하지 않는다(PATCH)
+    public void updateTitle(String title) {
         if (title != null) {
             this.artworkName = title;
-        }
-        if (price != null) {
-            this.price = price;
         }
     }
 

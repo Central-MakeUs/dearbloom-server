@@ -9,8 +9,7 @@ public record ArtistResponse(
         String nickname,
         String intro,
         List<String> regionList,
-        String packageInfo,
-        String travelFeeInfo,
+        String etcInfo,
         String imageUrl
 ) {
     public static ArtistResponse from(Artist artist) {
@@ -22,8 +21,7 @@ public record ArtistResponse(
                 artist.getNickname(),
                 artist.getIntro(),
                 artist.getRegions().stream().map(Enum::name).toList(),
-                artist.getPackageInfo(),
-                artist.getTravelFeeInfo(),
+                artist.getEtcInfo(),
                 artist.getImageUrl()
         );
     }

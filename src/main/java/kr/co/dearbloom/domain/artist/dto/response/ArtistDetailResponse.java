@@ -5,7 +5,7 @@ import kr.co.dearbloom.domain.artist.entity.Artist;
 
 import java.util.List;
 
-/** 작가 정보 상세 조회 응답(프로필 / 작가 정보 / 촬영 정보). */
+/** 작가 정보 상세 조회 응답(프로필 / 작가 정보). */
 public record ArtistDetailResponse(
         @Schema(description = "작가 ID", example = "1")
         Long artistId,
@@ -19,13 +19,9 @@ public record ArtistDetailResponse(
         @Schema(description = "활동 지역 목록", example = "[\"SEOUL\", \"GYEONGGI_NORTH\"]")
         List<String> regionList,
 
-        @Schema(description = "패키지 정보(자유 형식 텍스트). 미등록 시 null.",
-                example = "[개인스냅 Basic]\n-최종보정본 7장 + 원본 제공\n-가격 : 20만원")
-        String packageInfo,
-
-        @Schema(description = "출장비 안내(자유 형식 텍스트). 미등록 시 null.",
-                example = "서울 전지역 - 무료\n경기(성남/하남/구리) - 50,000원")
-        String travelFeeInfo,
+        @Schema(description = "기타 안내(촬영 취소·환불 규정 등, 자유 형식 텍스트). 미등록 시 null.",
+                example = "촬영 취소 및 변경은 2주 전까지 전액 환불 가능합니다.")
+        String etcInfo,
 
         @Schema(description = "작가 대표 이미지 CDN URL. 미등록 시 null.",
                 example = "https://cdn.dearbloom.co.kr/artist/uuid.webp")
@@ -40,8 +36,7 @@ public record ArtistDetailResponse(
                 artist.getNickname(),
                 artist.getIntro(),
                 artist.getRegions().stream().map(Enum::name).toList(),
-                artist.getPackageInfo(),
-                artist.getTravelFeeInfo(),
+                artist.getEtcInfo(),
                 artist.getImageUrl()
         );
     }

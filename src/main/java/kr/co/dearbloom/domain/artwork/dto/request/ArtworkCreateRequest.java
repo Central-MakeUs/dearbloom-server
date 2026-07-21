@@ -19,9 +19,24 @@ import java.util.List;
 @Schema(example = """
         {
           "title": "봄날의 졸업사진",
-          "price": 200000,
           "minHeadCount": 2,
           "maxHeadCount": 3,
+          "packageList": [
+            {
+              "packageName": "1인 60분 촬영",
+              "price": 200000,
+              "durationMinutes": 60,
+              "finalPhotoCount": 7,
+              "extraInfo": null
+            },
+            {
+              "packageName": "1인 90분 촬영",
+              "price": 220000,
+              "durationMinutes": 90,
+              "finalPhotoCount": 9,
+              "extraInfo": "빈티지 디카 추가 촬영 가능"
+            }
+          ],
           "photoList": [
             {
               "fileUrl": "https://cdn.dearbloom.co.kr/artwork/uuid1.webp",
@@ -52,11 +67,6 @@ public class ArtworkCreateRequest {
     private String title;
 
     @NotNull
-    @PositiveOrZero
-    @Schema(description = "기본 가격(원)", example = "200000")
-    private Integer price;
-
-    @NotNull
     @Min(1)
     @Max(6)
     @Schema(description = "최소 촬영 인원(1~6)", example = "2")
@@ -67,6 +77,11 @@ public class ArtworkCreateRequest {
     @Schema(description = "최대 촬영 인원(1~6). 보내지 않으면 \"minHeadCount인 이상(예: 3인 이상)\"을 의미합니다.",
             example = "4")
     private Integer maxHeadCount;
+
+    @NotEmpty(message = "패키지를 1개 이상 등록해주세요")
+    @Valid
+    @Schema(description = "작품 패키지 목록(1개 이상). 리스트 화면엔 이 중 최저가가 노출됩니다.")
+    private List<ArtworkPackageRequest> packageList;
 
     @NotEmpty(message = "사진을 1장 이상 등록해주세요")
     @Valid
