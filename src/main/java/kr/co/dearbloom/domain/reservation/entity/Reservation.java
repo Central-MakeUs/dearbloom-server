@@ -1,7 +1,6 @@
 package kr.co.dearbloom.domain.reservation.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.TimeSlot;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
@@ -31,10 +30,7 @@ public class Reservation {
     @JoinColumn(name = "artwork_id", nullable = false)
     private Artwork artwork;
 
-    // 한 슬롯당 예약 하나 (동시 예약 방지)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "time_slot_id", unique = true)
-    private TimeSlot timeSlot;
+    // 동시 예약 방지용 예약 확정 셀(예약 1 : 셀 N, unique 제약)은 예약 도메인 구현 시 설계.
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

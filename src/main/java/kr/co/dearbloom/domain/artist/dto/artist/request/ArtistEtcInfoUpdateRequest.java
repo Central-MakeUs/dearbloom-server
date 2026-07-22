@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.artist.dto.request;
+package kr.co.dearbloom.domain.artist.dto.artist.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;

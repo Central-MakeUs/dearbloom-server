@@ -1,9 +1,9 @@
-package kr.co.dearbloom.domain.artist.dto.request;
+package kr.co.dearbloom.domain.artist.dto.artist.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import kr.co.dearbloom.domain.artist.entity.Region;
+import kr.co.dearbloom.domain.artist.entity.artist.Region;
 import kr.co.dearbloom.global.validation.validatator.ValidNickname;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

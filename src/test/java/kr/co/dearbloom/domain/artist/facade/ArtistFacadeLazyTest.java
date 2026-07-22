@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.artist.facade;
 
-import kr.co.dearbloom.domain.artist.dto.response.ArtistResponse;
-import kr.co.dearbloom.domain.artist.entity.Artist;
-import kr.co.dearbloom.domain.artist.entity.Region;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistResponse;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Region;
 import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.repository.MemberRepository;
