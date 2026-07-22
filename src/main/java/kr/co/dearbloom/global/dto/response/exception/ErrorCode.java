@@ -39,6 +39,12 @@ public enum ErrorCode {
     ARTWORK_ALREADY_SAVED(HttpStatus.CONFLICT, "ARTWORK-409", "이미 저장한 작품입니다."),
 
     /**
+     * Schedule (작가 일정)
+     */
+    SCHEDULE_RULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE-404", "일정 규칙을 찾을 수 없습니다."),
+    INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "SCHEDULE-400", "일정 시간은 09:00~21:00, 30분 단위여야 하며 시작이 종료보다 앞서야 합니다."),
+
+    /**
      * Notification
      */
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION-404", "알림을 찾을 수 없거나 접근 권한이 없습니다."),

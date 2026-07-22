@@ -1,6 +1,6 @@
-package kr.co.dearbloom.domain.artist.service;
+package kr.co.dearbloom.domain.artist.service.artist;
 
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ArtistQueryService {
     private final ArtistRepository artistRepository;
 

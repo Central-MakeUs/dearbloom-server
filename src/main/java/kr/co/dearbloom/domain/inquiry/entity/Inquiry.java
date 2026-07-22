@@ -1,7 +1,6 @@
 package kr.co.dearbloom.domain.inquiry.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.TimeSlot;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import lombok.*;
@@ -26,9 +25,7 @@ public class Inquiry {
     @JoinColumn(name = "artwork_id", nullable = false)
     private Artwork artwork;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "time_slot_id")
-    private TimeSlot timeSlot;
+    // 문의 슬롯 정보는 예약 도메인 구현 시 확정(문의는 잠금 없음). 지금은 값 필드(scheduledAt 등)로만 보관.
 
     @Builder.Default
     private Boolean isSent = false;     // 전송 여부

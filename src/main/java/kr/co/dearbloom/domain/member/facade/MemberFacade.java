@@ -1,10 +1,10 @@
 package kr.co.dearbloom.domain.member.facade;
 
-import kr.co.dearbloom.domain.artist.dto.request.ArtistCreateRequest;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistCreateResponse;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistResponse;
-import kr.co.dearbloom.domain.artist.entity.Artist;
-import kr.co.dearbloom.domain.artist.service.ArtistCommandService;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistCreateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistCreateResponse;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistResponse;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.service.artist.ArtistCommandService;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.service.TokenService;
 import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;

@@ -1,7 +1,6 @@
 package kr.co.dearbloom.domain.inquiry.entity;
 
 import jakarta.persistence.*;
-import kr.co.dearbloom.domain.artist.entity.TimeSlot;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import lombok.*;
 
@@ -23,15 +22,7 @@ public class InquiryHistory {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    // 변경 전 일정
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "previous_time_slot_id")
-    private TimeSlot previousTimeSlot;
-
-    // 재안된 일정
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "proposed_time_slot_id")
-    private TimeSlot proposedTimeSlot;
+    // 변경 전/제안 일정은 예약 도메인 구현 시 확정. 지금은 슬롯 참조를 두지 않는다.
 
     // 제안자
     private String proposedBy;

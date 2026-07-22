@@ -1,7 +1,7 @@
-package kr.co.dearbloom.domain.artist.dto.response;
+package kr.co.dearbloom.domain.artist.dto.artist.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 
 import java.util.List;
 

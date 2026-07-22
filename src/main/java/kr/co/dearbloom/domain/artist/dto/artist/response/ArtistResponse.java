@@ -1,6 +1,6 @@
-package kr.co.dearbloom.domain.artist.dto.response;
+package kr.co.dearbloom.domain.artist.dto.artist.response;
 
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 
 import java.util.List;
 

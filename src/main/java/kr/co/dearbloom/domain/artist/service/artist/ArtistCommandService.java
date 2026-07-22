@@ -1,8 +1,8 @@
-package kr.co.dearbloom.domain.artist.service;
+package kr.co.dearbloom.domain.artist.service.artist;
 
-import kr.co.dearbloom.domain.artist.dto.request.ArtistCreateRequest;
-import kr.co.dearbloom.domain.artist.entity.Artist;
-import kr.co.dearbloom.domain.artist.entity.Region;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistCreateRequest;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Region;
 import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.Set;
 
-@Transactional
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ArtistCommandService {
     private final ArtistRepository artistRepository;
 

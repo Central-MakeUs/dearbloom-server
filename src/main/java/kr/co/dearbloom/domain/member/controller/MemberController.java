@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistCreateRequest;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistCreateResponse;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistCreateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistCreateResponse;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshRequest;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;
@@ -123,7 +123,7 @@ public class MemberController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "accessToken 재발급",
+    @Operation(summary = "액세스 토큰 재발급",
             description = "accessToken 이 만료됐을 때 refreshToken 으로 새 accessToken 을 받습니다.<br>"
                     + "요청 바디에 <b>refreshToken</b> 과 지금 사용할 <b>role(CUSTOMER/ARTIST)</b> 을 함께 보냅니다 — "
                     + "role 은 보통 마지막으로 쓰던 모드(고객/작가)를 그대로 넣으면 됩니다.<br>"

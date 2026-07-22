@@ -3,7 +3,7 @@ package kr.co.dearbloom.domain.artwork.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkCreateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPhotoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkTitleUpdateRequest;

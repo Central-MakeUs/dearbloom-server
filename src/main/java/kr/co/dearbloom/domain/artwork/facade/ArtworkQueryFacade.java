@@ -1,6 +1,6 @@
 package kr.co.dearbloom.domain.artwork.facade;
 
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkDetailResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkDetailResponse;
