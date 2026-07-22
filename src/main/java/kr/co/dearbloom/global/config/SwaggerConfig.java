@@ -74,6 +74,7 @@ public class SwaggerConfig {
             "Customer",
             "Saved Artwork",
             "Artist",
+            "Artist Schedule",
             "Artwork",
             "University",
             "File",
