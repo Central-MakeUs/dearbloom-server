@@ -8,6 +8,7 @@ import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ class AppleWebLoginServiceTest {
 
     @Test
     void authorize_애플_URL과_state쿠키를_만든다() {
-        String url = service.createAuthorizeUrl(response);
+        String url = service.createAuthorizeUrl(MemberRole.CUSTOMER, response);
 
         assertThat(url)
                 .startsWith("https://appleid.apple.com/auth/authorize")
@@ -109,6 +110,7 @@ class AppleWebLoginServiceTest {
 
         assertThat(redirect).isEqualTo(FRONTEND_CALLBACK);
         verify(appleNativeAuthService).verifyIdentityToken("id-token");
-        verify(authService).issueTokensAndSetCookies(member, request, response);
+        // signup_role 쿠키가 없으므로 selectedRole=null → override 도 null
+        verify(authService).issueTokensAndSetCookies(member, null, request, response);
     }
 }

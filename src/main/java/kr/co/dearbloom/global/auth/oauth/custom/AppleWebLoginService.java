@@ -10,6 +10,8 @@ import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
+import kr.co.dearbloom.global.auth.oauth.SignupRoleCookie;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -45,10 +47,11 @@ public class AppleWebLoginService {
     private final OAuthAccountService oAuthAccountService;
     private final AuthService authService;
 
-    /** 애플 인증 페이지 URL 을 만들고, CSRF 방지용 state 를 쿠키에 심는다. */
-    public String createAuthorizeUrl(HttpServletResponse response) {
+    /** 애플 인증 페이지 URL 을 만들고, CSRF 방지용 state 와 진입 때 고른 role(signup_role) 을 쿠키에 심는다. */
+    public String createAuthorizeUrl(MemberRole role, HttpServletResponse response) {
         String state = UUID.randomUUID().toString();
         addStateCookie(response, state);
+        SignupRoleCookie.write(response, role);
 
         return UriComponentsBuilder.fromUriString(AUTHORIZE_ENDPOINT)
                 .queryParam("client_id", webClientId)
@@ -67,6 +70,8 @@ public class AppleWebLoginService {
     public String handleCallback(String idToken, String state, String error,
                                  HttpServletRequest request, HttpServletResponse response) {
         clearStateCookie(response);
+        MemberRole selectedRole = SignupRoleCookie.read(request);
+        SignupRoleCookie.clear(response);
 
         if (error != null) {
             log.warn("[AppleWebLogin] 애플 콜백 error: {}", error);
@@ -74,7 +79,7 @@ public class AppleWebLoginService {
         }
 
         // CSRF: authorize 에서 심은 state 쿠키와 대조
-        String cookieState = readCookie(request, STATE_COOKIE);
+        String cookieState = readCookie(request);
         if (cookieState == null || !cookieState.equals(state)) {
             throw new CustomException(ErrorCode.PARAMETER_BAD_REQUEST);
         }
@@ -83,8 +88,22 @@ public class AppleWebLoginService {
         OAuthAccount oauthAccount = oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo);
 
         Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
-        authService.issueTokensAndSetCookies(member, request, response);
-        return frontendCallback;
+        MemberRole overrideActiveRole = authService.resolveActiveRoleForLogin(member, selectedRole);
+        authService.issueTokensAndSetCookies(member, overrideActiveRole, request, response);
+        return appendOnboardingParams(frontendCallback, member, selectedRole);
+    }
+
+    /** 프론트 콜백 URL 에 온보딩 라우팅용 파라미터(role/needsOnboarding)를 붙인다. role 이 없으면 그대로 반환. */
+    private String appendOnboardingParams(String url, Member member, MemberRole selectedRole) {
+        if (selectedRole == null) {
+            return url;
+        }
+        boolean needsOnboarding = selectedRole == MemberRole.CUSTOMER
+                ? !member.isHasCustomer() : !member.isHasArtist();
+        return UriComponentsBuilder.fromUriString(url)
+                .queryParam("role", selectedRole.name())
+                .queryParam("needsOnboarding", needsOnboarding)
+                .build().toUriString();
     }
 
     private void addStateCookie(HttpServletResponse response, String state) {
@@ -111,12 +130,12 @@ public class AppleWebLoginService {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
-    private String readCookie(HttpServletRequest request, String name) {
+    private String readCookie(HttpServletRequest request) {
         if (request.getCookies() == null) {
             return null;
         }
         return Arrays.stream(request.getCookies())
-                .filter(c -> name.equals(c.getName()))
+                .filter(c -> AppleWebLoginService.STATE_COOKIE.equals(c.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);

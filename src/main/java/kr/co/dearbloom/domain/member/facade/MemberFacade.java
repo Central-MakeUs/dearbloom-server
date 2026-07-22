@@ -87,15 +87,20 @@ public class MemberFacade {
     }
 
     /**
-     * accessToken 재발급. 회전(rotation) 미구현이라 refreshToken 자체는 그대로 돌려준다.
+     * accessToken 재발급. 재발급 시에도 어느 role(고객/작가)로 활동할지 명시적으로 받는다.
+     * 대상 role 의 프로필 보유 여부를 재검증한 뒤 activeRole 을 그 role 로 강제한 accessToken 을 발급한다.
+     * (recentRole 은 갱신되지만 토큰 activeRole 결정에는 쓰지 않는다 — 최근 접속 role 확인용 데이터일 뿐)
+     * 회전(rotation) 미구현이라 refreshToken 자체는 그대로 돌려준다.
      */
-    public TokenRefreshResponse refresh(String refreshToken) {
+    public TokenRefreshResponse refresh(String refreshToken, MemberRole role) {
         if (!tokenProvider.validToken(refreshToken)) {
             throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
         Long memberId = tokenProvider.getMemberId(refreshToken);
         Member member = memberQueryService.getByMemberIdOrThrow(memberId);
-        String newAccessToken = tokenService.createAccessToken(member);
+        // 프로필 보유 검증(없으면 ROLE_NOT_AVAILABLE) + recentRole 갱신을 switchActiveRole 로 재사용.
+        Member updated = memberCommandService.switchActiveRole(member, role);
+        String newAccessToken = tokenService.createAccessToken(updated, role);
         return new TokenRefreshResponse(newAccessToken, refreshToken);
     }
 

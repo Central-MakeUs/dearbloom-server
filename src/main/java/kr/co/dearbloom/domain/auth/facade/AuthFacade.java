@@ -5,8 +5,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.dto.NativeLoginRequest;
+import kr.co.dearbloom.domain.auth.dto.SocialLoginResponse;
 import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.custom.GoogleNativeAuthService;
@@ -26,7 +28,6 @@ public class AuthFacade {
     private final MemberQueryService memberQueryService;
     private final OAuthAccountService oAuthAccountService;
     private final AuthService authService;
-    private final TokenService tokenService;
     private final GoogleNativeAuthService googleNativeAuthService;
     private final AppleNativeAuthService appleNativeAuthService;
     private final OAuthOneTimeCodeService oAuthOneTimeCodeService;
@@ -47,10 +48,10 @@ public class AuthFacade {
     /**
      * 네이티브 앱(WebView)에서 소셜 SDK로 얻은 토큰으로 로그인.
      * - Google: serverAuthCode (offlineAccess=true 로 획득)
-     * 성공 시 기존 redirect OAuth와 동일한 HttpOnly 쿠키를 설정한다.
+     * 성공 시 기존 redirect OAuth와 동일한 HttpOnly 쿠키를 설정하고, 온보딩 라우팅 정보를 반환한다.
      */
-    public void nativeLogin(NativeLoginRequest request,
-                             HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    public SocialLoginResponse nativeLogin(NativeLoginRequest request,
+                                           HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         OAuthAccount oauthAccount = switch (request.getSocialProvider()) {
             case GOOGLE -> {
                 SocialUserInfo userInfo = googleNativeAuthService.exchangeServerAuthCode(request.getSocialToken());
@@ -62,13 +63,16 @@ public class AuthFacade {
             }
         };
 
+        MemberRole selectedRole = request.getRole();
         Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
-        authService.issueTokensAndSetCookies(member, httpRequest, httpResponse);
+        MemberRole overrideActiveRole = authService.resolveActiveRoleForLogin(member, selectedRole);
+        authService.issueTokensAndSetCookies(member, overrideActiveRole, httpRequest, httpResponse);
+        return SocialLoginResponse.of(member, selectedRole);
     }
 
-    /** 애플 웹 로그인 진입 — 애플 인증 URL 생성 + state 쿠키 심기. (AppleWebLoginService 위임) */
-    public String appleWebAuthorizeUrl(HttpServletResponse response) {
-        return appleWebLoginService.createAuthorizeUrl(response);
+    /** 애플 웹 로그인 진입 — 애플 인증 URL 생성 + state/signup_role 쿠키 심기. (AppleWebLoginService 위임) */
+    public String appleWebAuthorizeUrl(MemberRole role, HttpServletResponse response) {
+        return appleWebLoginService.createAuthorizeUrl(role, response);
     }
 
     /** 애플 웹 로그인 콜백 처리 — id_token 검증 → 회원 처리 → 쿠키 발급 후 리다이렉트 대상 반환. (위임) */
@@ -77,8 +81,8 @@ public class AuthFacade {
         return appleWebLoginService.handleCallback(idToken, state, error, request, response);
     }
 
-    /** 구글 웹 로그인 진입 — Spring Security 진입 경로로 위임할 리다이렉트 대상 반환. (GoogleWebLoginService 위임) */
-    public String googleWebAuthorizeRedirect(HttpServletResponse response) {
-        return googleWebLoginService.resolveEntryRedirect(response);
+    /** 구글 웹 로그인 진입 — signup_role 쿠키를 심고 Spring Security 진입 경로로 위임할 리다이렉트 대상 반환. (위임) */
+    public String googleWebAuthorizeRedirect(MemberRole role, HttpServletResponse response) {
+        return googleWebLoginService.resolveEntryRedirect(role, response);
     }
 }

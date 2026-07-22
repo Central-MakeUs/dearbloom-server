@@ -4,6 +4,7 @@ import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,14 +40,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         // CustomOAuth2User로 캐스팅
-        if (!(oAuth2User instanceof CustomOAuth2User)) {
+        if (!(oAuth2User instanceof CustomOAuth2User customUser)) {
             throw new IllegalArgumentException("OAuth2User is not an instance of CustomOAuth2User");
         }
-        CustomOAuth2User customUser = (CustomOAuth2User) oAuth2User;
         OAuthAccount oauthAccount = customUser.getOauthAccount();
 
         // 회원 조회/생성(신규 가입시 Member 생성 + OAuthAccount 연결) — AuthService 공용 로직
         Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
+
+        // 진입점(GoogleWebLoginService)이 심어둔 signup_role 쿠키에서 고른 role 을 회수한다(없으면 null).
+        MemberRole selectedRole = SignupRoleCookie.read(request);
+        SignupRoleCookie.clear(response);
 
         // 하이브리드 분기: 로컬 웹이 개발 서버로 로그인한 경우(진입점에서 표식 쿠키를 심어둠).
         // localhost 는 백엔드 Set-Cookie 를 못 받으므로, 토큰 대신 1회용 oneTimeCode 만 넘겨
@@ -57,17 +61,35 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             String oneTimeCode = oneTimeCodeService.issue(member.getMemberId());
             deleteLocalTargetCookie(response);
             clearAuthenticationAttributes(request, response);
-            String redirectUrl = UriComponentsBuilder.fromUriString(localTarget)
-                    .queryParam("oneTimeCode", oneTimeCode)
-                    .build().toUriString();
+            String redirectUrl = appendOnboardingParams(
+                    UriComponentsBuilder.fromUriString(localTarget)
+                            .queryParam("oneTimeCode", oneTimeCode),
+                    member, selectedRole);
             getRedirectStrategy().sendRedirect(request, response, redirectUrl);
             return;
         }
 
         // 일반 분기: dev 웹 / 운영 — 기존대로 백엔드가 직접 쿠키를 심는다.
-        authService.issueTokensAndSetCookies(member, request, response);
+        MemberRole overrideActiveRole = authService.resolveActiveRoleForLogin(member, selectedRole);
+        authService.issueTokensAndSetCookies(member, overrideActiveRole, request, response);
         clearAuthenticationAttributes(request, response);
-        getRedirectStrategy().sendRedirect(request, response, REDIRECT_PATH);
+        String redirectUrl = appendOnboardingParams(
+                UriComponentsBuilder.fromUriString(REDIRECT_PATH), member, selectedRole);
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+    }
+
+    /**
+     * 프론트 콜백 URL 에 온보딩 라우팅용 파라미터(role/needsOnboarding)를 붙인다.
+     * signup_role 이 없었으면(레거시 진입 등) 아무것도 붙이지 않는다.
+     */
+    private String appendOnboardingParams(UriComponentsBuilder builder, Member member, MemberRole selectedRole) {
+        if (selectedRole != null) {
+            boolean needsOnboarding = selectedRole == MemberRole.CUSTOMER
+                    ? !member.isHasCustomer() : !member.isHasArtist();
+            builder.queryParam("role", selectedRole.name())
+                    .queryParam("needsOnboarding", needsOnboarding);
+        }
+        return builder.build().toUriString();
     }
 
     /** 진입점(SocialLocalWebLoginController)이 심은 표식 쿠키에서 로컬 콜백 URL 을 읽는다. 없으면 null. */
