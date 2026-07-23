@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.inquiry.dto.response.artist;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

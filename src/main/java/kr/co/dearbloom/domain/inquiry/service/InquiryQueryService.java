@@ -2,8 +2,8 @@ package kr.co.dearbloom.domain.inquiry.service;
 
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.repository.ArtworkPackageRepository;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryHistory;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryHistory;
 import kr.co.dearbloom.domain.inquiry.repository.InquiryHistoryRepository;
 import kr.co.dearbloom.domain.inquiry.repository.InquiryRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;

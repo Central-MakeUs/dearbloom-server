@@ -1,6 +1,6 @@
 package kr.co.dearbloom.domain.inquiry.repository;
 
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryHistory;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

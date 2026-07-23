@@ -2,8 +2,8 @@ package kr.co.dearbloom.domain.inquiry.service;
 
 import kr.co.dearbloom.domain.artist.service.schedule.BookedSlotProvider;
 import kr.co.dearbloom.domain.artist.util.SlotGrid;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 import kr.co.dearbloom.domain.inquiry.repository.InquiryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

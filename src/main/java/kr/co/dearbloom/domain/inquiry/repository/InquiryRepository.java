@@ -1,7 +1,7 @@
 package kr.co.dearbloom.domain.inquiry.repository;
 
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

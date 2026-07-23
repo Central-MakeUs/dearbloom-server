@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.inquiry.entity.inquiry;
+package kr.co.dearbloom.domain.inquiry.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

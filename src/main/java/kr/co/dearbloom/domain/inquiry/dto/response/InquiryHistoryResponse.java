@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.inquiry.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryHistory;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryHistory;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 
 import java.time.LocalDateTime;

@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.inquiry.service;
 
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryHistory;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryHistory;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 import kr.co.dearbloom.domain.inquiry.repository.InquiryHistoryRepository;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package kr.co.dearbloom.domain.inquiry.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

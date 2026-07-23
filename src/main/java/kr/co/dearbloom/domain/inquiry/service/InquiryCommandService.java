@@ -4,7 +4,7 @@ import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.customer.entity.Customer;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.repository.InquiryRepository;
 import kr.co.dearbloom.domain.university.entity.University;
 import lombok.RequiredArgsConstructor;

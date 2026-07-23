@@ -1,8 +1,8 @@
 package kr.co.dearbloom.domain.inquiry.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.Inquiry;
-import kr.co.dearbloom.domain.inquiry.entity.inquiry.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 
 @Schema(description = "문의 상태 전이 결과")
 public record InquiryStatusResponse(
