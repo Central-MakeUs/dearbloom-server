@@ -37,12 +37,23 @@ public enum ErrorCode {
     ARTWORK_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTWORK-404", "작품을 찾을 수 없습니다."),
     ARTWORK_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ARTWORK-403", "해당 작품에 접근할 권한이 없습니다."),
     ARTWORK_ALREADY_SAVED(HttpStatus.CONFLICT, "ARTWORK-409", "이미 저장한 작품입니다."),
+    ARTWORK_PACKAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTWORK-404", "작품 패키지를 찾을 수 없습니다."),
 
     /**
      * Schedule (작가 일정)
      */
     SCHEDULE_RULE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCHEDULE-404", "일정 규칙을 찾을 수 없습니다."),
     INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "SCHEDULE-400", "일정 시간은 09:00~21:00, 30분 단위여야 하며 시작이 종료보다 앞서야 합니다."),
+
+    /**
+     * Inquiry (스마트 문의)
+     */
+    INQUIRY_SLOT_NOT_AVAILABLE(HttpStatus.CONFLICT, "INQUIRY-409", "선택한 날짜·시간에는 예약할 수 없습니다."),
+    INQUIRY_INVALID_HEAD_COUNT(HttpStatus.BAD_REQUEST, "INQUIRY-400", "촬영 가능 인원 범위를 벗어났습니다."),
+    INQUIRY_SCHOOL_REQUIRED(HttpStatus.BAD_REQUEST, "INQUIRY-400", "학교(대학 선택 또는 직접 입력)는 필수입니다."),
+    INQUIRY_NOT_FOUND(HttpStatus.NOT_FOUND, "INQUIRY-404", "문의를 찾을 수 없습니다."),
+    INQUIRY_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INQUIRY-403", "해당 문의에 접근할 권한이 없습니다."),
+    INQUIRY_INVALID_STATUS(HttpStatus.CONFLICT, "INQUIRY-409", "현재 문의 상태에서는 할 수 없는 동작입니다."),
 
     /**
      * Notification

@@ -127,6 +127,19 @@ public class ArtworkQueryService {
                 .toList();
     }
 
+    // 작품별 대표 이미지(sortOrder 가장 앞선 사진) URL 맵. 배치 조회(다른 도메인에서도 재사용).
+    public Map<Long, String> getRepresentativeImageUrls(List<Artwork> artworks) {
+        return representativeImageMap(artworks);
+    }
+
+    // 작품 대표 이미지(sortOrder 가장 앞선 사진) URL 단건. 없으면 null.
+    public String getRepresentativeImageUrl(Artwork artwork) {
+        return portfolioFileRepository.findByArtworkOrderBySortOrderAsc(artwork).stream()
+                .findFirst()
+                .map(PortfolioFile::getFileUrl)
+                .orElse(null);
+    }
+
     // 작품별 대표 이미지(sortOrder 가장 앞선 사진) URL 맵. 한 번의 조회로 N+1 회피.
     private Map<Long, String> representativeImageMap(List<Artwork> artworks) {
         return portfolioFileRepository.findByArtworkInOrderBySortOrderAsc(artworks).stream()

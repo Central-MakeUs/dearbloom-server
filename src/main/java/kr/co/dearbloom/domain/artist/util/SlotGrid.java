@@ -64,6 +64,19 @@ public final class SlotGrid {
         return mask & FULL_MASK;
     }
 
+    /** 소요시간(분)을 필요한 30분 셀 수로 환산(올림). 예: 60→2, 90→3, 45→2. */
+    public static int requiredSlots(int durationMinutes) {
+        return (durationMinutes + STEP_MINUTES - 1) / STEP_MINUTES;
+    }
+
+    /** 시작 시각 → 시작셀 인덱스(0..23). 30분 경계·[09:00, 21:00) 범위가 아니면 예외. */
+    public static int toStartIndex(LocalTime start) {
+        if (!isBoundary(start) || !start.isBefore(CLOSE)) {
+            throw new CustomException(ErrorCode.INVALID_SCHEDULE_TIME);
+        }
+        return toIndex(start);
+    }
+
     /** 규칙/요청 시간 검증. 09:00~21:00, 30분 경계, start < end 아니면 예외. */
     public static void validateRange(LocalTime start, LocalTime end) {
         if (!isBoundary(start) || !isBoundary(end) || !end.isAfter(start)) {
