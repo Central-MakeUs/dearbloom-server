@@ -48,6 +48,10 @@ public class Artist extends BaseTime {
     @Column(columnDefinition = "TEXT")
     private String etcInfo;
 
+    // 출장비 안내. 작가가 자유 형식으로 등록.
+    @Column(columnDefinition = "TEXT")
+    private String travelFee;
+
     public void updateImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
@@ -56,6 +60,13 @@ public class Artist extends BaseTime {
     public void updateEtcInfo(String etcInfo) {
         if (etcInfo != null) {
             this.etcInfo = etcInfo;
+        }
+    }
+
+    // null 이면 변경하지 않는다(PATCH). 빈 문자열은 비우기.
+    public void updateTravelFee(String travelFee) {
+        if (travelFee != null) {
+            this.travelFee = travelFee;
         }
     }
 
