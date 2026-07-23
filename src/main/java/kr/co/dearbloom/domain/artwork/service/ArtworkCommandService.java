@@ -40,9 +40,10 @@ public class ArtworkCommandService {
         return artworkPackageRepository.saveAll(packages);
     }
 
-    // 제목 부분 수정. null 이면 유지.
-    public Artwork updateTitle(Artwork artwork, String title) {
+    // 작품명·설명 부분 수정. 각 필드 null 이면 유지.
+    public Artwork updateBasicInfo(Artwork artwork, String title, String description) {
         artwork.updateTitle(title);
+        artwork.updateDescription(description);
         return artworkRepository.save(artwork);
     }
 

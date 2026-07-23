@@ -16,6 +16,9 @@ public record ArtistArtworkDetailResponse(
         @Schema(description = "작품명", example = "야외 개인 졸업스냅")
         String title,
 
+        @Schema(description = "작품 설명. 미등록 시 null.", example = "졸업을 앞둔 학생분들을 위한 야외 스냅입니다.")
+        String description,
+
         @Schema(description = "최소 촬영 인원(1~6)", example = "2")
         Integer minHeadCount,
 
@@ -49,6 +52,7 @@ public record ArtistArtworkDetailResponse(
         return new ArtistArtworkDetailResponse(
                 artwork.getArtworkId(),
                 artwork.getArtworkName(),
+                artwork.getDescription(),
                 artwork.getMinHeadCount(),
                 artwork.getMaxHeadCount(),
                 files.stream().map(ArtworkPhotoResponse::from).toList(),

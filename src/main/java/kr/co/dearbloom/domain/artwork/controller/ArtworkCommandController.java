@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkCreateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPhotoUpdateRequest;
-import kr.co.dearbloom.domain.artwork.dto.request.ArtworkTitleUpdateRequest;
+import kr.co.dearbloom.domain.artwork.dto.request.ArtworkInfoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkResponse;
 import kr.co.dearbloom.domain.artwork.facade.ArtworkCommandFacade;
 import kr.co.dearbloom.global.auth.resolver.CurrentArtist;
@@ -61,23 +61,24 @@ public class ArtworkCommandController {
         ));
     }
 
-    @PatchMapping("/{artworkId}/title")
-    @Operation(summary = "작품 제목 수정",
+    @PatchMapping("/{artworkId}")
+    @Operation(summary = "작품 기본 정보(작품명·설명) 수정",
             description = """
-                    작품의 제목을 수정합니다. <b>사진·패키지는 이 API 로 변경되지 않습니다</b>
+                    작품의 <b>작품명 / 설명</b>을 수정합니다. <b>사진·패키지는 이 API 로 변경되지 않습니다</b>
                     (사진 변경은 사진 교체 API 사용).<br>
-                    title 을 보내지 않거나 null 이면 변경하지 않습니다. 본인 작품만 수정할 수 있습니다.<br>
+                    title / description 각각 보내지 않거나 null 이면 변경하지 않습니다(설명은 빈 문자열로 비울 수 있음).
+                    본인 작품만 수정할 수 있습니다.<br>
                     응답에는 변경된 작품 정보와 함께 기존 패키지·사진 목록도 포함됩니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.ARTIST_NOT_FOUND, ErrorCode.ARTWORK_NOT_FOUND, ErrorCode.ARTWORK_ACCESS_DENIED})
-    public ResponseEntity<ApiResponse<ArtworkResponse>> updateTitle(
+    public ResponseEntity<ApiResponse<ArtworkResponse>> updateBasicInfo(
             @CurrentArtist Artist artist,
             @PathVariable Long artworkId,
-            @RequestBody @Valid ArtworkTitleUpdateRequest request
+            @RequestBody @Valid ArtworkInfoUpdateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                artworkCommandFacade.updateTitle(artist, artworkId, request)
+                artworkCommandFacade.updateBasicInfo(artist, artworkId, request)
         ));
     }
 

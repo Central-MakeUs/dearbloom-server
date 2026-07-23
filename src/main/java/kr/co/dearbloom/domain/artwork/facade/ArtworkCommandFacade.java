@@ -1,7 +1,7 @@
 package kr.co.dearbloom.domain.artwork.facade;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
-import kr.co.dearbloom.domain.artwork.dto.request.ArtworkTitleUpdateRequest;
+import kr.co.dearbloom.domain.artwork.dto.request.ArtworkInfoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkCreateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPhotoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkResponse;
@@ -43,13 +43,13 @@ public class ArtworkCommandFacade {
     }
 
     /**
-     * 제목 부분 수정. null 이면 그대로 둔다. 사진·패키지는 건드리지 않는다.
+     * 작품명·설명 부분 수정. 각 필드 null 이면 그대로 둔다. 사진·패키지는 건드리지 않는다.
      * 소유권을 검증한 뒤 패키지·사진까지 포함한 전체를 돌려준다.
      */
     @Transactional
-    public ArtworkResponse updateTitle(Artist artist, Long artworkId, ArtworkTitleUpdateRequest request) {
+    public ArtworkResponse updateBasicInfo(Artist artist, Long artworkId, ArtworkInfoUpdateRequest request) {
         Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);
-        artworkCommandService.updateTitle(artwork, request.getTitle());
+        artworkCommandService.updateBasicInfo(artwork, request.getTitle(), request.getDescription());
         return ArtworkResponse.of(artwork, artworkQueryService.getPackages(artwork),
                 artworkQueryService.getPortfolioFiles(artwork));
     }

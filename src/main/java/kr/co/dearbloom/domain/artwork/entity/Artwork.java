@@ -47,6 +47,13 @@ public class Artwork extends BaseTime {
         }
     }
 
+    // null 이면 변경하지 않는다(PATCH). 빈 문자열이면 설명을 비운다.
+    public void updateDescription(String description) {
+        if (description != null) {
+            this.description = description;
+        }
+    }
+
     public void increaseSavedCount() {
         this.savedCount++;
     }
