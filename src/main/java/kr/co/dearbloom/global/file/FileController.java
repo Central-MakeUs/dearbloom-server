@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
-@Tag(name = "File", description = "파일 업로드/삭제 API")
+@Tag(name = "File", description = "파일 업로드 API")
 public class FileController {
     private final FileService fileService;
     private final FileUrlValidator fileUrlValidator;

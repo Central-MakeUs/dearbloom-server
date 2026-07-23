@@ -27,4 +27,12 @@ public class CustomerCommandService {
                 .university(university)
                 .build());
     }
+
+    // 실명 수정. 중복 허용이라 유니크 검증 없음. managed 엔티티로 로드해 수정(응답 매핑 시 university LAZY 초기화 안전).
+    public Customer updateName(Long customerId, String name) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CUSTOMER_NOT_FOUND));
+        customer.updateName(name);
+        return customer;
+    }
 }

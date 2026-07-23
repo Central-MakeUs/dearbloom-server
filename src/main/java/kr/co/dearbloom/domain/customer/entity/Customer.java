@@ -25,4 +25,9 @@ public class Customer extends BaseTime {
     private University university;
 
     private String name;
+
+    // 실명 수정. 이름은 중복 허용이라 유니크 검증 없음.
+    public void updateName(String name) {
+        this.name = name;
+    }
 }
