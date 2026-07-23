@@ -40,7 +40,8 @@ public class ScheduleAvailabilityService {
                 artist, List.of(ScheduleRuleType.WEEKLY_AVAILABLE, ScheduleRuleType.WEEKLY_BLOCK));
         List<ArtistScheduleRule> dateBlocks = ruleRepository.findByArtistAndRuleTypeAndBlockDate(
                 artist, ScheduleRuleType.DATE_BLOCK, date);
-        return composeMask(weekly, dateBlocks, artist.getArtistId(), date);
+        int bookedMask = bookedSlotProvider.bookedMask(artist.getArtistId(), date);
+        return composeMask(weekly, dateBlocks, bookedMask, date);
     }
 
     /** 기간 [from, to] 의 날짜별 가용 슬롯. */
@@ -58,19 +59,22 @@ public class ScheduleAvailabilityService {
                 .findByArtistAndRuleTypeAndBlockDateBetweenOrderByBlockDateAscStartTimeAsc(
                         artist, ScheduleRuleType.DATE_BLOCK, from, to).stream()
                 .collect(Collectors.groupingBy(ArtistScheduleRule::getBlockDate));
+        // 예약 확정 마스크는 기간 전체를 한 번에 조회(날짜별 루프 안에서 재조회하지 않음).
+        Map<LocalDate, Integer> bookedByDate = bookedSlotProvider.bookedMasks(artist.getArtistId(), from, to);
 
         List<DayAvailabilityResponse> result = new ArrayList<>();
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             int mask = composeMask(
-                    weekly, dateBlocksByDate.getOrDefault(date, List.of()), artist.getArtistId(), date);
+                    weekly, dateBlocksByDate.getOrDefault(date, List.of()),
+                    bookedByDate.getOrDefault(date, 0), date);
             result.add(new DayAvailabilityResponse(date, SlotGrid.toTimes(mask)));
         }
         return result;
     }
 
-    // 요일 규칙 + 그 날짜의 개인 불가 + 예약 확정을 합성.
+    // 요일 규칙 + 그 날짜의 개인 불가 + 예약 확정(bookedMask)을 합성.
     private int composeMask(List<ArtistScheduleRule> weekly, List<ArtistScheduleRule> dateBlocks,
-                            Long artistId, LocalDate date) {
+                            int bookedMask, LocalDate date) {
         // 예약 오픈 창(오늘~3개월) 밖·과거 날짜는 규칙과 무관하게 예약 불가.
         if (!BookingWindow.isOpen(date)) {
             return 0;
@@ -92,7 +96,6 @@ public class ScheduleAvailabilityService {
         for (ArtistScheduleRule r : dateBlocks) {
             block |= SlotGrid.rangeMask(r.getStartTime(), r.getEndTime());
         }
-        int booked = bookedSlotProvider.bookedMask(artistId, date);
-        return base & ~block & ~booked & SlotGrid.FULL_MASK;
+        return base & ~block & ~bookedMask & SlotGrid.FULL_MASK;
     }
 }
