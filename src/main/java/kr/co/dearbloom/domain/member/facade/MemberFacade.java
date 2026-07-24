@@ -61,7 +61,7 @@ public class MemberFacade {
                 ? null
                 : universityQueryService.findById(request.getUniversityId());
         Member updated = memberCommandService.markAsCustomer(member);
-        Customer customer = customerCommandService.create(updated, request.getName(), university);
+        Customer customer = customerCommandService.create(updated, request.getName(), university, request.getRegion());
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
                 CustomerResponse.from(customer)

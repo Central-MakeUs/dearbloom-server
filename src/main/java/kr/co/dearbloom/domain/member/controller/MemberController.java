@@ -79,8 +79,8 @@ public class MemberController {
     @PostMapping("/customer")
     @Operation(summary = "고객 계정 생성 (온보딩)",
             description = """
-                    실명 / 학교를 받아 고객 프로필을 생성합니다.<br>
-                    이름은 2-5자의 한글 또는 영문 실명, 학교는 한 곳만 선택합니다(선택 항목).<br>
+                    실명 / 학교 / 지역을 받아 고객 프로필을 생성합니다.<br>
+                    이름은 2-5자의 한글 또는 영문 실명(필수), 학교는 한 곳만 선택(선택 항목), 지역도 한 곳 선택(선택 항목)입니다.<br>
                     회원가입 직후의 accessToken 으로는 아직 고객 API 를 호출할 수 없으므로, 이 API 는
                     <b>고객 API 호출이 가능한 새 accessToken</b> 을 응답 바디로 함께 반환합니다.<br>
                     <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b> 그래야 이후 고객 API 가 정상 동작합니다.<br>

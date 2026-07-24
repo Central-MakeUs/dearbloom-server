@@ -1,6 +1,6 @@
 package kr.co.dearbloom.domain.customer.facade;
 
-import kr.co.dearbloom.domain.customer.dto.request.CustomerNameUpdateRequest;
+import kr.co.dearbloom.domain.customer.dto.request.CustomerProfileUpdateRequest;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerDetailResponse;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -25,9 +25,9 @@ public class CustomerFacade {
     }
 
     @Transactional
-    public CustomerResponse updateName(Customer customer, CustomerNameUpdateRequest request) {
+    public CustomerResponse updateProfile(Customer customer, CustomerProfileUpdateRequest request) {
         return CustomerResponse.from(
-                customerCommandService.updateName(customer.getCustomerId(), request.getName())
+                customerCommandService.updateProfile(customer.getCustomerId(), request.getName(), request.getRegion())
         );
     }
 }

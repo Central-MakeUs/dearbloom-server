@@ -3,7 +3,7 @@ package kr.co.dearbloom.domain.customer.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.dearbloom.domain.customer.dto.request.CustomerNameUpdateRequest;
+import kr.co.dearbloom.domain.customer.dto.request.CustomerProfileUpdateRequest;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerDetailResponse;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -42,20 +42,21 @@ public class CustomerController {
         ));
     }
 
-    @PatchMapping("/name")
-    @Operation(summary = "고객 이름 수정",
+    @PatchMapping
+    @Operation(summary = "고객 프로필 수정",
             description = """
-                    고객 이름을 수정합니다. 최초 등록은 고객 프로필 생성 API 에서 처리합니다.<br>
-                    이름은 2-5자의 한글 또는 영문이며, <b>중복이 허용</b>됩니다.
+                    고객 프로필(이름 / 지역)을 수정합니다. 최초 등록은 고객 프로필 생성 API 에서 처리합니다.<br>
+                    <b>이름</b>은 2-5자의 한글 또는 영문이며 중복이 허용됩니다(필수).<br>
+                    <b>지역</b>은 선택이며, 보낸 값으로 교체됩니다 — null 을 보내면 지역이 비워집니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.CUSTOMER_NOT_FOUND})
-    public ResponseEntity<ApiResponse<CustomerResponse>> updateName(
+    public ResponseEntity<ApiResponse<CustomerResponse>> updateProfile(
             @CurrentCustomer Customer customer,
-            @RequestBody @Valid CustomerNameUpdateRequest request
+            @RequestBody @Valid CustomerProfileUpdateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                customerFacade.updateName(customer, request)
+                customerFacade.updateProfile(customer, request)
         ));
     }
 }
