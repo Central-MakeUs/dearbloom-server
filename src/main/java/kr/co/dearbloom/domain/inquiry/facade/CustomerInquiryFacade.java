@@ -17,6 +17,7 @@ import kr.co.dearbloom.domain.inquiry.dto.response.customer.CustomerInquiryListI
 import kr.co.dearbloom.domain.inquiry.dto.response.customer.InquiryPreparationResponse;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.event.InquiryCreatedEvent;
 import kr.co.dearbloom.domain.inquiry.service.InquiryCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryHistoryCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryQueryService;
@@ -26,6 +27,7 @@ import kr.co.dearbloom.domain.university.service.UniversityQueryService;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,7 @@ public class CustomerInquiryFacade {
     private final ArtworkQueryService artworkQueryService;
     private final UniversityQueryService universityQueryService;
     private final ScheduleAvailabilityService scheduleAvailabilityService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 스마트 문의 준비 정보 조립. 패키지→작품→작가 LAZY 연관을 이 트랜잭션 안에서 초기화하며 DTO 로 매핑한다.
@@ -83,6 +86,8 @@ public class CustomerInquiryFacade {
                 request.getShootDate(), request.getStartTime(), request.getHeadCount(), request.getRequestNote());
         // 생성 이력(null → IN_PROGRESS, 고객).
         inquiryHistoryCommandService.record(inquiry, null, MemberRole.CUSTOMER);
+        // 채팅 방 find-or-create + 문의 카드 append (동기 리스너, 같은 트랜잭션).
+        eventPublisher.publishEvent(new InquiryCreatedEvent(inquiry));
         return InquiryCreateResponse.from(inquiry);
     }
 
