@@ -20,6 +20,9 @@ public record InquiryHistoryResponse(
         MemberRole changedByRole,
         @Schema(description = "변경 주체 한국어 표기", example = "작가")
         String changedByRoleLabel,
+        @Schema(description = "시스템 자동 전이 사유(회원 탈퇴/역할 해지 등). 일반 사용자 조작이면 null",
+                example = "작가 역할 해지로 자동 취소")
+        String reason,
         @Schema(description = "변경 시각", example = "2026-06-05T14:30:00")
         LocalDateTime changedAt
 ) {
@@ -30,6 +33,7 @@ public record InquiryHistoryResponse(
                 history.getToStatus().getLabel(),
                 history.getChangedByRole(),
                 history.getChangedByRole().getLabel(),
+                history.getReason(),
                 history.getCreatedAt());
     }
 }

@@ -12,12 +12,17 @@ import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistDetailResponse;
 import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistResponse;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.facade.ArtistFacade;
+import kr.co.dearbloom.domain.member.dto.RoleRevokeResponse;
+import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.facade.MemberFacade;
 import kr.co.dearbloom.global.auth.resolver.CurrentArtist;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.swagger.ApiErrorCodes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "- Artist -", description = "작가 정보 관리 API")
 public class ArtistController {
     private final ArtistFacade artistFacade;
+    private final MemberFacade memberFacade;
 
     @GetMapping
     @Operation(summary = "작가 정보 조회",
@@ -134,4 +140,30 @@ public class ArtistController {
         ));
     }
 
+    @DeleteMapping
+    @Operation(summary = "작가 역할 해지",
+            description = """
+                    현재 회원의 <b>작가 역할만</b> 해지합니다(계정 전체 탈퇴가 아님).<br>
+                    고객 역할이 함께 있으면 작가 프로필은 익명화되고, <b>남은 고객 역할로 재발급된 accessToken</b> 을
+                    응답으로 돌려줍니다 — <code>withdrawn=false</code>. 응답 즉시 기존 accessToken 을 교체하세요(refreshToken 은 유지).<br>
+                    작가가 <b>유일한 역할</b>이면 계정 전체가 탈퇴 처리되어 <code>withdrawn=true</code> 로 내려갑니다 —
+                    이때는 토큰을 삭제하고 로그인 화면으로 이동하세요.<br>
+                    고객 모드로 로그인한 상태에서도 호출할 수 있습니다. 작가 역할이 없으면 403 을 반환합니다.
+                    """)
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "작가 역할 해지 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401", description = "인증 필요 (토큰 없음/만료/유효하지 않음)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403", description = "작가 역할이 없음")
+    })
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_NOT_AVAILABLE})
+    public ResponseEntity<ApiResponse<RoleRevokeResponse>> revokeArtistRole(
+            @AuthenticationPrincipal Member member
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                memberFacade.revokeArtistRole(member)
+        ));
+    }
 }

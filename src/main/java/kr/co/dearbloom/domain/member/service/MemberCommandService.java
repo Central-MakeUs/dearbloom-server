@@ -59,4 +59,28 @@ public class MemberCommandService {
         member.updateRecentRole(role);
         return memberRepository.save(member);
     }
+
+    /**
+     * 역할 해지. 해당 role 의 보유 플래그를 내리고, recentRole 이 해지한 role 이면 남은 role 로 옮긴다.
+     * 프로필(Customer/Artist) 행 자체의 익명화는 호출부(MemberFacade) 책임. 마지막 역할 해지는 호출부에서 탈퇴로 분기.
+     */
+    public Member revokeRole(Member member, MemberRole role) {
+        MemberRole remaining = (role == MemberRole.CUSTOMER) ? MemberRole.ARTIST : MemberRole.CUSTOMER;
+        switch (role) {
+            case CUSTOMER -> member.unmarkCustomer();
+            case ARTIST -> member.unmarkArtist();
+        }
+        if (member.getRecentRole() == role) {
+            member.updateRecentRole(remaining);
+        }
+        return memberRepository.save(member);
+    }
+
+    // 회원 탈퇴(soft delete). 탈퇴 시각 기록 + 멤버 PII 제거.
+    public Member withdraw(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        member.withdraw();
+        return memberRepository.save(member);
+    }
 }

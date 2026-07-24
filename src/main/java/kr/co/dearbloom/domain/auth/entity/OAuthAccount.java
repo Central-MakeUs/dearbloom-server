@@ -48,7 +48,21 @@ public class OAuthAccount extends BaseTime {
     @Column(name="name")
     private String name;
 
+    // 소셜 provider refresh token (Apple 탈퇴 시 revoke 용). Apple 만 저장, 그 외 null.
+    @Column(name = "oauth_refresh_token", columnDefinition = "TEXT")
+    private String oauthRefreshToken;
+
+    // 위 refresh token 을 발급받은 client_id (revoke 때 동일 client_id 필요 — native/web 이 다름).
+    @Column(name = "oauth_refresh_client_id")
+    private String oauthRefreshClientId;
+
     public void linkMember(Member member) {
         this.member = member;
+    }
+
+    // Apple 로그인 시 code 교환으로 얻은 refresh token + 발급 client_id 저장.
+    public void updateRefreshToken(String oauthRefreshToken, String oauthRefreshClientId) {
+        this.oauthRefreshToken = oauthRefreshToken;
+        this.oauthRefreshClientId = oauthRefreshClientId;
     }
 }

@@ -21,9 +21,16 @@ public class ArtistCommandService {
     private final ArtistRepository artistRepository;
 
     // 온보딩 3개 항목을 한 번에 받아 작가 프로필을 만든다. 한 Member 당 하나만 허용.
+    // 과거 역할 해지로 익명화된 행이 남아 있으면(hasArtist=false) 그 행을 되살린다(재가입=같은 사람 복귀).
+    // markAsArtist 이전에 호출되므로, 이미 활성 작가(hasArtist=true)가 다시 부르면 중복으로 막는다.
     public Artist create(Member member, ArtistCreateRequest request) {
-        if (artistRepository.findByMember(member).isPresent()) {
-            throw new CustomException(ErrorCode.ARTIST_ALREADY_EXISTS);
+        Artist existing = artistRepository.findByMember(member).orElse(null);
+        if (existing != null) {
+            if (member.isHasArtist()) {
+                throw new CustomException(ErrorCode.ARTIST_ALREADY_EXISTS);
+            }
+            existing.reactivate(request.getNickname(), request.getImageUrl(), new HashSet<>(request.getRegionList()));
+            return existing;
         }
         return artistRepository.save(Artist.builder()
                 .member(member)
@@ -59,5 +66,10 @@ public class ArtistCommandService {
     public Artist updateEtcInfo(Artist artist, String etcInfo) {
         artist.updateEtcInfo(etcInfo);
         return artistRepository.save(artist);
+    }
+
+    // 회원 탈퇴 시 이 멤버의 작가 프로필 익명화(있을 때만). regions(LAZY) 를 만지므로 managed 로드 후 처리.
+    public void anonymizeByMember(Member member) {
+        artistRepository.findByMember(member).ifPresent(Artist::anonymize);
     }
 }

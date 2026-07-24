@@ -11,6 +11,7 @@ import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
+import kr.co.dearbloom.domain.auth.service.custom.AppleTokenService;
 import kr.co.dearbloom.domain.auth.service.custom.GoogleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.auth.service.TokenService;
@@ -20,6 +21,7 @@ import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
 import kr.co.dearbloom.global.auth.oauth.custom.AppleWebLoginService;
 import kr.co.dearbloom.global.auth.oauth.custom.GoogleWebLoginService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,9 +32,13 @@ public class AuthFacade {
     private final AuthService authService;
     private final GoogleNativeAuthService googleNativeAuthService;
     private final AppleNativeAuthService appleNativeAuthService;
+    private final AppleTokenService appleTokenService;
     private final OAuthOneTimeCodeService oAuthOneTimeCodeService;
     private final AppleWebLoginService appleWebLoginService;
     private final GoogleWebLoginService googleWebLoginService;
+
+    @Value("${apple.native.client-id:}")
+    private String appleNativeClientId;
 
     /**
      * 하이브리드 로그인(로컬 웹 ↔ 개발 서버) 전용 oneTimeCode → 토큰 교환.
@@ -59,7 +65,16 @@ public class AuthFacade {
             }
             case APPLE -> {
                 SocialUserInfo userInfo = appleNativeAuthService.verifyIdentityToken(request.getSocialToken());
-                yield oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo);
+                OAuthAccount account = oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo);
+                // 탈퇴 revoke 용: authorizationCode 를 refresh token 으로 교환해 저장(App Store 필수).
+                if (request.getAuthorizationCode() != null && !request.getAuthorizationCode().isBlank()) {
+                    String refreshToken = appleTokenService.exchangeAuthorizationCode(
+                            request.getAuthorizationCode(), appleNativeClientId, null);
+                    if (refreshToken != null) {
+                        oAuthAccountService.updateRefreshToken(account, refreshToken, appleNativeClientId);
+                    }
+                }
+                yield account;
             }
         };
 
@@ -76,9 +91,9 @@ public class AuthFacade {
     }
 
     /** 애플 웹 로그인 콜백 처리 — id_token 검증 → 회원 처리 → 쿠키 발급 후 리다이렉트 대상 반환. (위임) */
-    public String handleAppleWebCallback(String idToken, String state, String error,
+    public String handleAppleWebCallback(String idToken, String code, String state, String error,
                                          HttpServletRequest request, HttpServletResponse response) {
-        return appleWebLoginService.handleCallback(idToken, state, error, request, response);
+        return appleWebLoginService.handleCallback(idToken, code, state, error, request, response);
     }
 
     /** 구글 웹 로그인 진입 — signup_role 쿠키를 심고 Spring Security 진입 경로로 위임할 리다이렉트 대상 반환. (위임) */

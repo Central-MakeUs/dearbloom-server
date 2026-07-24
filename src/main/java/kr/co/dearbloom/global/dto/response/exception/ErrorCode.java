@@ -20,6 +20,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, "MEMBER-409", "이미 존재하는 이메일입니다."),
     ROLE_NOT_AVAILABLE(HttpStatus.FORBIDDEN, "MEMBER-403", "요청한 역할에 대한 프로필이 없습니다."),
     ROLE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "MEMBER-403", "현재 활성화된 역할로는 접근할 수 없습니다."),
+    WITHDRAWN_MEMBER(HttpStatus.UNAUTHORIZED, "MEMBER-401", "탈퇴한 회원입니다."),
 
     /**
      * Customer / Artist
@@ -67,6 +68,7 @@ public enum ErrorCode {
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-401", "액세스 토큰이 만료되었습니다."),
     INVALID_OAUTH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH-401", "소셜 로그인 토큰이 유효하지 않습니다."),
     UNSUPPORTED_OAUTH_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH-400", "지원하지 않는 OAuth 프로바이더입니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER-500", "서버 내부 오류가 발생했습니다."),
 
     /**
      * 프론트엔드 오류
