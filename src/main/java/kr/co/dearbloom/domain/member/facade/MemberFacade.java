@@ -66,9 +66,8 @@ public class MemberFacade {
         University university = request.getUniversityId() == null
                 ? null
                 : universityQueryService.findById(request.getUniversityId());
-        // 해지 후 재온보딩이면 익명화된 행을 되살린다. markAsCustomer 로 활성/비활성을 판별하므로 create 를 먼저 호출.
-        Customer customer = customerCommandService.create(member, request.getName(), university);
         Member updated = memberCommandService.markAsCustomer(member);
+        Customer customer = customerCommandService.create(updated, request.getName(), university, request.getRegion());
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
                 CustomerResponse.from(customer)

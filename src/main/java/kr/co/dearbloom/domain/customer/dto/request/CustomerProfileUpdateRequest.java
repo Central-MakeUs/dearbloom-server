@@ -7,16 +7,14 @@ import kr.co.dearbloom.global.validation.validatator.ValidRealName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/** 고객 프로필 수정 — 이름(필수)과 지역(선택)을 함께 보낸다. 지역을 null 로 보내면 미설정으로 비운다. */
 @Getter
 @NoArgsConstructor
-public class CustomerCreateRequest {
+public class CustomerProfileUpdateRequest {
     @NotBlank
     @ValidRealName
-    @Schema(description = "고객 실명 (2-5자의 한글 또는 영문)", example = "김디어")
+    @Schema(description = "고객 실명 (2-5자의 한글 또는 영문). 중복 허용.", example = "김디어")
     private String name;
-
-    @Schema(description = "선택한 학교 ID (한 곳만 선택). 대학생이 아니면 null 가능.", example = "1")
-    private Long universityId;
 
     @Schema(description = "지역 (선택, 한 곳). 미선택 시 null. "
             + "가능한 값: SEOUL, GYEONGGI_NORTH, GYEONGGI_SOUTH, INCHEON, BUSAN, DAEGU, GWANGJU, "
