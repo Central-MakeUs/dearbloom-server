@@ -37,4 +37,9 @@ public class CustomerCommandService {
         customer.updateProfile(name, region);
         return customer;
     }
+
+    // 회원 탈퇴 시 이 멤버의 고객 프로필 익명화(있을 때만).
+    public void anonymizeByMember(Member member) {
+        customerRepository.findByMember(member).ifPresent(Customer::anonymize);
+    }
 }

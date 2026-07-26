@@ -7,6 +7,7 @@ import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
+import kr.co.dearbloom.domain.auth.service.custom.AppleTokenService;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.entity.Member;
@@ -46,6 +47,7 @@ public class AppleWebLoginService {
     private final AppleNativeAuthService appleNativeAuthService;
     private final OAuthAccountService oAuthAccountService;
     private final AuthService authService;
+    private final AppleTokenService appleTokenService;
 
     /** 애플 인증 페이지 URL 을 만들고, CSRF 방지용 state 와 진입 때 고른 role(signup_role) 을 쿠키에 심는다. */
     public String createAuthorizeUrl(MemberRole role, HttpServletResponse response) {
@@ -67,7 +69,7 @@ public class AppleWebLoginService {
      * 애플 form_post 콜백 처리. state 검증 → id_token 검증 → 회원 조회/생성 → 쿠키 발급.
      * @return 리다이렉트할 프론트 URL
      */
-    public String handleCallback(String idToken, String state, String error,
+    public String handleCallback(String idToken, String code, String state, String error,
                                  HttpServletRequest request, HttpServletResponse response) {
         clearStateCookie(response);
         MemberRole selectedRole = SignupRoleCookie.read(request);
@@ -86,6 +88,18 @@ public class AppleWebLoginService {
 
         SocialUserInfo userInfo = appleNativeAuthService.verifyIdentityToken(idToken);
         OAuthAccount oauthAccount = oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo);
+
+        // 탈퇴 시 Apple 토큰 revoke(App Store 필수)를 위해 code 를 refresh token 으로 교환·저장. 실패해도 로그인은 계속.
+        if (code != null && !code.isBlank()) {
+            try {
+                String refreshToken = appleTokenService.exchangeAuthorizationCode(code, webClientId, redirectUri);
+                if (refreshToken != null) {
+                    oAuthAccountService.updateRefreshToken(oauthAccount, refreshToken, webClientId);
+                }
+            } catch (Exception e) {
+                log.warn("[AppleWebLogin] code 교환 실패(무시하고 로그인 진행): {}", e.getMessage());
+            }
+        }
 
         Member member = authService.findOrCreateMemberByOAuthAccount(oauthAccount);
         MemberRole overrideActiveRole = authService.resolveActiveRoleForLogin(member, selectedRole);

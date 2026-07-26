@@ -5,6 +5,7 @@ import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
+import kr.co.dearbloom.domain.auth.service.custom.AppleTokenService;
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.entity.Member;
@@ -41,6 +42,7 @@ class AppleWebLoginServiceTest {
     @Mock AppleNativeAuthService appleNativeAuthService;
     @Mock OAuthAccountService oAuthAccountService;
     @Mock AuthService authService;
+    @Mock AppleTokenService appleTokenService;
 
     private AppleWebLoginService service;
 
@@ -49,7 +51,7 @@ class AppleWebLoginServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new AppleWebLoginService(appleNativeAuthService, oAuthAccountService, authService);
+        service = new AppleWebLoginService(appleNativeAuthService, oAuthAccountService, authService, appleTokenService);
         ReflectionTestUtils.setField(service, "webClientId", CLIENT_ID);
         ReflectionTestUtils.setField(service, "redirectUri", REDIRECT_URI);
         ReflectionTestUtils.setField(service, "frontendCallback", FRONTEND_CALLBACK);
@@ -76,7 +78,7 @@ class AppleWebLoginServiceTest {
 
     @Test
     void callback_error가_오면_실패파라미터를_붙여_프론트로_보낸다() {
-        String redirect = service.handleCallback(null, null, "user_cancelled_authorize", request, response);
+        String redirect = service.handleCallback(null, null, null, "user_cancelled_authorize", request, response);
 
         assertThat(redirect).isEqualTo(FRONTEND_CALLBACK + "?error=apple_login_failed");
         verifyNoInteractions(appleNativeAuthService);
@@ -87,7 +89,7 @@ class AppleWebLoginServiceTest {
         request.setCookies(new Cookie(STATE_COOKIE, "server-state"));
 
         assertThatThrownBy(() ->
-                service.handleCallback("id-token", "attacker-state", null, request, response))
+                service.handleCallback("id-token", null, "attacker-state", null, request, response))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("code", "PARAMETER-400");
         verifyNoInteractions(appleNativeAuthService);
@@ -106,7 +108,7 @@ class AppleWebLoginServiceTest {
         given(oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo)).willReturn(acc);
         given(authService.findOrCreateMemberByOAuthAccount(acc)).willReturn(member);
 
-        String redirect = service.handleCallback("id-token", "state-123", null, request, response);
+        String redirect = service.handleCallback("id-token", null, "state-123", null, request, response);
 
         assertThat(redirect).isEqualTo(FRONTEND_CALLBACK);
         verify(appleNativeAuthService).verifyIdentityToken("id-token");

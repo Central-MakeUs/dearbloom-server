@@ -83,4 +83,22 @@ public class Artist extends BaseTime {
         this.regions.clear();
         this.regions.addAll(regions);
     }
+
+    // 회원 탈퇴 시 작가 프로필 PII/자유텍스트 익명화.
+    public void anonymize() {
+        this.nickname = "탈퇴한 작가";
+        this.imageUrl = null;
+        this.intro = null;
+        this.etcInfo = null;
+        this.travelFee = null;
+        this.regions.clear();
+    }
+
+    // 역할 해지로 익명화됐던 프로필을 재온보딩 때 되살린다(같은 사람 복귀 — 기존 행·작품 유지). 온보딩 3개 항목만 재설정.
+    public void reactivate(String nickname, String imageUrl, Set<Region> regions) {
+        this.nickname = nickname;
+        this.imageUrl = imageUrl;
+        this.regions.clear();
+        this.regions.addAll(regions);
+    }
 }

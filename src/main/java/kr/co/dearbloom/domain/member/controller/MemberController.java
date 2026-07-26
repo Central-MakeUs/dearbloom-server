@@ -161,4 +161,25 @@ public class MemberController {
         memberFacade.logout(member.getMemberId());
         return ResponseEntity.ok(ApiResponse.success());
     }
+
+    @DeleteMapping
+    @Operation(summary = "회원 탈퇴",
+            description = """
+                    현재 로그인한 회원을 탈퇴합니다. <b>계정 전체(고객·작가 프로필 모두)</b>가 탈퇴됩니다.<br>
+                    소셜 로그인 연결이 끊기고, 모든 기기의 로그인이 즉시 무효화됩니다.
+                    보유한 프로필의 개인정보는 익명화되며, 문의·리뷰 등 상대방 기록은 스냅샷으로 보존됩니다.<br>
+                    <b>탈퇴 후 같은 소셜 계정으로 다시 로그인하면 새 계정으로 시작</b>합니다(복구 불가).<br>
+                    응답 200 을 받으면 저장한 accessToken/refreshToken 을 삭제하고 로그인 화면으로 이동하세요.
+                    """)
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "탈퇴 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401", description = "인증 필요 (토큰 없음/만료/유효하지 않음)")
+    })
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.MEMBER_NOT_FOUND})
+    public ResponseEntity<ApiResponse<Void>> withdraw(@AuthenticationPrincipal Member member) {
+        memberFacade.withdraw(member);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
 }

@@ -98,12 +98,13 @@ public class SocialLoginController {
     @Operation(hidden = true, summary = "애플 웹 로그인 콜백")
     public void appleCallback(
             @RequestParam(name = "id_token", required = false) String idToken,
+            @RequestParam(name = "code", required = false) String code,
             @RequestParam(name = "state", required = false) String state,
             @RequestParam(name = "error", required = false) String error,
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
 
-        response.sendRedirect(authFacade.handleAppleWebCallback(idToken, state, error, request, response));
+        response.sendRedirect(authFacade.handleAppleWebCallback(idToken, code, state, error, request, response));
     }
 
     /** 구글 웹 로그인 진입 → Spring Security 진입 경로로 위임 리다이렉트 (signup_role 쿠키 심음). */

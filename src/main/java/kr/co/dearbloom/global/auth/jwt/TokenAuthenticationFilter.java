@@ -1,5 +1,6 @@
 package kr.co.dearbloom.global.auth.jwt;
 
+import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.dto.response.exception.ErrorDetail;
@@ -53,26 +54,30 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String token = getAccessToken(authorizationHeader);
 
         if (token != null) {
-            // 토큰이 존재하면 유효성 검사 — 유효하면 인증 설정, 만료/무효하면 401 반환
-            if (tokenProvider.validToken(token)) {
-                Authentication authentication = tokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                // ApiResponse 객체를 JSON으로 변환하여 응답 본문에 작성
-                ErrorCode errorCode = ErrorCode.EXPIRED_TOKEN;
-                ApiResponse<?> body = ApiResponse.error(
-                        new ErrorDetail(errorCode.getCode(), errorCode.getMessage())
-                );
-                response.setStatus(errorCode.getHttpStatus().value());
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write(objectMapper.writeValueAsString(body));
+            // 토큰이 존재하면 유효성 검사 — 만료/무효하면 401 반환
+            if (!tokenProvider.validToken(token)) {
+                writeError(response, ErrorCode.EXPIRED_TOKEN);
                 return;
             }
+            Authentication authentication = tokenProvider.getAuthentication(token);
+            // 탈퇴 회원 차단 — 토큰이 만료 전이라도 접근 거부(OAuthAccount·세션은 이미 삭제됨).
+            if (authentication.getPrincipal() instanceof Member member && member.isWithdrawn()) {
+                writeError(response, ErrorCode.WITHDRAWN_MEMBER);
+                return;
+            }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
         // 토큰이 없는 경우(비인증 API)는 그대로 통과
         filterChain.doFilter(request, response);
+    }
+
+    private void writeError(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        ApiResponse<?> body = ApiResponse.error(new ErrorDetail(errorCode.getCode(), errorCode.getMessage()));
+        response.setStatus(errorCode.getHttpStatus().value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 
 

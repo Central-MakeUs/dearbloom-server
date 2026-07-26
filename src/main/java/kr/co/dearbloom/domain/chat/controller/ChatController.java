@@ -1,5 +1,6 @@
 package kr.co.dearbloom.domain.chat.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +30,7 @@ import java.util.List;
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
 @Tag(name = "Chat", description = "채팅 API (고객·작가 공용, 현재 activeRole 로 내 편 판별)")
+@Hidden
 public class ChatController {
     private final ChatFacade chatFacade;
 

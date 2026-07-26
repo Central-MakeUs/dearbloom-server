@@ -35,7 +35,12 @@ public class InquiryHistory extends BaseTime {
     private InquiryStatus toStatus;
 
     // 변경 주체(고객/작가). 문의 1건엔 고객·작가 각 1명뿐이라 role 만으로 행위자가 특정된다.
+    // 탈퇴·해지로 인한 시스템 자동 전이도 나가는 당사자의 role 로 기록하고, 사유는 reason 으로 구분한다.
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberRole changedByRole;
+
+    // 시스템 자동 전이 사유(회원 탈퇴/역할 해지 등). 일반 사용자 조작 전이는 null.
+    @Column(columnDefinition = "TEXT")
+    private String reason;
 }

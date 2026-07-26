@@ -36,4 +36,16 @@ public class Customer extends BaseTime {
         this.name = name;
         this.region = region;
     }
+
+    // 회원 탈퇴 시 고객 프로필 PII 익명화.
+    public void anonymize() {
+        this.name = "탈퇴한 사용자";
+        this.university = null;
+    }
+
+    // 역할 해지로 익명화됐던 프로필을 재온보딩 때 되살린다(같은 사람 복귀 — 기존 행·문의 이력 유지).
+    public void reactivate(String name, University university) {
+        this.name = name;
+        this.university = university;
+    }
 }
