@@ -1,6 +1,7 @@
 package kr.co.dearbloom.global.config;
 
 import kr.co.dearbloom.global.auth.resolver.CurrentArtistArgumentResolver;
+import kr.co.dearbloom.global.auth.resolver.CurrentChatParticipantArgumentResolver;
 import kr.co.dearbloom.global.auth.resolver.CurrentCustomerArgumentResolver;
 import kr.co.dearbloom.global.auth.resolver.CurrentViewerArgumentResolver;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +20,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final CurrentCustomerArgumentResolver currentCustomerArgumentResolver;
     private final CurrentArtistArgumentResolver currentArtistArgumentResolver;
     private final CurrentViewerArgumentResolver currentViewerArgumentResolver;
+    private final CurrentChatParticipantArgumentResolver currentChatParticipantArgumentResolver;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(currentCustomerArgumentResolver);
         resolvers.add(currentArtistArgumentResolver);
         resolvers.add(currentViewerArgumentResolver);
+        resolvers.add(currentChatParticipantArgumentResolver);
     }
 }
