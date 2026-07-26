@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistCreateRequest;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistCreateResponse;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistCreateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistCreateResponse;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshRequest;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;
@@ -79,12 +79,12 @@ public class MemberController {
     @PostMapping("/customer")
     @Operation(summary = "고객 계정 생성 (온보딩)",
             description = """
-                    실명 / 학교를 받아 고객 프로필을 생성합니다.<br>
-                    이름은 2-5자의 한글 또는 영문 실명, 학교는 한 곳만 선택합니다(선택 항목).<br>
-                    회원가입 직후의 토큰에는 고객 프로필이 없으므로, 이 API 는
-                    <b>activeRole 이 CUSTOMER 로 갱신된 새 accessToken</b> 을 함께 반환합니다 <br>
-                    — 응답받는 즉시 기존 accessToken 을 교체해야 이후 고객 API 를 호출할 수 있습니다.<br>
-                    refreshToken 은 재발급하지 않으며 그대로 사용합니다.<br>
+                    실명 / 학교 / 지역을 받아 고객 프로필을 생성합니다.<br>
+                    이름은 2-5자의 한글 또는 영문 실명(필수), 학교는 한 곳만 선택(선택 항목), 지역도 한 곳 선택(선택 항목)입니다.<br>
+                    회원가입 직후의 accessToken 으로는 아직 고객 API 를 호출할 수 없으므로, 이 API 는
+                    <b>고객 API 호출이 가능한 새 accessToken</b> 을 응답 바디로 함께 반환합니다.<br>
+                    <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b> 그래야 이후 고객 API 가 정상 동작합니다.<br>
+                    refreshToken 은 재발급되지 않으니 기존 값을 그대로 쓰면 됩니다.<br>
                     이미 고객 프로필이 있으면 409 를 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.UNIVERSITY_NOT_FOUND, ErrorCode.CUSTOMER_ALREADY_EXISTS})
@@ -103,10 +103,10 @@ public class MemberController {
                     닉네임 / 활동 지역 / 대표 이미지를 한 번에 받아 작가 프로필을 생성합니다.<br>
                     닉네임과 활동 지역은 필수, <b>대표 이미지는 선택</b>입니다 — 보내지 않으면 이미지 없이 생성되며
                     이후 대표 이미지 수정 API 로 등록할 수 있습니다.<br>
-                    회원가입 직후의 토큰에는 작가 프로필이 없으므로, 이 API 는
-                    <b>activeRole 이 ARTIST 로 갱신된 새 accessToken</b> 을 함께 반환합니다 <br>
-                    — 응답받는 즉시 기존 accessToken 을 교체해야 이후 작가 API 를 호출할 수 있습니다.<br>
-                    refreshToken 은 재발급하지 않으며 그대로 사용합니다.<br>
+                    회원가입 직후의 accessToken 으로는 아직 작가 API 를 호출할 수 없으므로, 이 API 는
+                    <b>작가 API 호출이 가능한 새 accessToken</b> 을 응답 바디로 함께 반환합니다.<br>
+                    <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b> 그래야 이후 작가 API 가 정상 동작합니다.<br>
+                    refreshToken 은 재발급되지 않으니 기존 값을 그대로 쓰면 됩니다.<br>
                     이미 작가 프로필이 있으면 409 를 반환합니다.<br><br>
                     <b>regions 가능한 값</b><br>
                     SEOUL, GYEONGGI_NORTH, GYEONGGI_SOUTH, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON_SEJONG, ULSAN,
@@ -123,21 +123,28 @@ public class MemberController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "accessToken 재발급", description = "refreshToken 검증 후 새 accessToken 발급")
+    @Operation(summary = "액세스 토큰 재발급",
+            description = "accessToken 이 만료됐을 때 refreshToken 으로 새 accessToken 을 받습니다.<br>"
+                    + "요청 바디에 <b>refreshToken</b> 과 지금 사용할 <b>role(CUSTOMER/ARTIST)</b> 을 함께 보냅니다 — "
+                    + "role 은 보통 마지막으로 쓰던 모드(고객/작가)를 그대로 넣으면 됩니다.<br>"
+                    + "응답으로 받은 새 accessToken 으로 <b>기존 값을 교체</b>하면 되고, refreshToken 은 그대로 사용합니다.<br>"
+                    + "보유하지 않은 role 을 보내면 403 을 반환합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "201", description = "accessToken 재발급 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "401", description = "refreshToken 이 유효하지 않음"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403", description = "요청한 role 의 프로필이 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404", description = "회원을 찾을 수 없음")
     })
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.MEMBER_NOT_FOUND})
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.ROLE_NOT_AVAILABLE, ErrorCode.MEMBER_NOT_FOUND})
     public ResponseEntity<ApiResponse<TokenRefreshResponse>> createNewAccessToken(
-            @RequestBody TokenRefreshRequest request
+            @RequestBody @Valid TokenRefreshRequest request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.success(memberFacade.refresh(request.getRefreshToken()))
+                ApiResponse.success(memberFacade.refresh(request.getRefreshToken(), request.getRole()))
         );
     }
 
@@ -152,6 +159,27 @@ public class MemberController {
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN})
     public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal Member member) {
         memberFacade.logout(member.getMemberId());
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @DeleteMapping
+    @Operation(summary = "회원 탈퇴",
+            description = """
+                    현재 로그인한 회원을 탈퇴합니다. <b>계정 전체(고객·작가 프로필 모두)</b>가 탈퇴됩니다.<br>
+                    소셜 로그인 연결이 끊기고, 모든 기기의 로그인이 즉시 무효화됩니다.
+                    보유한 프로필의 개인정보는 익명화되며, 문의·리뷰 등 상대방 기록은 스냅샷으로 보존됩니다.<br>
+                    <b>탈퇴 후 같은 소셜 계정으로 다시 로그인하면 새 계정으로 시작</b>합니다(복구 불가).<br>
+                    응답 200 을 받으면 저장한 accessToken/refreshToken 을 삭제하고 로그인 화면으로 이동하세요.
+                    """)
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "탈퇴 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401", description = "인증 필요 (토큰 없음/만료/유효하지 않음)")
+    })
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.MEMBER_NOT_FOUND})
+    public ResponseEntity<ApiResponse<Void>> withdraw(@AuthenticationPrincipal Member member) {
+        memberFacade.withdraw(member);
         return ResponseEntity.ok(ApiResponse.success());
     }
 }

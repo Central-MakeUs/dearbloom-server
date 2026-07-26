@@ -9,6 +9,7 @@ import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.custom.GoogleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,6 +43,7 @@ class AuthFacadeTest {
         NativeLoginRequest req = new NativeLoginRequest();
         ReflectionTestUtils.setField(req, "socialProvider", provider);
         ReflectionTestUtils.setField(req, "socialToken", token);
+        ReflectionTestUtils.setField(req, "role", MemberRole.CUSTOMER);
         return req;
     }
 
@@ -67,7 +69,7 @@ class AuthFacadeTest {
         authFacade.nativeLogin(nativeRequest(OAuthProvider.GOOGLE, "server-auth-code"), request, response);
 
         verify(googleNativeAuthService).exchangeServerAuthCode("server-auth-code");
-        verify(authService).issueTokensAndSetCookies(member, request, response);
+        verify(authService).issueTokensAndSetCookies(member, null, request, response);
         verifyNoInteractions(appleNativeAuthService);
     }
 
@@ -84,7 +86,7 @@ class AuthFacadeTest {
         authFacade.nativeLogin(nativeRequest(OAuthProvider.APPLE, "identity-token"), request, response);
 
         verify(appleNativeAuthService).verifyIdentityToken("identity-token");
-        verify(authService).issueTokensAndSetCookies(member, request, response);
+        verify(authService).issueTokensAndSetCookies(member, null, request, response);
         verifyNoInteractions(googleNativeAuthService);
     }
 }

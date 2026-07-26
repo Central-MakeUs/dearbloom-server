@@ -80,6 +80,12 @@ url:
 
 apple:
   client-ids: ${APPLE_CLIENT_IDS:}          # id_token aud 허용 목록(쉼표). 로컬 기본값은 빈 값(apple 미사용)
+  # 탈퇴 시 토큰 revoke 를 위한 client_secret(ES256) 생성용. (App Store 심사 필수)
+  team-id: ${APPLE_TEAM_ID:}                 # Apple Developer Team ID
+  key-id: ${APPLE_KEY_ID:}                   # Sign in with Apple 용 Key ID (.p8 의 키)
+  private-key: ${APPLE_PRIVATE_KEY:}         # .p8 파일 내용(PEM, -----BEGIN PRIVATE KEY----- 포함)
+  native:
+    client-id: ${APPLE_NATIVE_CLIENT_ID:}    # 앱 Bundle ID (네이티브 토큰 교환·revoke 의 client_id)
   web:
     client-id: ${APPLE_WEB_CLIENT_ID:}        # 웹 Services ID (예: com.dearbloom.service.dev)
     redirect-uri: ${APPLE_WEB_REDIRECT_URI:}  # Apple 에 등록한 https 콜백 (…/oauth2/apple/callback)

@@ -55,6 +55,9 @@ public class Member implements UserDetails {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    // 탈퇴 시각. null 이면 활성 회원. (soft delete)
+    private LocalDateTime withdrawnAt;
+
     /* ──────────────── implements from UserDetails ──────────────── */
     @Override // 권한 반환
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -89,14 +92,24 @@ public class Member implements UserDetails {
         return true; // true -> 만료되지 않음
     }
 
-    @Override // 계정 사용 가능 여부 반환
+    @Override // 계정 사용 가능 여부 반환 (탈퇴 회원은 비활성)
     public boolean isEnabled() {
-        // 계정이 사용 가능한지 확인하는 로직
-        return true; // true -> 사용 가능
+        return !isWithdrawn();
     }
 
     public void updateName(String name) {
         this.name = name;
+    }
+
+    // 회원 탈퇴(soft delete). 탈퇴 시각 기록 + 멤버 레벨 PII(이메일/이름) 제거. 프로필 익명화는 호출부 책임.
+    public void withdraw() {
+        this.withdrawnAt = LocalDateTime.now();
+        this.email = null;
+        this.name = null;
+    }
+
+    public boolean isWithdrawn() {
+        return this.withdrawnAt != null;
     }
 
     // Customer/Artist 생성 서비스 메서드에서만 호출할 것
@@ -106,6 +119,15 @@ public class Member implements UserDetails {
 
     public void markAsArtist() {
         this.hasArtist = true;
+    }
+
+    // 역할 해지 시 호출. 프로필 자체(행)는 FK 보존 위해 익명화만 하고, 보유 플래그만 내린다.
+    public void unmarkCustomer() {
+        this.hasCustomer = false;
+    }
+
+    public void unmarkArtist() {
+        this.hasArtist = false;
     }
 
     public void updateRecentRole(MemberRole recentRole) {

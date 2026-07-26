@@ -3,44 +3,38 @@ package kr.co.dearbloom.domain.artist.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistIntroUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistNicknameUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistPricingUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistImageUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistRegionUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistDetailResponse;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistResponse;
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistEtcInfoUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistIntroUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistNicknameUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistImageUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistRegionUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistDetailResponse;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistResponse;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.facade.ArtistFacade;
-import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkDetailResponse;
-import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkSummaryResponse;
-import kr.co.dearbloom.domain.artwork.facade.ArtworkQueryFacade;
+import kr.co.dearbloom.domain.member.facade.MemberFacade;
 import kr.co.dearbloom.global.auth.resolver.CurrentArtist;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.swagger.ApiErrorCodes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/artists")
+@RequestMapping("/api/artists/me")
 @RequiredArgsConstructor
-@Tag(name = "Artist", description = "작가 API")
+@Tag(name = "- Artist -", description = "작가 정보 관리 API")
 public class ArtistController {
     private final ArtistFacade artistFacade;
-    private final ArtworkQueryFacade artworkQueryFacade;
+    private final MemberFacade memberFacade;
 
-    @GetMapping("/me")
+    @GetMapping
     @Operation(summary = "작가 정보 조회",
             description = """
                     현재 로그인한 작가의 프로필(닉네임 / 프로필 이미지),
@@ -56,41 +50,7 @@ public class ArtistController {
         ));
     }
 
-    @GetMapping("/me/artworks")
-    @Operation(summary = "작가 본인 작품 리스트 조회 (최신순)",
-            description = """
-                    현재 로그인한 작가가 등록한 작품 전체를 최신 등록순으로 조회합니다.<br>
-                    각 항목은 작품 ID / 제목 / 가격 / 촬영 가능 인원 / 작가 닉네임 / 작가 활동지역 / 대표 이미지 / 저장 수 / 조회수입니다.
-                    """)
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
-            ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<List<ArtistArtworkSummaryResponse>>> getMyArtworks(
-            @CurrentArtist Artist artist
-    ) {
-        return ResponseEntity.ok(ApiResponse.success(
-                artworkQueryFacade.getArtistArtworkList(artist)
-        ));
-    }
-
-    @GetMapping("/me/artworks/{artworkId}")
-    @Operation(summary = "작가 본인 작품 상세 조회",
-            description = """
-                    작가 본인 작품의 상세를 조회합니다. 공개 상세 정보(촬영 가능 인원 포함)에 더해
-                    <b>저장 수(savedCount) / 조회수(viewCount)</b> 가 포함됩니다.<br>
-                    본인 작품만 조회할 수 있습니다.
-                    """)
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
-            ErrorCode.ARTIST_NOT_FOUND, ErrorCode.ARTWORK_NOT_FOUND, ErrorCode.ARTWORK_ACCESS_DENIED})
-    public ResponseEntity<ApiResponse<ArtistArtworkDetailResponse>> getMyArtworkDetail(
-            @CurrentArtist Artist artist,
-            @PathVariable Long artworkId
-    ) {
-        return ResponseEntity.ok(ApiResponse.success(
-                artworkQueryFacade.getArtistArtworkDetail(artist, artworkId)
-        ));
-    }
-
-    @PatchMapping("/me/image")
+    @PatchMapping("/image")
     @Operation(summary = "작가 대표 이미지 수정",
             description = """
                     작가 대표 이미지를 수정합니다. 최초 등록은 작가 프로필 생성 API 에서 처리합니다.<br>
@@ -107,7 +67,7 @@ public class ArtistController {
         ));
     }
 
-    @PatchMapping("/me/nickname")
+    @PatchMapping("/nickname")
     @Operation(summary = "작가 닉네임 수정",
             description = """
                     작가 닉네임을 수정합니다. 최초 등록은 작가 프로필 생성 API 에서 처리합니다.<br>
@@ -124,7 +84,7 @@ public class ArtistController {
         ));
     }
 
-    @PutMapping("/me/regions")
+    @PutMapping("/regions")
     @Operation(summary = "작가 활동 지역 수정",
             description = """
                     작가 활동 지역을 수정합니다. 최초 등록은 작가 프로필 생성 API 에서 처리합니다.<br>
@@ -144,7 +104,7 @@ public class ArtistController {
         ));
     }
 
-    @PatchMapping("/me/intro")
+    @PatchMapping("/intro")
     @Operation(summary = "작가 소개 수정",
             description = """
                     작가 소개를 수정합니다. 빈 문자열을 보내면 소개를 비웁니다.
@@ -160,51 +120,46 @@ public class ArtistController {
         ));
     }
 
-    @PatchMapping("/me/pricing")
-    @Operation(summary = "촬영 정보 업데이트",
+    @PatchMapping("/etc-info")
+    @Operation(summary = "작가 기타 안내 수정",
             description = """
-                    출장비 / 패키지 정보를 한 번에 수정합니다.<br>
-                    보내지 않거나 null 인 항목은 변경하지 않습니다.<br>
-                    travelFeeInfo, packageInfo 는 줄바꿈이 포함된 자유 형식 텍스트입니다.
+                    기타 안내(촬영 취소·환불 규정 등 자유 형식 텍스트)를 수정합니다. 빈 문자열을 보내면 비웁니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> updatePricing(
+    public ResponseEntity<ApiResponse<ArtistResponse>> updateEtcInfo(
             @CurrentArtist Artist artist,
-            @RequestBody @Valid ArtistPricingUpdateRequest request) {
-
-        return ResponseEntity.ok(ApiResponse.success(
-                artistFacade.updatePricing(artist, request)
-        ));
-    }
-
-    @DeleteMapping("/me/pricing/travel-fee")
-    @Operation(summary = "출장비 삭제",
-            description = """
-                    출장비 정보를 삭제합니다. 출장비만 비워지고 다른 정보는 그대로 유지됩니다.
-                    """)
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
-            ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> deleteTravelFeeInfo(
-            @CurrentArtist Artist artist
+            @RequestBody @Valid ArtistEtcInfoUpdateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                artistFacade.deleteTravelFeeInfo(artist)
+                artistFacade.updateEtcInfo(artist, request)
         ));
     }
 
-    @DeleteMapping("/me/pricing/package")
-    @Operation(summary = "패키지 정보 삭제",
-            description = """
-                    패키지 정보를 삭제합니다. 패키지 정보만 비워지고 다른 정보는 그대로 유지됩니다.
-                    """)
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
-            ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> deletePackageInfo(
-            @CurrentArtist Artist artist
-    ) {
-        return ResponseEntity.ok(ApiResponse.success(
-                artistFacade.deletePackageInfo(artist)
-        ));
-    }
+//    @DeleteMapping
+//    @Operation(summary = "작가 역할 해지",
+//            description = """
+//                    현재 회원의 <b>작가 역할만</b> 해지합니다(계정 전체 탈퇴가 아님).<br>
+//                    고객 역할이 함께 있으면 작가 프로필은 익명화되고, <b>남은 고객 역할로 재발급된 accessToken</b> 을
+//                    응답으로 돌려줍니다 — <code>withdrawn=false</code>. 응답 즉시 기존 accessToken 을 교체하세요(refreshToken 은 유지).<br>
+//                    작가가 <b>유일한 역할</b>이면 계정 전체가 탈퇴 처리되어 <code>withdrawn=true</code> 로 내려갑니다 —
+//                    이때는 토큰을 삭제하고 로그인 화면으로 이동하세요.<br>
+//                    고객 모드로 로그인한 상태에서도 호출할 수 있습니다. 작가 역할이 없으면 403 을 반환합니다.
+//                    """)
+//    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+//                    responseCode = "200", description = "작가 역할 해지 성공"),
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+//                    responseCode = "401", description = "인증 필요 (토큰 없음/만료/유효하지 않음)"),
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+//                    responseCode = "403", description = "작가 역할이 없음")
+//    })
+//    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_NOT_AVAILABLE})
+//    public ResponseEntity<ApiResponse<RoleRevokeResponse>> revokeArtistRole(
+//            @AuthenticationPrincipal Member member
+//    ) {
+//        return ResponseEntity.ok(ApiResponse.success(
+//                memberFacade.revokeArtistRole(member)
+//        ));
+//    }
 }

@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 // 토큰을 생성하고 올바른 토큰인지 유효성 검사를 하고, 토큰에서 필요한 정보를 가져오는 클래스
 public class TokenProvider {
     private final JwtProperties jwtProperties;
-    private final OAuthAccountRepository oauthAccountRepository;
     private final MemberQueryService memberQueryService;
     private final CustomerRepository customerRepository;
     private final ArtistRepository artistRepository;
@@ -60,12 +59,12 @@ public class TokenProvider {
 
         List<MemberRole> availableRoles = memberQueryService.getAvailableRoles(member);
         List<String> availableRoleNames = availableRoles.stream().map(Enum::name).toList();
-        // 최근 접속 Role 이 없으면(둘 다 미생성 등) 생성된 Role 중 첫 번째로 대체
+        // activeRole 은 요청이 지정한 role(override)로 정한다. 로그인·전환·온보딩·리프레시 모두 role 을 명시하므로
+        // 정상 흐름에선 override 가 항상 있다. (recentRole 은 최근 접속 role 확인용 컬럼일 뿐 여기서 쓰지 않는다.)
+        // override 가 없을 때만(엣지 케이스) 보유 role 중 첫 번째로, 그마저 없으면 null(프로필 미생성).
         String activeRoleName = overrideActiveRole != null
                 ? overrideActiveRole.name()
-                : member.getRecentRole() != null
-                        ? member.getRecentRole().name()
-                        : availableRoleNames.isEmpty() ? null : availableRoleNames.getFirst();
+                : availableRoleNames.isEmpty() ? null : availableRoleNames.getFirst();
         Long activeProfileId = resolveActiveProfileId(member, activeRoleName);
 
         return Jwts.builder()

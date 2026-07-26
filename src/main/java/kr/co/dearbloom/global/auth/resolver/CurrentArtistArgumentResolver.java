@@ -1,6 +1,6 @@
 package kr.co.dearbloom.global.auth.resolver;
 
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.repository.ArtistRepository;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;

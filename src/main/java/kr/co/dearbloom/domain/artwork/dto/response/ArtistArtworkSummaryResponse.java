@@ -12,7 +12,7 @@ public record ArtistArtworkSummaryResponse(
         @Schema(description = "작품명", example = "야외 개인 졸업스냅")
         String title,
 
-        @Schema(description = "기본 가격(원)", example = "200000")
+        @Schema(description = "기본 가격 (패키지 중 최저가)", example = "200000")
         Integer price,
 
         @Schema(description = "최소 촬영 인원(1~6)", example = "2")

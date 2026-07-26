@@ -1,11 +1,13 @@
 package kr.co.dearbloom.domain.artwork.service;
 
-import kr.co.dearbloom.domain.artist.entity.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkThumbnailResponse;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
+import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
+import kr.co.dearbloom.domain.artwork.repository.ArtworkPackageRepository;
 import kr.co.dearbloom.domain.artwork.repository.ArtworkRepository;
 import kr.co.dearbloom.domain.artwork.repository.PortfolioFileRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class ArtworkQueryService {
     private final ArtworkRepository artworkRepository;
     private final PortfolioFileRepository portfolioFileRepository;
+    private final ArtworkPackageRepository artworkPackageRepository;
 
     // 소유권 검증 없이 작품을 조회한다(상세 조회용). 없으면 404.
     public Artwork getById(Long artworkId) {
@@ -46,6 +49,10 @@ public class ArtworkQueryService {
         return portfolioFileRepository.findByArtworkOrderBySortOrderAsc(artwork);
     }
 
+    public List<ArtworkPackage> getPackages(Artwork artwork) {
+        return artworkPackageRepository.findByArtwork(artwork);
+    }
+
     // 전체 작품을 최신순으로 리스트 카드 형태로 조회. savedArtworkIds 는 고객이 저장한 작품 id 집합(없으면 null).
     public List<ArtworkSummaryResponse> getAllLatestSummaries(Set<Long> savedArtworkIds) {
         return getSummaries(artworkRepository.findAllWithArtistOrderByCreatedAtDesc(), savedArtworkIds);
@@ -58,11 +65,12 @@ public class ArtworkQueryService {
             return List.of();
         }
         Map<Long, String> representativeImage = representativeImageMap(artworks);
+        Map<Long, Integer> lowestPrice = lowestPriceMap(artworks);
         return artworks.stream()
                 .map(artwork -> new ArtistArtworkSummaryResponse(
                         artwork.getArtworkId(),
                         artwork.getArtworkName(),
-                        artwork.getPrice(),
+                        lowestPrice.get(artwork.getArtworkId()),
                         artwork.getMinHeadCount(),
                         artwork.getMaxHeadCount(),
                         artwork.getArtist().getNickname(),
@@ -84,9 +92,13 @@ public class ArtworkQueryService {
             return List.of();
         }
         Map<Long, String> representativeImage = representativeImageMap(others);
+        // others 는 모두 같은 작가의 작품이라 닉네임은 파라미터 artist 로 공통 사용.
+        String artistNickname = artist.getNickname();
         return others.stream()
                 .map(artwork -> new ArtworkThumbnailResponse(
                         artwork.getArtworkId(),
+                        artwork.getArtworkName(),
+                        artistNickname,
                         representativeImage.get(artwork.getArtworkId())))
                 .toList();
     }
@@ -100,11 +112,12 @@ public class ArtworkQueryService {
             return List.of();
         }
         Map<Long, String> representativeImage = representativeImageMap(artworks);
+        Map<Long, Integer> lowestPrice = lowestPriceMap(artworks);
         return artworks.stream()
                 .map(artwork -> new ArtworkSummaryResponse(
                         artwork.getArtworkId(),
                         artwork.getArtworkName(),
-                        artwork.getPrice(),
+                        lowestPrice.get(artwork.getArtworkId()),
                         artwork.getMinHeadCount(),
                         artwork.getMaxHeadCount(),
                         artwork.getArtist().getNickname(),
@@ -114,6 +127,19 @@ public class ArtworkQueryService {
                 .toList();
     }
 
+    // 작품별 대표 이미지(sortOrder 가장 앞선 사진) URL 맵. 배치 조회(다른 도메인에서도 재사용).
+    public Map<Long, String> getRepresentativeImageUrls(List<Artwork> artworks) {
+        return representativeImageMap(artworks);
+    }
+
+    // 작품 대표 이미지(sortOrder 가장 앞선 사진) URL 단건. 없으면 null.
+    public String getRepresentativeImageUrl(Artwork artwork) {
+        return portfolioFileRepository.findByArtworkOrderBySortOrderAsc(artwork).stream()
+                .findFirst()
+                .map(PortfolioFile::getFileUrl)
+                .orElse(null);
+    }
+
     // 작품별 대표 이미지(sortOrder 가장 앞선 사진) URL 맵. 한 번의 조회로 N+1 회피.
     private Map<Long, String> representativeImageMap(List<Artwork> artworks) {
         return portfolioFileRepository.findByArtworkInOrderBySortOrderAsc(artworks).stream()
@@ -121,5 +147,15 @@ public class ArtworkQueryService {
                         file -> file.getArtwork().getArtworkId(),
                         PortfolioFile::getFileUrl,
                         (first, second) -> first));
+    }
+
+    // 작품별 최저 패키지 가격 맵. 한 번의 조회로 N+1 회피. 가격 null 패키지는 제외.
+    private Map<Long, Integer> lowestPriceMap(List<Artwork> artworks) {
+        return artworkPackageRepository.findByArtworkIn(artworks).stream()
+                .filter(pkg -> pkg.getPrice() != null)
+                .collect(Collectors.toMap(
+                        pkg -> pkg.getArtwork().getArtworkId(),
+                        ArtworkPackage::getPrice,
+                        Math::min));
     }
 }

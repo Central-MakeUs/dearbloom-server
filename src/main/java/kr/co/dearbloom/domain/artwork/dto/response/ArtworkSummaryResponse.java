@@ -12,8 +12,8 @@ public record ArtworkSummaryResponse(
         @Schema(description = "작품명", example = "야외 개인 졸업스냅")
         String title,
 
-        @Schema(description = "기본 가격(원)", example = "200000")
-        Integer price,
+        @Schema(description = "패키지 중 최저가(원). 패키지가 없으면 null.", example = "200000")
+        Integer lowestPrice,
 
         @Schema(description = "최소 촬영 인원(1~6)", example = "2")
         Integer minHeadCount,

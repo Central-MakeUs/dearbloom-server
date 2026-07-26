@@ -28,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/customers/me/saved-artworks")
-@Tag(name = "Saved Artwork", description = "작품 저장 API")
+@Tag(name = "Saved Artwork", description = "고객 작품 저장 API")
 public class SavedArtworkController {
     private final SavedArtworkFacade savedArtworkFacade;
 

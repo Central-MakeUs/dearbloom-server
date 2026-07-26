@@ -1,13 +1,13 @@
 package kr.co.dearbloom.domain.artist.facade;
 
-import kr.co.dearbloom.domain.artist.dto.request.ArtistIntroUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistPricingUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.request.ArtistRegionUpdateRequest;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistDetailResponse;
-import kr.co.dearbloom.domain.artist.dto.response.ArtistResponse;
-import kr.co.dearbloom.domain.artist.entity.Artist;
-import kr.co.dearbloom.domain.artist.service.ArtistCommandService;
-import kr.co.dearbloom.domain.artist.service.ArtistQueryService;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistEtcInfoUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistIntroUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistRegionUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistDetailResponse;
+import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistResponse;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.service.artist.ArtistCommandService;
+import kr.co.dearbloom.domain.artist.service.artist.ArtistQueryService;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.file.FileUrlValidator;
@@ -66,23 +66,9 @@ public class ArtistFacade {
     }
 
     @Transactional
-    public ArtistResponse updatePricing(Artist artist, ArtistPricingUpdateRequest request) {
+    public ArtistResponse updateEtcInfo(Artist artist, ArtistEtcInfoUpdateRequest request) {
         return ArtistResponse.from(
-                artistCommandService.updatePricing(artist, request)
-        );
-    }
-
-    @Transactional
-    public ArtistResponse deleteTravelFeeInfo(Artist artist) {
-        return ArtistResponse.from(
-                artistCommandService.deleteTravelFeeInfo(artist)
-        );
-    }
-
-    @Transactional
-    public ArtistResponse deletePackageInfo(Artist artist) {
-        return ArtistResponse.from(
-                artistCommandService.deletePackageInfo(artist)
+                artistCommandService.updateEtcInfo(artist, request.getEtcInfo())
         );
     }
 }

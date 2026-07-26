@@ -4,19 +4,23 @@ import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.auth.entity.OAuthProvider;
 import kr.co.dearbloom.domain.auth.repository.OAuthAccountRepository;
+import kr.co.dearbloom.domain.auth.service.custom.AppleTokenService;
 import kr.co.dearbloom.domain.member.entity.Member;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthAccountService {
     private final OAuthAccountRepository oAuthAccountRepository;
+    private final AppleTokenService appleTokenService;
 
     @Transactional
     public OAuthAccount createOrUpdate(OAuth2User oAuth2User, String provider) {
@@ -88,6 +92,27 @@ public class OAuthAccountService {
     public void deleteByMember(Member member) {
         oAuthAccountRepository.findByMember(member)
                 .ifPresent(oAuthAccountRepository::delete);
+    }
+
+    /** Apple 로그인 code 교환으로 얻은 refresh token 을 계정에 저장(탈퇴 revoke 용). */
+    @Transactional
+    public void updateRefreshToken(OAuthAccount account, String refreshToken, String clientId) {
+        account.updateRefreshToken(refreshToken, clientId);
+        oAuthAccountRepository.save(account);
+    }
+
+    /**
+     * 탈퇴 시 이 회원의 Apple refresh token 을 폐기(App Store 필수).
+     * Apple 계정 + refresh token 이 있을 때만 호출. revoke 실패는 호출부에서 무시(탈퇴는 진행).
+     */
+    public void revokeAppleTokenIfPresent(Member member) {
+        oAuthAccountRepository.findByMember(member).ifPresent(account -> {
+            if (account.getOauthProvider() == OAuthProvider.APPLE
+                    && account.getOauthRefreshToken() != null
+                    && account.getOauthRefreshClientId() != null) {
+                appleTokenService.revoke(account.getOauthRefreshToken(), account.getOauthRefreshClientId());
+            }
+        });
     }
 
     public boolean existsByName(String name) {

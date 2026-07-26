@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.entity.OAuthAccount;
 import kr.co.dearbloom.domain.member.entity.Member;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.service.MemberCommandService;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
@@ -51,7 +52,17 @@ public class AuthService {
      * 일반 경로(dev 웹·운영) — 백엔드가 Set-Cookie 를 직접 내려도 브라우저가 받을 수 있는 케이스에서 사용.
      */
     public void issueTokensAndSetCookies(Member member, HttpServletRequest request, HttpServletResponse response) {
-        TokenRefreshResponse tokens = issueTokens(member, request);
+        issueTokensAndSetCookies(member, null, request, response);
+    }
+
+    /**
+     * {@link #issueTokensAndSetCookies(Member, HttpServletRequest, HttpServletResponse)} 의 role 지정 버전.
+     * 로그인 화면에서 고른 role 을 토큰 activeRole 로 강제하고 싶을 때 사용한다.
+     * (해당 role 프로필이 아직 없다면 {@code overrideActiveRole} 에 null 을 넘겨 기본 규칙을 따르게 한다.)
+     */
+    public void issueTokensAndSetCookies(Member member, MemberRole overrideActiveRole,
+                                         HttpServletRequest request, HttpServletResponse response) {
+        TokenRefreshResponse tokens = issueTokens(member, overrideActiveRole, request);
         addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, tokens.getAccessToken(), jwtProperties.refreshTokenExpiry());
         addTokenCookie(response, REFRESH_TOKEN_COOKIE_NAME, tokens.getRefreshToken(), jwtProperties.refreshTokenExpiry());
     }
@@ -61,14 +72,34 @@ public class AuthService {
      * 하이브리드 로그인(localhost)에서 프론트가 응답 바디로 토큰을 받아 직접 쿠키를 심는 용도.
      */
     public TokenRefreshResponse issueTokens(Member member, HttpServletRequest request) {
+        return issueTokens(member, null, request);
+    }
+
+    /** {@link #issueTokens(Member, HttpServletRequest)} 의 access token activeRole 지정 버전. */
+    public TokenRefreshResponse issueTokens(Member member, MemberRole overrideActiveRole, HttpServletRequest request) {
         String ip = HttpRequestUtils.extractClientIp(request);
         String deviceInfo = request.getHeader("User-Agent");
 
         String refreshToken = tokenProvider.generateToken(member, jwtProperties.refreshTokenExpiry());
         refreshTokenSessionService.save(member, refreshToken, ip, deviceInfo);
-        String accessToken = tokenProvider.generateToken(member, jwtProperties.accessTokenExpiry());
+        String accessToken =
+                tokenProvider.generateToken(member, jwtProperties.accessTokenExpiry(), overrideActiveRole);
 
         return new TokenRefreshResponse(accessToken, refreshToken);
+    }
+
+    /**
+     * 로그인 화면에서 고른 role 을 토큰 activeRole 로 쓸지 결정한다.
+     * 선택한 role 의 프로필이 이미 있으면 그 role 을, 아직 없으면(온보딩 전) null 을 반환해
+     * TokenProvider 의 기본 규칙(recentRole → 보유 role)에 맡긴다.
+     */
+    public MemberRole resolveActiveRoleForLogin(Member member, MemberRole selectedRole) {
+        if (selectedRole == null) {
+            return null;
+        }
+        boolean hasSelectedProfile =
+                selectedRole == MemberRole.CUSTOMER ? member.isHasCustomer() : member.isHasArtist();
+        return hasSelectedProfile ? selectedRole : null;
     }
 
     /** access/refresh 쿠키 공통 빌더. domain/secure/sameSite 는 CookieProperties(환경별 설정)를 따른다. */
