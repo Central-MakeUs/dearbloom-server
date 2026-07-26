@@ -14,7 +14,6 @@ import kr.co.dearbloom.domain.customer.dto.response.CustomerResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.customer.service.CustomerCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryWithdrawalService;
-import kr.co.dearbloom.domain.member.dto.RoleRevokeResponse;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
@@ -118,45 +117,45 @@ public class MemberFacade {
         tokenService.logout(memberId);
     }
 
-    /**
-     * 고객 역할 해지. 마지막 남은 역할이면 계정 전체 탈퇴로 수렴한다(withdrawn=true).
-     * 작가 역할이 남아 있으면 고객 프로필만 익명화·플래그 해제하고, 남은 작가 역할로 accessToken 을 재발급한다.
-     */
-    @Transactional
-    public RoleRevokeResponse revokeCustomerRole(Member member) {
-        if (!member.isHasCustomer()) {
-            throw new CustomException(ErrorCode.ROLE_NOT_AVAILABLE);
-        }
-        if (!member.isHasArtist()) { // 마지막 역할 → 회원 탈퇴로 수렴
-            withdraw(member);
-            return RoleRevokeResponse.asWithdrawn();
-        }
-        inquiryWithdrawalService.cancelForCustomerRevoke(member); // 고객으로 걸린 진행중/예약 자동 취소
-        customerCommandService.anonymizeByMember(member);
-        Member updated = memberCommandService.revokeRole(member, MemberRole.CUSTOMER);
-        String accessToken = tokenService.createAccessToken(updated, MemberRole.ARTIST);
-        return RoleRevokeResponse.switched(accessToken, MemberRole.ARTIST);
-    }
+//    /**
+//     * 고객 역할 해지. 마지막 남은 역할이면 계정 전체 탈퇴로 수렴한다(withdrawn=true).
+//     * 작가 역할이 남아 있으면 고객 프로필만 익명화·플래그 해제하고, 남은 작가 역할로 accessToken 을 재발급한다.
+//     */
+//    @Transactional
+//    public RoleRevokeResponse revokeCustomerRole(Member member) {
+//        if (!member.isHasCustomer()) {
+//            throw new CustomException(ErrorCode.ROLE_NOT_AVAILABLE);
+//        }
+//        if (!member.isHasArtist()) { // 마지막 역할 → 회원 탈퇴로 수렴
+//            withdraw(member);
+//            return RoleRevokeResponse.asWithdrawn();
+//        }
+//        inquiryWithdrawalService.cancelForCustomerRevoke(member); // 고객으로 걸린 진행중/예약 자동 취소
+//        customerCommandService.anonymizeByMember(member);
+//        Member updated = memberCommandService.revokeRole(member, MemberRole.CUSTOMER);
+//        String accessToken = tokenService.createAccessToken(updated, MemberRole.ARTIST);
+//        return RoleRevokeResponse.switched(accessToken, MemberRole.ARTIST);
+//    }
 
-    /**
-     * 작가 역할 해지. 마지막 남은 역할이면 계정 전체 탈퇴로 수렴한다(withdrawn=true).
-     * 고객 역할이 남아 있으면 작가 프로필만 익명화·플래그 해제하고, 남은 고객 역할로 accessToken 을 재발급한다.
-     */
-    @Transactional
-    public RoleRevokeResponse revokeArtistRole(Member member) {
-        if (!member.isHasArtist()) {
-            throw new CustomException(ErrorCode.ROLE_NOT_AVAILABLE);
-        }
-        if (!member.isHasCustomer()) { // 마지막 역할 → 회원 탈퇴로 수렴
-            withdraw(member);
-            return RoleRevokeResponse.asWithdrawn();
-        }
-        inquiryWithdrawalService.cancelForArtistRevoke(member); // 작가로 걸린 진행중/예약 자동 취소
-        artistCommandService.anonymizeByMember(member);
-        Member updated = memberCommandService.revokeRole(member, MemberRole.ARTIST);
-        String accessToken = tokenService.createAccessToken(updated, MemberRole.CUSTOMER);
-        return RoleRevokeResponse.switched(accessToken, MemberRole.CUSTOMER);
-    }
+//    /**
+//     * 작가 역할 해지. 마지막 남은 역할이면 계정 전체 탈퇴로 수렴한다(withdrawn=true).
+//     * 고객 역할이 남아 있으면 작가 프로필만 익명화·플래그 해제하고, 남은 고객 역할로 accessToken 을 재발급한다.
+//     */
+//    @Transactional
+//    public RoleRevokeResponse revokeArtistRole(Member member) {
+//        if (!member.isHasArtist()) {
+//            throw new CustomException(ErrorCode.ROLE_NOT_AVAILABLE);
+//        }
+//        if (!member.isHasCustomer()) { // 마지막 역할 → 회원 탈퇴로 수렴
+//            withdraw(member);
+//            return RoleRevokeResponse.asWithdrawn();
+//        }
+//        inquiryWithdrawalService.cancelForArtistRevoke(member); // 작가로 걸린 진행중/예약 자동 취소
+//        artistCommandService.anonymizeByMember(member);
+//        Member updated = memberCommandService.revokeRole(member, MemberRole.ARTIST);
+//        String accessToken = tokenService.createAccessToken(updated, MemberRole.CUSTOMER);
+//        return RoleRevokeResponse.switched(accessToken, MemberRole.CUSTOMER);
+//    }
 
     /**
      * 회원 탈퇴(soft delete). 진행 중 문의 자동 취소 → Apple 토큰 revoke(심사 필수) → 소셜 연결(OAuthAccount)
