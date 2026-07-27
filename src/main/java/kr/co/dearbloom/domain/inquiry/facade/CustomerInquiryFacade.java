@@ -13,7 +13,7 @@ import kr.co.dearbloom.domain.inquiry.dto.request.InquiryCreateRequest;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryCreateResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryStatusResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.customer.CustomerInquiryDetailResponse;
-import kr.co.dearbloom.domain.inquiry.dto.response.customer.CustomerInquiryListItemResponse;
+import kr.co.dearbloom.domain.inquiry.dto.response.customer.CustomerInquirySummaryResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.customer.InquiryPreparationResponse;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
@@ -106,12 +106,12 @@ public class CustomerInquiryFacade {
 
     /** 고객이 보낸 문의 리스트(최근 수정순). 작품 대표 이미지는 배치로 조회한다. */
     @Transactional(readOnly = true)
-    public List<CustomerInquiryListItemResponse> getMyInquiries(Customer customer) {
+    public List<CustomerInquirySummaryResponse> getMyInquiries(Customer customer) {
         List<Inquiry> inquiries = inquiryQueryService.getByCustomer(customer.getCustomerId());
         Map<Long, String> imageByArtworkId = artworkQueryService.getRepresentativeImageUrls(
                 inquiries.stream().map(inquiry -> inquiry.getArtworkPackage().getArtwork()).toList());
         return inquiries.stream()
-                .map(inquiry -> CustomerInquiryListItemResponse.of(
+                .map(inquiry -> CustomerInquirySummaryResponse.of(
                         inquiry, imageByArtworkId.get(inquiry.getArtworkPackage().getArtwork().getArtworkId())))
                 .toList();
     }

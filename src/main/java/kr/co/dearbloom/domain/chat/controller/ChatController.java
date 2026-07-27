@@ -8,7 +8,7 @@ import kr.co.dearbloom.domain.chat.dto.ChatParticipant;
 import kr.co.dearbloom.domain.chat.dto.request.ChatImageSendRequest;
 import kr.co.dearbloom.domain.chat.dto.request.ChatMessageSendRequest;
 import kr.co.dearbloom.domain.chat.dto.response.ChatMessageResponse;
-import kr.co.dearbloom.domain.chat.dto.response.ChatRoomListItemResponse;
+import kr.co.dearbloom.domain.chat.dto.response.ChatRoomSummaryResponse;
 import kr.co.dearbloom.domain.chat.facade.ChatFacade;
 import kr.co.dearbloom.global.auth.resolver.CurrentChatParticipant;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
@@ -39,7 +39,7 @@ public class ChatController {
             description = "현재 역할(고객/작가) 기준 내 채팅방을 최근 메시지순으로 반환합니다. "
                     + "각 방은 상대방 이름·이미지, 마지막 메시지 미리보기·시각, 안읽음 수를 포함합니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED})
-    public ResponseEntity<ApiResponse<List<ChatRoomListItemResponse>>> getMyRooms(
+    public ResponseEntity<ApiResponse<List<ChatRoomSummaryResponse>>> getMyRooms(
             @CurrentChatParticipant ChatParticipant me
     ) {
         return ResponseEntity.ok(ApiResponse.success(chatFacade.getMyRooms(me)));

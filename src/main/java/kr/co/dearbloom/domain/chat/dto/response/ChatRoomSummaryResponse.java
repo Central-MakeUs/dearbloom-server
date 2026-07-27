@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 /** 채팅 목록 1행. 상대방(고객이면 작가, 작가면 고객) 표시 정보 + 마지막 메시지 미리보기·안읽음 수. */
 @Schema(description = "채팅방 목록 항목")
-public record ChatRoomListItemResponse(
+public record ChatRoomSummaryResponse(
         @Schema(description = "채팅방 ID", example = "1")
         Long roomId,
 
@@ -28,7 +28,7 @@ public record ChatRoomListItemResponse(
         int unreadCount
 ) {
     /** viewerRole 관점으로 상대방 정보를 뽑아 매핑. (fetch join 된 상대 프로필 접근) */
-    public static ChatRoomListItemResponse of(ChatRoom room, MemberRole viewerRole) {
+    public static ChatRoomSummaryResponse of(ChatRoom room, MemberRole viewerRole) {
         String name;
         String imageUrl;
         if (viewerRole == MemberRole.CUSTOMER) {
@@ -38,7 +38,7 @@ public record ChatRoomListItemResponse(
             name = room.getCustomer().getName();
             imageUrl = null;
         }
-        return new ChatRoomListItemResponse(
+        return new ChatRoomSummaryResponse(
                 room.getChatRoomId(),
                 name,
                 imageUrl,
