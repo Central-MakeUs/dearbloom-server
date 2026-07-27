@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.inquiry.dto.request.InquiryCreateRequest;
 import kr.co.dearbloom.domain.inquiry.dto.response.customer.CustomerInquiryDetailResponse;
-import kr.co.dearbloom.domain.inquiry.dto.response.customer.CustomerInquiryListItemResponse;
+import kr.co.dearbloom.domain.inquiry.dto.response.customer.CustomerInquirySummaryResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryCreateResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.customer.InquiryPreparationResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryStatusResponse;
@@ -85,7 +85,7 @@ public class CustomerInquiryController {
             description = "내가 보낸 문의를 <b>최근 수정순</b>으로 조회합니다. 필터 없이 전체를 반환합니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.CUSTOMER_NOT_FOUND})
-    public ResponseEntity<ApiResponse<List<CustomerInquiryListItemResponse>>> getMyInquiries(
+    public ResponseEntity<ApiResponse<List<CustomerInquirySummaryResponse>>> getMyInquiries(
             @CurrentCustomer Customer customer
     ) {
         return ResponseEntity.ok(ApiResponse.success(

@@ -7,7 +7,7 @@ import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryHistoryResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryStatusResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquiryDetailResponse;
-import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquiryListItemResponse;
+import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquirySummaryResponse;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 import kr.co.dearbloom.domain.inquiry.service.InquiryHistoryCommandService;
@@ -32,9 +32,9 @@ public class ArtistInquiryFacade {
 
     /** 작가 작품에 들어온 문의 리스트(촬영일 오름차순). 리스트엔 이미지 없음. */
     @Transactional(readOnly = true)
-    public List<ArtistInquiryListItemResponse> getInquiries(Artist artist) {
+    public List<ArtistInquirySummaryResponse> getInquiries(Artist artist) {
         return inquiryQueryService.getByArtist(artist.getArtistId()).stream()
-                .map(ArtistInquiryListItemResponse::of)
+                .map(ArtistInquirySummaryResponse::of)
                 .toList();
     }
 

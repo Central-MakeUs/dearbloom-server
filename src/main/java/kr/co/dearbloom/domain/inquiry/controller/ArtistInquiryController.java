@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryHistoryResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquiryDetailResponse;
-import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquiryListItemResponse;
+import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquirySummaryResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryStatusResponse;
 import kr.co.dearbloom.domain.inquiry.facade.ArtistInquiryFacade;
 import kr.co.dearbloom.global.auth.resolver.CurrentArtist;
@@ -38,7 +38,7 @@ public class ArtistInquiryController {
             description = "내 작품에 들어온 문의를 <b>촬영 예정일 오름차순</b>(같은 날은 시작시각 순)으로 조회합니다. 필터 없이 전체를 반환합니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<List<ArtistInquiryListItemResponse>>> getInquiries(
+    public ResponseEntity<ApiResponse<List<ArtistInquirySummaryResponse>>> getInquiries(
             @CurrentArtist Artist artist
     ) {
         return ResponseEntity.ok(ApiResponse.success(

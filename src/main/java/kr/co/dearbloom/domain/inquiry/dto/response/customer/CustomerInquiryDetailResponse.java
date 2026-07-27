@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.inquiry.dto.response.customer;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
+import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -12,6 +13,8 @@ import java.time.LocalTime;
 public record CustomerInquiryDetailResponse(
         @Schema(description = "문의 ID", example = "1")
         Long inquiryId,
+        @Schema(description = "문의 상태", example = "IN_PROGRESS")
+        InquiryStatus status,
         @Schema(description = "작가명", example = "블루밍데이즈 스냅")
         String artistNickname,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
@@ -42,6 +45,7 @@ public record CustomerInquiryDetailResponse(
     public static CustomerInquiryDetailResponse of(Inquiry inquiry, String artworkImageUrl) {
         return new CustomerInquiryDetailResponse(
                 inquiry.getInquiryId(),
+                inquiry.getStatus(),
                 inquiry.getArtistNicknameSnapshot(),
                 inquiry.getArtworkNameSnapshot(),
                 inquiry.getPackageNameSnapshot(),

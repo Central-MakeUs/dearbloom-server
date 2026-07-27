@@ -3,7 +3,7 @@ package kr.co.dearbloom.domain.chat.facade;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.chat.dto.ChatParticipant;
 import kr.co.dearbloom.domain.chat.dto.response.ChatMessageResponse;
-import kr.co.dearbloom.domain.chat.dto.response.ChatRoomListItemResponse;
+import kr.co.dearbloom.domain.chat.dto.response.ChatRoomSummaryResponse;
 import kr.co.dearbloom.domain.chat.entity.ChatMessage;
 import kr.co.dearbloom.domain.chat.entity.ChatRoom;
 import kr.co.dearbloom.domain.chat.service.ChatEventPublisher;
@@ -41,9 +41,9 @@ public class ChatFacade {
 
     /** 내 채팅 목록(역할 기준). */
     @Transactional(readOnly = true)
-    public List<ChatRoomListItemResponse> getMyRooms(ChatParticipant me) {
+    public List<ChatRoomSummaryResponse> getMyRooms(ChatParticipant me) {
         return chatRoomQueryService.getMyRooms(me.role(), me.profileId()).stream()
-                .map(room -> ChatRoomListItemResponse.of(room, me.role()))
+                .map(room -> ChatRoomSummaryResponse.of(room, me.role()))
                 .toList();
     }
 
