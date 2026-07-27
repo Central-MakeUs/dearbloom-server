@@ -1,4 +1,4 @@
-name: 🔴 Backend CI/CD Prod
+name: 🔴 Backend CI/CD Production
 
 on:
   push:
@@ -36,8 +36,8 @@ jobs:
             -Dorg.gradle.daemon=false
             -Dorg.gradle.workers.max=1
 
-      - name: Build Docker image
-        run: docker build -f Dockerfile -t ${{ secrets.DOCKER_IMAGE }} .
+      - name: Build Docker image with no cache
+        run: docker build --no-cache -f Dockerfile -t ${{ secrets.DOCKER_IMAGE }} .
 
       - name: Deploy with Docker Compose
         working-directory: ${{ secrets.DOCKER_COMPOSE_DIR }}
