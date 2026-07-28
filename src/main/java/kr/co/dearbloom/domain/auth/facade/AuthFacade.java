@@ -14,16 +14,17 @@ import kr.co.dearbloom.domain.auth.service.custom.AppleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.custom.AppleTokenService;
 import kr.co.dearbloom.domain.auth.service.custom.GoogleNativeAuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
-import kr.co.dearbloom.domain.auth.service.TokenService;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
 import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
 import kr.co.dearbloom.global.auth.oauth.custom.AppleWebLoginService;
 import kr.co.dearbloom.global.auth.oauth.custom.GoogleWebLoginService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthFacade {
@@ -67,11 +68,17 @@ public class AuthFacade {
                 SocialUserInfo userInfo = appleNativeAuthService.verifyIdentityToken(request.getSocialToken());
                 OAuthAccount account = oAuthAccountService.findOrCreateNativeAccount(OAuthProvider.APPLE, userInfo);
                 // 탈퇴 revoke 용: authorizationCode 를 refresh token 으로 교환해 저장(App Store 필수).
+                // 교환 실패해도 로그인은 계속(웹 경로와 동일) — refresh token 만 미저장, 다음 로그인 때 재시도.
                 if (request.getAuthorizationCode() != null && !request.getAuthorizationCode().isBlank()) {
-                    String refreshToken = appleTokenService.exchangeAuthorizationCode(
-                            request.getAuthorizationCode(), appleNativeClientId, null);
-                    if (refreshToken != null) {
-                        oAuthAccountService.updateRefreshToken(account, refreshToken, appleNativeClientId);
+                    try {
+                        String refreshToken = appleTokenService.exchangeAuthorizationCode(
+                                request.getAuthorizationCode(), appleNativeClientId, null);
+                        if (refreshToken != null) {
+                            oAuthAccountService.updateRefreshToken(account, refreshToken, appleNativeClientId);
+                        }
+                    } catch (Exception e) {
+                        log.warn("[AppleNativeLogin] code 교환 실패(로그인 계속) — oauthId={}, {}",
+                                userInfo.sub(), e.getMessage());
                     }
                 }
                 yield account;
