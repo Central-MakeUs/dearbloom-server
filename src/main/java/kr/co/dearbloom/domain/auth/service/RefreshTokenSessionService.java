@@ -8,17 +8,21 @@ import kr.co.dearbloom.global.properties.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @RequiredArgsConstructor
 @Service
 public class RefreshTokenSessionService {
+    private static final ZoneOffset KST = ZoneOffset.ofHours(9);
+
     private final RedisRefreshTokenRepository redisRefreshTokenRepository;
     private final JwtProperties jwtProperties;
     private final TokenProvider tokenProvider;
 
     public void save(Member member, String token, String ip, String deviceInfo) {
-        Instant now = Instant.now();
+        OffsetDateTime now = OffsetDateTime.now(KST).truncatedTo(ChronoUnit.SECONDS);
         long ttlSeconds = jwtProperties.refreshTokenExpiry().toSeconds();
         redisRefreshTokenRepository.save(RedisRefreshToken.builder()
                 .memberId(member.getMemberId())
