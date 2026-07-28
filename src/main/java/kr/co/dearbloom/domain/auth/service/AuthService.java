@@ -63,7 +63,7 @@ public class AuthService {
     public void issueTokensAndSetCookies(Member member, MemberRole overrideActiveRole,
                                          HttpServletRequest request, HttpServletResponse response) {
         TokenRefreshResponse tokens = issueTokens(member, overrideActiveRole, request);
-        addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, tokens.getAccessToken(), jwtProperties.refreshTokenExpiry());
+        addTokenCookie(response, ACCESS_TOKEN_COOKIE_NAME, tokens.getAccessToken(), jwtProperties.accessTokenExpiry());
         addTokenCookie(response, REFRESH_TOKEN_COOKIE_NAME, tokens.getRefreshToken(), jwtProperties.refreshTokenExpiry());
     }
 
