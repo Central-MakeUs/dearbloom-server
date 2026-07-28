@@ -28,7 +28,7 @@ public record ArtworkSummaryResponse(
         List<String> artistRegionList,
 
         @Schema(description = "대표 이미지 CDN URL(sortOrder 가 가장 앞선 사진). 사진이 없으면 null.",
-                example = "https://cdn.dearbloom.co.kr/artwork/uuid.webp")
+                example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
         String thumbnailUrl,
 
         @Schema(description = "내가 저장한 작품인지 여부. 고객 조회 시에만 값이 있고, 비로그인은 null.",

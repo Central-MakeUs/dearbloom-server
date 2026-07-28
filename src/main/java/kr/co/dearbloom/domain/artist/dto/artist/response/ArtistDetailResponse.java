@@ -24,7 +24,7 @@ public record ArtistDetailResponse(
         String etcInfo,
 
         @Schema(description = "작가 대표 이미지 CDN URL. 미등록 시 null.",
-                example = "https://cdn.dearbloom.co.kr/artist/uuid.webp")
+                example = "https://dev-cdn.dearbloom.co.kr/artist/uuid.webp")
         String imageUrl
 ) {
     public static ArtistDetailResponse from(Artist artist) {
