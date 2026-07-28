@@ -39,22 +39,22 @@ import java.util.List;
           ],
           "photoList": [
             {
-              "fileUrl": "https://cdn.dearbloom.co.kr/artwork/uuid1.webp",
+              "fileUrl": "https://dev-cdn.dearbloom.co.kr/artwork/uuid1.webp",
               "fileType": "IMAGE",
               "universityId": 60
             },
             {
-              "fileUrl": "https://cdn.dearbloom.co.kr/artwork/uuid2.webp",
+              "fileUrl": "https://dev-cdn.dearbloom.co.kr/artwork/uuid2.webp",
               "fileType": "IMAGE",
               "universityId": 75
             },
             {
-              "fileUrl": "https://cdn.dearbloom.co.kr/artwork/uuid3.webp",
+              "fileUrl": "https://dev-cdn.dearbloom.co.kr/artwork/uuid3.webp",
               "fileType": "IMAGE",
               "universityId": 75
             },
             {
-              "fileUrl": "https://cdn.dearbloom.co.kr/artwork/uuid4.webp",
+              "fileUrl": "https://dev-cdn.dearbloom.co.kr/artwork/uuid4.webp",
               "fileType": "IMAGE",
               "universityId": null
             }

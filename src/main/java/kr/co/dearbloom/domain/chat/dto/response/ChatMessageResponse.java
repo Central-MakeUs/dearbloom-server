@@ -23,7 +23,7 @@ public record ChatMessageResponse(
         String content,
 
         @Schema(description = "IMAGE 사진 URL (그 외 타입이면 null)",
-                example = "https://cdn.dearbloom.co.kr/chat/image/abc.webp")
+                example = "https://dev-cdn.dearbloom.co.kr/chat/image/abc.webp")
         String imageUrl,
 
         @Schema(description = "INQUIRY 카드 (그 외 타입이면 null)")

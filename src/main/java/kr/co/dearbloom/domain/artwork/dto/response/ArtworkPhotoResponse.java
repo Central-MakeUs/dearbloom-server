@@ -9,7 +9,7 @@ public record ArtworkPhotoResponse(
         @Schema(description = "사진(포트폴리오 파일) ID", example = "10")
         Long portfolioFileId,
 
-        @Schema(description = "사진 CDN URL", example = "https://cdn.dearbloom.co.kr/artwork/uuid.webp")
+        @Schema(description = "사진 CDN URL", example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
         String fileUrl,
 
         @Schema(description = "파일 종류", example = "IMAGE")

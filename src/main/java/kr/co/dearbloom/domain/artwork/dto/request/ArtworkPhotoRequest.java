@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class ArtworkPhotoRequest {
     @NotBlank
     @Schema(description = "사진 CDN URL (presigned 업로드로 받은 fileUrl)",
-            example = "https://cdn.dearbloom.co.kr/artwork/uuid.webp")
+            example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
     private String fileUrl;
 
     @NotNull

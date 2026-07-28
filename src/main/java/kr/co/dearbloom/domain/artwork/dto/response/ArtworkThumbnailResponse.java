@@ -14,7 +14,7 @@ public record ArtworkThumbnailResponse(
         String artistNickname,
 
         @Schema(description = "대표 이미지 CDN URL(sortOrder 가 가장 앞선 사진)",
-                example = "https://cdn.dearbloom.co.kr/artwork/uuid.webp")
+                example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
         String imageUrl
 ) {
 }
