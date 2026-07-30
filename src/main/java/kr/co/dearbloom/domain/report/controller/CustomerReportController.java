@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.report.dto.request.ArtworkReportCreateRequest;
 import kr.co.dearbloom.domain.report.dto.response.ArtworkReportedResponse;
-import kr.co.dearbloom.domain.report.facade.ArtworkReportFacade;
+import kr.co.dearbloom.domain.report.facade.ReportFacade;
 import kr.co.dearbloom.global.auth.resolver.CurrentCustomer;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
@@ -24,9 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/customers/me/artwork-reports")
-@Tag(name = "Artwork Report - Customer", description = "고객 작품 신고 API")
-public class CustomerArtworkReportController {
-    private final ArtworkReportFacade artworkReportFacade;
+@Tag(name = "Report - Customer", description = "고객 신고 API")
+public class CustomerReportController {
+    private final ReportFacade reportFacade;
 
     @PostMapping
     @Operation(summary = "작품 신고",
@@ -36,12 +36,12 @@ public class CustomerArtworkReportController {
                     같은 작품을 이미 신고했다면 409 를 반환합니다 — 신고 취소는 없습니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
-            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.ARTWORK_NOT_FOUND, ErrorCode.ARTWORK_ALREADY_REPORTED})
+            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.ARTWORK_NOT_FOUND, ErrorCode.ALREADY_REPORTED})
     public ResponseEntity<ApiResponse<Void>> report(
             @CurrentCustomer Customer customer,
             @RequestBody @Valid ArtworkReportCreateRequest request
     ) {
-        artworkReportFacade.report(customer, request);
+        reportFacade.reportArtwork(customer, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
     }
 
@@ -58,7 +58,7 @@ public class CustomerArtworkReportController {
             @PathVariable Long artworkId
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                artworkReportFacade.isReported(customer, artworkId)
+                reportFacade.isArtworkReported(customer, artworkId)
         ));
     }
 }

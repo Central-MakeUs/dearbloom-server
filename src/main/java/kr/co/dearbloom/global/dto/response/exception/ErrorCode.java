@@ -65,7 +65,7 @@ public enum ErrorCode {
     /**
      * Report
      */
-    ARTWORK_ALREADY_REPORTED(HttpStatus.CONFLICT, "REPORT-409", "이미 신고한 작품입니다."),
+    ALREADY_REPORTED(HttpStatus.CONFLICT, "REPORT-409", "이미 신고한 대상입니다."),
 
     /**
      * Notification
