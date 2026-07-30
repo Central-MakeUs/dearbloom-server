@@ -21,6 +21,8 @@ public record CustomerInquirySummaryResponse(
         String artistNickname,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
         String artworkName,
+        @Schema(description = "패키지명", example = "패키지 A")
+        String packageName,
         @Schema(description = "작품 이미지(1장) URL")
         String artworkImageUrl,
         @Schema(description = "촬영 날짜", example = "2026-06-11")
@@ -37,6 +39,7 @@ public record CustomerInquirySummaryResponse(
                 inquiry.getStatus().getLabel(),
                 inquiry.getArtistNicknameSnapshot(),
                 inquiry.getArtworkNameSnapshot(),
+                inquiry.getPackageNameSnapshot(),
                 artworkImageUrl,
                 inquiry.getShootDate(),
                 inquiry.getShootDate().getDayOfWeek(),
