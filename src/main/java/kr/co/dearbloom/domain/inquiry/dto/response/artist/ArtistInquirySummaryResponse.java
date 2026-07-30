@@ -17,6 +17,10 @@ public record ArtistInquirySummaryResponse(
         InquiryStatus status,
         @Schema(description = "상태 한국어 표기", example = "문의 진행중")
         String statusLabel,
+        @Schema(description = "문의한 고객명", example = "김디어")
+        String customerName,
+        @Schema(description = "고객 프로필 이미지 URL", nullable = true)
+        String customerImageUrl,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
         String artworkName,
         @Schema(description = "패키지명", example = "패키지 A")
@@ -39,6 +43,8 @@ public record ArtistInquirySummaryResponse(
                 inquiry.getInquiryId(),
                 inquiry.getStatus(),
                 inquiry.getStatus().getLabel(),
+                inquiry.getCustomer().getName(),
+                inquiry.getCustomer().getImageUrl(),
                 inquiry.getArtworkNameSnapshot(),
                 inquiry.getPackageNameSnapshot(),
                 inquiry.getHeadCount(),

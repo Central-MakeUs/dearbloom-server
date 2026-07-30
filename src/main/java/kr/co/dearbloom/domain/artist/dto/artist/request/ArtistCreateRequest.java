@@ -20,7 +20,7 @@ public class ArtistCreateRequest {
 
     @Schema(description = "대표 이미지 CDN URL (presigned 업로드로 받은 fileUrl). 선택 항목이며, "
             + "보내지 않거나 null 이면 이미지 없이 생성됩니다.",
-            example = "https://cdn.dearbloom.co.kr/artist/uuid.webp")
+            example = "https://dev-cdn.dearbloom.co.kr/artist/uuid.webp")
     private String imageUrl;
 
     @NotEmpty(message = "활동 지역을 1개 이상 선택해주세요")

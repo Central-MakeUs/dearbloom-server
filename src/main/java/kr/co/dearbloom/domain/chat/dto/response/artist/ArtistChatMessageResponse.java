@@ -1,20 +1,25 @@
-package kr.co.dearbloom.domain.chat.dto.response;
+package kr.co.dearbloom.domain.chat.dto.response.artist;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.co.dearbloom.domain.chat.dto.response.InquiryCardResponse;
 import kr.co.dearbloom.domain.chat.entity.ChatMessage;
 import kr.co.dearbloom.domain.chat.entity.ChatMessageType;
+import kr.co.dearbloom.domain.chat.entity.ChatRoom;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 
 import java.time.LocalDateTime;
 
-/** 채팅 메시지 1건. 타입에 따라 하나만 채워진다 — TEXT=content, IMAGE=imageUrl, INQUIRY=inquiryCard. */
-@Schema(description = "채팅 메시지")
-public record ChatMessageResponse(
+/** 작가가 보는 채팅 메시지 1건. 타입에 따라 하나만 채워진다 — TEXT=content, IMAGE=imageUrl, INQUIRY=inquiryCard. */
+@Schema(description = "작가 채팅 메시지")
+public record ArtistChatMessageResponse(
         @Schema(description = "메시지 ID", example = "100")
         Long messageId,
 
         @Schema(description = "발신자 역할", example = "CUSTOMER")
         MemberRole senderRole,
+
+        @Schema(description = "고객명", example = "김디어")
+        String customerName,
 
         @Schema(description = "메시지 종류", example = "TEXT")
         ChatMessageType messageType,
@@ -32,13 +37,15 @@ public record ChatMessageResponse(
         @Schema(description = "발신 시각", example = "2026-06-11T09:00:00")
         LocalDateTime createdAt
 ) {
-    public static ChatMessageResponse from(ChatMessage message) {
+    /** 고객명은 방 기준이라 메시지마다 같은 값이 들어간다(말풍선 옆 프로필 렌더용). */
+    public static ArtistChatMessageResponse of(ChatMessage message, ChatRoom room) {
         InquiryCardResponse card = (message.getMessageType() == ChatMessageType.INQUIRY && message.getInquiry() != null)
                 ? InquiryCardResponse.from(message.getInquiry())
                 : null;
-        return new ChatMessageResponse(
+        return new ArtistChatMessageResponse(
                 message.getChatMessageId(),
                 message.getSenderRole(),
+                room.getCustomer().getName(),
                 message.getMessageType(),
                 message.getContent(),
                 message.getImageUrl(),

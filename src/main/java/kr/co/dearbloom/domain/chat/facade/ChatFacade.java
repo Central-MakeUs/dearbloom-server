@@ -1,9 +1,11 @@
 package kr.co.dearbloom.domain.chat.facade;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
-import kr.co.dearbloom.domain.chat.dto.ChatParticipant;
 import kr.co.dearbloom.domain.chat.dto.response.ChatMessageResponse;
-import kr.co.dearbloom.domain.chat.dto.response.ChatRoomSummaryResponse;
+import kr.co.dearbloom.domain.chat.dto.response.artist.ArtistChatMessageResponse;
+import kr.co.dearbloom.domain.chat.dto.response.artist.ArtistChatRoomSummaryResponse;
+import kr.co.dearbloom.domain.chat.dto.response.customer.CustomerChatMessageResponse;
+import kr.co.dearbloom.domain.chat.dto.response.customer.CustomerChatRoomSummaryResponse;
 import kr.co.dearbloom.domain.chat.entity.ChatMessage;
 import kr.co.dearbloom.domain.chat.entity.ChatRoom;
 import kr.co.dearbloom.domain.chat.service.ChatEventPublisher;
@@ -39,33 +41,56 @@ public class ChatFacade {
     private final ChatEventPublisher chatEventPublisher;
     private final FileUrlValidator fileUrlValidator;
 
-    /** 내 채팅 목록(역할 기준). */
+    /** 고객의 채팅 목록. */
     @Transactional(readOnly = true)
-    public List<ChatRoomSummaryResponse> getMyRooms(ChatParticipant me) {
-        return chatRoomQueryService.getMyRooms(me.role(), me.profileId()).stream()
-                .map(room -> ChatRoomSummaryResponse.of(room, me.role()))
+    public List<CustomerChatRoomSummaryResponse> getCustomerRooms(Long customerId) {
+        return chatRoomQueryService.getMyRooms(MemberRole.CUSTOMER, customerId).stream()
+                .map(CustomerChatRoomSummaryResponse::of)
                 .toList();
     }
 
-    /** 메시지 히스토리(권한 검증 후 최신 size 개, 화면 표시용 오름차순). */
+    /** 작가의 채팅 목록. */
     @Transactional(readOnly = true)
-    public List<ChatMessageResponse> getMessages(ChatParticipant me, Long roomId, Long cursor, Integer size) {
-        chatRoomQueryService.getParticipatingRoom(roomId, me.role(), me.profileId());
+    public List<ArtistChatRoomSummaryResponse> getArtistRooms(Long artistId) {
+        return chatRoomQueryService.getMyRooms(MemberRole.ARTIST, artistId).stream()
+                .map(ArtistChatRoomSummaryResponse::of)
+                .toList();
+    }
+
+    /** 고객의 메시지 히스토리(권한 검증 후 최신 size 개, 화면 표시용 오름차순). */
+    @Transactional(readOnly = true)
+    public List<CustomerChatMessageResponse> getCustomerMessages(Long customerId, Long roomId, Long cursor, Integer size) {
+        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, MemberRole.CUSTOMER, customerId);
+        return historyAscending(roomId, cursor, size).stream()
+                .map(message -> CustomerChatMessageResponse.of(message, room))
+                .toList();
+    }
+
+    /** 작가의 메시지 히스토리(권한 검증 후 최신 size 개, 화면 표시용 오름차순). */
+    @Transactional(readOnly = true)
+    public List<ArtistChatMessageResponse> getArtistMessages(Long artistId, Long roomId, Long cursor, Integer size) {
+        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, MemberRole.ARTIST, artistId);
+        return historyAscending(roomId, cursor, size).stream()
+                .map(message -> ArtistChatMessageResponse.of(message, room))
+                .toList();
+    }
+
+    private List<ChatMessage> historyAscending(Long roomId, Long cursor, Integer size) {
         int pageSize = (size == null || size <= 0 || size > MAX_PAGE_SIZE) ? DEFAULT_PAGE_SIZE : size;
         List<ChatMessage> messages = chatMessageQueryService.getHistory(roomId, cursor, pageSize);
-        List<ChatMessageResponse> result = new ArrayList<>(messages.size());
+        List<ChatMessage> result = new ArrayList<>(messages.size());
         for (int i = messages.size() - 1; i >= 0; i--) { // DESC → 오름차순
-            result.add(ChatMessageResponse.from(messages.get(i)));
+            result.add(messages.get(i));
         }
         return result;
     }
 
-    /** 텍스트 전송. 권한 검증 → 저장 → 방 미리보기·안읽음 갱신 → 구독자 브로드캐스트. */
+    /** 텍스트 전송. 권한 검증 → 저장 → 방 미리보기·안읽음 갱신 → 구독자 브로드캐스트. 고객·작가 동작이 같아 role 만 받는다. */
     @Transactional
-    public ChatMessageResponse sendText(ChatParticipant me, Long roomId, String content) {
-        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, me.role(), me.profileId());
-        ChatMessage message = chatMessageCommandService.saveText(room, me.role(), content);
-        room.onNewMessage(preview(content), sentAt(message), me.role());
+    public ChatMessageResponse sendText(MemberRole role, Long profileId, Long roomId, String content) {
+        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, role, profileId);
+        ChatMessage message = chatMessageCommandService.saveText(room, role, content);
+        room.onNewMessage(preview(content), sentAt(message), role);
         ChatMessageResponse response = ChatMessageResponse.from(message);
         chatEventPublisher.sendToRoom(roomId, response);
         return response;
@@ -73,11 +98,11 @@ public class ChatFacade {
 
     /** 이미지 전송(한 장). CDN URL 검증 → 저장 → 방 미리보기("[사진]")·안읽음 갱신 → 브로드캐스트. 텍스트와 별개 메시지. */
     @Transactional
-    public ChatMessageResponse sendImage(ChatParticipant me, Long roomId, String imageUrl) {
+    public ChatMessageResponse sendImage(MemberRole role, Long profileId, Long roomId, String imageUrl) {
         fileUrlValidator.validate(imageUrl);
-        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, me.role(), me.profileId());
-        ChatMessage message = chatMessageCommandService.saveImage(room, me.role(), imageUrl);
-        room.onNewMessage(IMAGE_PREVIEW, sentAt(message), me.role());
+        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, role, profileId);
+        ChatMessage message = chatMessageCommandService.saveImage(room, role, imageUrl);
+        room.onNewMessage(IMAGE_PREVIEW, sentAt(message), role);
         ChatMessageResponse response = ChatMessageResponse.from(message);
         chatEventPublisher.sendToRoom(roomId, response);
         return response;
@@ -85,9 +110,9 @@ public class ChatFacade {
 
     /** 읽음 처리. 내 쪽 안읽음 0 + 마지막 읽은 시각 갱신. */
     @Transactional
-    public void markRead(ChatParticipant me, Long roomId) {
-        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, me.role(), me.profileId());
-        room.markRead(me.role(), LocalDateTime.now());
+    public void markRead(MemberRole role, Long profileId, Long roomId) {
+        ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, role, profileId);
+        room.markRead(role, LocalDateTime.now());
     }
 
     /**

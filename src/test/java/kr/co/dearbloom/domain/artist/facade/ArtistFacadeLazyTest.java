@@ -46,7 +46,7 @@ class ArtistFacadeLazyTest {
         Artist detached = detachedArtistWithRegions();
 
         ArtistResponse response =
-                artistFacade.updateImage(detached, "https://cdn.dearbloom.co.kr/a.webp");
+                artistFacade.updateImage(detached, "https://dev-cdn.dearbloom.co.kr/a.webp");
 
         assertThat(response.regionList()).containsExactlyInAnyOrder("SEOUL", "GYEONGGI_NORTH");
     }

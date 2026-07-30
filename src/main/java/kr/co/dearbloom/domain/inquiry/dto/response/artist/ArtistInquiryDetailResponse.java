@@ -15,6 +15,10 @@ public record ArtistInquiryDetailResponse(
         Long inquiryId,
         @Schema(description = "문의 상태", example = "IN_PROGRESS")
         InquiryStatus status,
+        @Schema(description = "문의한 고객명", example = "김디어")
+        String customerName,
+        @Schema(description = "작품 ID (작품 상세로 이동용)", example = "1")
+        Long artworkId,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
         String artworkName,
         @Schema(description = "패키지명", example = "패키지 A")
@@ -44,6 +48,8 @@ public record ArtistInquiryDetailResponse(
         return new ArtistInquiryDetailResponse(
                 inquiry.getInquiryId(),
                 inquiry.getStatus(),
+                inquiry.getCustomer().getName(),
+                inquiry.getArtworkPackage().getArtwork().getArtworkId(),
                 inquiry.getArtworkNameSnapshot(),
                 inquiry.getPackageNameSnapshot(),
                 inquiry.getPriceSnapshot(),

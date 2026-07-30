@@ -1,16 +1,17 @@
 package kr.co.dearbloom.domain.chat.controller;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.dearbloom.domain.chat.dto.ChatParticipant;
 import kr.co.dearbloom.domain.chat.dto.request.ChatImageSendRequest;
 import kr.co.dearbloom.domain.chat.dto.request.ChatMessageSendRequest;
 import kr.co.dearbloom.domain.chat.dto.response.ChatMessageResponse;
-import kr.co.dearbloom.domain.chat.dto.response.ChatRoomSummaryResponse;
+import kr.co.dearbloom.domain.chat.dto.response.customer.CustomerChatMessageResponse;
+import kr.co.dearbloom.domain.chat.dto.response.customer.CustomerChatRoomSummaryResponse;
 import kr.co.dearbloom.domain.chat.facade.ChatFacade;
-import kr.co.dearbloom.global.auth.resolver.CurrentChatParticipant;
+import kr.co.dearbloom.domain.customer.entity.Customer;
+import kr.co.dearbloom.domain.member.entity.MemberRole;
+import kr.co.dearbloom.global.auth.resolver.CurrentCustomer;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.swagger.ApiErrorCodes;
@@ -27,22 +28,22 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/api/customers/me/chat")
 @RequiredArgsConstructor
-@Tag(name = "Chat", description = "채팅 API (고객·작가 공용, 현재 activeRole 로 내 편 판별)")
-@Hidden
-public class ChatController {
+@Tag(name = "Chat - Customer", description = "고객 채팅 API")
+public class CustomerChatController {
     private final ChatFacade chatFacade;
 
     @GetMapping("/rooms")
     @Operation(summary = "채팅방 목록 조회",
-            description = "현재 역할(고객/작가) 기준 내 채팅방을 최근 메시지순으로 반환합니다. "
-                    + "각 방은 상대방 이름·이미지, 마지막 메시지 미리보기·시각, 안읽음 수를 포함합니다.")
-    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED})
-    public ResponseEntity<ApiResponse<List<ChatRoomSummaryResponse>>> getMyRooms(
-            @CurrentChatParticipant ChatParticipant me
+            description = "내 채팅방을 최근 메시지순으로 반환합니다. "
+                    + "각 방은 작가 닉네임·이미지, 마지막 메시지 미리보기·시각, 안읽음 수를 포함합니다.")
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
+            ErrorCode.CUSTOMER_NOT_FOUND})
+    public ResponseEntity<ApiResponse<List<CustomerChatRoomSummaryResponse>>> getMyRooms(
+            @CurrentCustomer Customer customer
     ) {
-        return ResponseEntity.ok(ApiResponse.success(chatFacade.getMyRooms(me)));
+        return ResponseEntity.ok(ApiResponse.success(chatFacade.getCustomerRooms(customer.getCustomerId())));
     }
 
     @GetMapping("/rooms/{roomId}/messages")
@@ -51,14 +52,15 @@ public class ChatController {
                     + "무한 스크롤은 받은 첫 메시지의 messageId 를 cursor 로 넘겨 이어 조회합니다. "
                     + "INQUIRY 메시지는 inquiryCard 로, TEXT 는 content 로 내려갑니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
-            ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED})
-    public ResponseEntity<ApiResponse<List<ChatMessageResponse>>> getMessages(
-            @CurrentChatParticipant ChatParticipant me,
+            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED})
+    public ResponseEntity<ApiResponse<List<CustomerChatMessageResponse>>> getMessages(
+            @CurrentCustomer Customer customer,
             @PathVariable Long roomId,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Integer size
     ) {
-        return ResponseEntity.ok(ApiResponse.success(chatFacade.getMessages(me, roomId, cursor, size)));
+        return ResponseEntity.ok(ApiResponse.success(
+                chatFacade.getCustomerMessages(customer.getCustomerId(), roomId, cursor, size)));
     }
 
     @PostMapping("/rooms/{roomId}/messages")
@@ -66,13 +68,14 @@ public class ChatController {
             description = "방에 텍스트 메시지를 전송합니다. 저장 후 구독자에게 실시간(WebSocket /topic/rooms/{roomId})으로 "
                     + "브로드캐스트되며, 응답으로 저장된 메시지를 돌려줍니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
-            ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED})
+            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED})
     public ResponseEntity<ApiResponse<ChatMessageResponse>> sendMessage(
-            @CurrentChatParticipant ChatParticipant me,
+            @CurrentCustomer Customer customer,
             @PathVariable Long roomId,
             @RequestBody @Valid ChatMessageSendRequest request
     ) {
-        return ResponseEntity.ok(ApiResponse.success(chatFacade.sendText(me, roomId, request.getContent())));
+        return ResponseEntity.ok(ApiResponse.success(chatFacade.sendText(
+                MemberRole.CUSTOMER, customer.getCustomerId(), roomId, request.getContent())));
     }
 
     @PostMapping("/rooms/{roomId}/images")
@@ -81,25 +84,27 @@ public class ChatController {
                     + "<b>한 번에 한 장</b>, 텍스트와 동시 전송 불가(엔드포인트 분리). 저장 후 텍스트와 동일하게 "
                     + "실시간 브로드캐스트되며 응답으로 저장된 메시지를 돌려줍니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
-            ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED, ErrorCode.INVALID_FILE_URL})
+            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED,
+            ErrorCode.INVALID_FILE_URL})
     public ResponseEntity<ApiResponse<ChatMessageResponse>> sendImage(
-            @CurrentChatParticipant ChatParticipant me,
+            @CurrentCustomer Customer customer,
             @PathVariable Long roomId,
             @RequestBody @Valid ChatImageSendRequest request
     ) {
-        return ResponseEntity.ok(ApiResponse.success(chatFacade.sendImage(me, roomId, request.getImageUrl())));
+        return ResponseEntity.ok(ApiResponse.success(chatFacade.sendImage(
+                MemberRole.CUSTOMER, customer.getCustomerId(), roomId, request.getImageUrl())));
     }
 
     @PostMapping("/rooms/{roomId}/read")
     @Operation(summary = "읽음 처리",
             description = "해당 방을 읽음 처리합니다(내 쪽 안읽음 0). 보통 방 진입 시 호출합니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
-            ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED})
+            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.CHAT_ROOM_NOT_FOUND, ErrorCode.CHAT_ACCESS_DENIED})
     public ResponseEntity<ApiResponse<Void>> markRead(
-            @CurrentChatParticipant ChatParticipant me,
+            @CurrentCustomer Customer customer,
             @PathVariable Long roomId
     ) {
-        chatFacade.markRead(me, roomId);
+        chatFacade.markRead(MemberRole.CUSTOMER, customer.getCustomerId(), roomId);
         return ResponseEntity.ok(ApiResponse.success());
     }
 }

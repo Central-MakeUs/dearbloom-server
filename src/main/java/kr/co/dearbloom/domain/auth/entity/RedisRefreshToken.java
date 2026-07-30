@@ -6,7 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
-import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -22,9 +22,9 @@ public class RedisRefreshToken {
     private String token;
     private String ip;
     private String deviceInfo;
-    private Instant issuedAt;
-    private Instant expiresAt;
-    private Instant lastUsedAt;
+    private OffsetDateTime issuedAt;
+    private OffsetDateTime expiresAt;
+    private OffsetDateTime lastUsedAt;
 
     private MemberRole activeRole;
     private List<MemberRole> availableRoles;

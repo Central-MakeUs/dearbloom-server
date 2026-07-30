@@ -35,7 +35,7 @@ class ArtistCreateTest {
         ArtistCreateRequest request = new ArtistCreateRequest();
         ReflectionTestUtils.setField(request, "nickname", nickname);
         ReflectionTestUtils.setField(request, "imageUrl",
-                "https://cdn.dearbloom.co.kr/profile/artist/a.webp");
+                "https://dev-cdn.dearbloom.co.kr/profile/artist/a.webp");
         ReflectionTestUtils.setField(request, "regionList", Set.of(Region.SEOUL, Region.GYEONGGI_NORTH));
         return request;
     }
