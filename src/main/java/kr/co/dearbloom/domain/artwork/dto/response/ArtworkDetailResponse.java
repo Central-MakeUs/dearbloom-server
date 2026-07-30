@@ -44,7 +44,10 @@ public record ArtworkDetailResponse(
         List<ArtworkThumbnailResponse> otherArtworkList,
 
         @Schema(description = "내가 저장한 작품인지 여부. 고객 조회 시에만 값이 있고, 비로그인은 null.", example = "false")
-        Boolean isSaved
+        Boolean isSaved,
+
+        @Schema(description = "작가 이메일 (임시)")
+        String artistEmail
 ) {
     public static ArtworkDetailResponse of(Artwork artwork, Artist artist, List<PortfolioFile> files,
                                            List<ArtworkPackage> packages,
@@ -60,7 +63,8 @@ public record ArtworkDetailResponse(
                 packages.stream().map(ArtworkPackageResponse::from).toList(),
                 ArtworkArtistResponse.from(artist),
                 otherArtworkList,
-                isSaved
+                isSaved,
+                artist.getMember().getEmail()
         );
     }
 

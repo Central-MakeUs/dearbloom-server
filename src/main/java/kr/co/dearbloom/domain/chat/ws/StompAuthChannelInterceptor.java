@@ -12,19 +12,18 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * STOMP 인증/인가 인터셉터.
- * - CONNECT: Authorization(Bearer) 토큰 검증 → (memberId, activeRole, profileId) Principal 세팅. 실패 시 연결 거부.
+ * - CONNECT: 핸드셰이크에서 받은 accessToken 쿠키({@link CookieTokenHandshakeInterceptor})를 검증해
+ *   (memberId, activeRole, profileId) Principal 세팅. 실패 시 연결 거부.
  * - SUBSCRIBE /topic/rooms/{roomId}: 그 방의 참여자만 구독 허용(타인 방 도청 방지).
  * 인터셉터는 트랜잭션 밖이라 LAZY 없이 참여자 PK만 조회해 검증한다.
  */
 @Component
 @RequiredArgsConstructor
 public class StompAuthChannelInterceptor implements ChannelInterceptor {
-    private static final String AUTH_HEADER = "Authorization";
-    private static final String BEARER = "Bearer ";
     private static final String ROOM_PREFIX = "/topic/rooms/";
 
     private final TokenProvider tokenProvider;
@@ -74,13 +73,18 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         }
     }
 
+    /**
+     * 핸드셰이크에서 쿠키로 받아둔 토큰을 쓴다. 클라이언트가 웹(웹뷰 포함)이라 토큰이 httpOnly 쿠키이고,
+     * JS 가 읽을 수 없어 CONNECT 프레임 헤더에는 실을 수 없다.
+     */
     private String resolveToken(StompHeaderAccessor accessor) {
-        List<String> headers = accessor.getNativeHeader(AUTH_HEADER);
-        if (headers == null || headers.isEmpty()) {
+        Map<String, Object> attributes = accessor.getSessionAttributes();
+        if (attributes == null) {
             return null;
         }
-        String value = headers.get(0);
-        return (value != null && value.startsWith(BEARER)) ? value.substring(BEARER.length()) : value;
+        return attributes.get(CookieTokenHandshakeInterceptor.ACCESS_TOKEN_ATTRIBUTE) instanceof String token
+                ? token
+                : null;
     }
 
     private Long parseRoomId(String destination) {
