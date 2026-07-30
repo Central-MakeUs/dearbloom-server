@@ -63,6 +63,11 @@ public enum ErrorCode {
     CHAT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CHAT-403", "해당 채팅방에 접근할 권한이 없습니다."),
 
     /**
+     * Report
+     */
+    ALREADY_REPORTED(HttpStatus.CONFLICT, "REPORT-409", "이미 신고한 대상입니다."),
+
+    /**
      * Notification
      */
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION-404", "알림을 찾을 수 없거나 접근 권한이 없습니다."),

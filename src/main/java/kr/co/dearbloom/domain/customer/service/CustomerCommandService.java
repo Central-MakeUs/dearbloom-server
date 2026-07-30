@@ -30,11 +30,11 @@ public class CustomerCommandService {
                 .build());
     }
 
-    // 프로필 수정(이름·지역). 이름은 중복 허용이라 유니크 검증 없음. managed 엔티티로 로드해 수정(응답 매핑 시 university LAZY 초기화 안전).
-    public Customer updateProfile(Long customerId, String name, Region region) {
+    // 프로필 수정(이름·학교·지역). 이름은 중복 허용이라 유니크 검증 없음. managed 엔티티로 로드해 수정(응답 매핑 시 university LAZY 초기화 안전).
+    public Customer updateProfile(Long customerId, String name, University university, Region region) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CUSTOMER_NOT_FOUND));
-        customer.updateProfile(name, region);
+        customer.updateProfile(name, university, region);
         return customer;
     }
 

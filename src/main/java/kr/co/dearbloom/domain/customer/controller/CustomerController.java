@@ -8,7 +8,6 @@ import kr.co.dearbloom.domain.customer.dto.response.CustomerDetailResponse;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.customer.facade.CustomerFacade;
-import kr.co.dearbloom.domain.member.facade.MemberFacade;
 import kr.co.dearbloom.global.auth.resolver.CurrentCustomer;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "- Customer -", description = "고객 정보 관리 API")
 public class CustomerController {
     private final CustomerFacade customerFacade;
-    private final MemberFacade memberFacade;
 
     @GetMapping
     @Operation(summary = "고객 정보 조회",
@@ -47,12 +45,13 @@ public class CustomerController {
     @PatchMapping
     @Operation(summary = "고객 프로필 수정",
             description = """
-                    고객 프로필(이름 / 지역)을 수정합니다. 최초 등록은 고객 프로필 생성 API 에서 처리합니다.<br>
+                    고객 프로필(이름 / 학교 / 지역)을 수정합니다. 최초 등록은 고객 프로필 생성 API 에서 처리합니다.<br>
                     <b>이름</b>은 2-5자의 한글 또는 영문이며 중복이 허용됩니다(필수).<br>
+                    <b>학교</b>는 선택이며, 보낸 대학교 ID 로 교체됩니다 — null 을 보내면 학교가 비워집니다.<br>
                     <b>지역</b>은 선택이며, 보낸 값으로 교체됩니다 — null 을 보내면 지역이 비워집니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
-            ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.CUSTOMER_NOT_FOUND})
+            ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.UNIVERSITY_NOT_FOUND})
     public ResponseEntity<ApiResponse<CustomerResponse>> updateProfile(
             @CurrentCustomer Customer customer,
             @RequestBody @Valid CustomerProfileUpdateRequest request
