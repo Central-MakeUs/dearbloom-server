@@ -33,9 +33,10 @@ public class Customer extends BaseTime {
     @Enumerated(EnumType.STRING)
     private Region region;
 
-    // 프로필 수정(이름·지역). 이름은 중복 허용이라 유니크 검증 없음, 지역은 선택(null 이면 미설정으로 비움).
-    public void updateProfile(String name, Region region) {
+    // 프로필 수정(이름·학교·지역). 이름은 중복 허용이라 유니크 검증 없음, 학교·지역은 선택(null 이면 미설정으로 비움).
+    public void updateProfile(String name, University university, Region region) {
         this.name = name;
+        this.university = university;
         this.region = region;
     }
 

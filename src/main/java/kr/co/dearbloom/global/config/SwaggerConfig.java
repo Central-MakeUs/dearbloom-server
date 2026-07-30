@@ -74,6 +74,7 @@ public class SwaggerConfig {
             "- Customer -",
             "Artwork - Viewer/Customer",
             "Saved Artwork",
+            "Artwork Report - Customer",
             "Inquiry - Customer",
             "Chat - Customer",
             "- Artist -",
