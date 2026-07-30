@@ -27,6 +27,8 @@ public class Customer extends BaseTime {
 
     private String name;
 
+    private String imageUrl;
+
     // 활동/거주 지역(선택). 온보딩·프로필 수정에서 설정하며 null 가능.
     @Enumerated(EnumType.STRING)
     private Region region;

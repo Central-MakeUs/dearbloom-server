@@ -68,9 +68,10 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
             """)
     List<Inquiry> findByCustomerOrderByModifiedAtDesc(@Param("customerId") Long customerId);
 
-    // 작가 문의 리스트(내 작품에 들어온 문의, 촬영일 오름차순 → 같은 날은 시작시각 오름차순).
+    // 작가 문의 리스트(내 작품에 들어온 문의, 촬영일 오름차순 → 같은 날은 시작시각 오름차순). 고객명 표시용으로 고객까지 fetch join.
     @Query("""
             select i from Inquiry i
+            join fetch i.customer
             where i.artworkPackage.artwork.artist.artistId = :artistId
             order by i.shootDate asc, i.startTime asc
             """)
