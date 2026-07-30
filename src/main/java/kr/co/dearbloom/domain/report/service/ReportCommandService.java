@@ -1,7 +1,7 @@
 package kr.co.dearbloom.domain.report.service;
 
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
-import kr.co.dearbloom.domain.customer.entity.Customer;
+import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.report.entity.Report;
 import kr.co.dearbloom.domain.report.repository.ReportRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
@@ -17,10 +17,10 @@ public class ReportCommandService {
     private final ReportRepository reportRepository;
 
     // 작품 신고 1건. 같은 대상을 이미 신고했으면 409(nullable FK 라 unique 만으론 부족해 여기서 막는다).
-    public void reportArtwork(Customer customer, Artwork artwork, String content) {
-        if (reportRepository.existsByCustomerAndArtwork(customer, artwork)) {
+    public void reportArtwork(Member reporter, Artwork artwork, String content) {
+        if (reportRepository.existsByReporterAndArtwork(reporter, artwork)) {
             throw new CustomException(ErrorCode.ALREADY_REPORTED);
         }
-        reportRepository.save(Report.ofArtwork(customer, artwork, content));
+        reportRepository.save(Report.ofArtwork(reporter, artwork, content));
     }
 }

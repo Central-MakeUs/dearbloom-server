@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportQueryService {
     private final ReportRepository reportRepository;
 
-    // 이 고객이 해당 작품을 신고했는지 여부.
-    public boolean isArtworkReported(Long customerId, Long artworkId) {
-        return reportRepository.existsByCustomer_CustomerIdAndArtwork_ArtworkId(customerId, artworkId);
+    // 이 회원이 해당 작품을 신고했는지 여부.
+    public boolean isArtworkReported(Long memberId, Long artworkId) {
+        return reportRepository.existsByReporter_MemberIdAndArtwork_ArtworkId(memberId, artworkId);
     }
 }
