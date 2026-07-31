@@ -45,4 +45,13 @@ public class InquiryCommandService {
                 .priceSnapshot(artworkPackage.getPrice())
                 .build());
     }
+
+    /**
+     * 작품 삭제 시 그 작품의 패키지를 참조하는 문의들의 FK 를 끊는다(작품 삭제 전 호출).
+     * 문의 행은 스냅샷으로 표시가 유지되므로 지우지 않는다 — 상대방의 거래 이력이기 때문.
+     */
+    public void detachArtwork(Artwork artwork) {
+        inquiryRepository.findByArtwork(artwork.getArtworkId())
+                .forEach(Inquiry::detachArtworkPackage);
+    }
 }

@@ -11,4 +11,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     boolean existsByReporterAndArtwork(Member reporter, Artwork artwork);
 
     boolean existsByReporter_MemberIdAndArtwork_ArtworkId(Long memberId, Long artworkId);
+
+    // 작품 삭제 시 그 작품에 달린 신고도 함께 정리(FK 제약 위반 방지). 신고 대상이 사라지면 신고도 의미를 잃는다.
+    void deleteByArtwork(Artwork artwork);
 }

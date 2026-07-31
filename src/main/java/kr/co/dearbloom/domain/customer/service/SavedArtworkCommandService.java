@@ -39,4 +39,9 @@ public class SavedArtworkCommandService {
     public void deleteAll(Customer customer, List<Long> artworkIdList) {
         savedArtworkRepository.deleteByCustomerAndArtwork_ArtworkIdIn(customer, artworkIdList);
     }
+
+    // 작품이 삭제될 때 그 작품을 저장한 모든 고객의 행을 정리한다(작품 삭제 경로에서 호출).
+    public void deleteByArtwork(Artwork artwork) {
+        savedArtworkRepository.deleteByArtwork(artwork);
+    }
 }

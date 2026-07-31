@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.inquiry.entity;
 
 import jakarta.persistence.*;
+import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.university.entity.University;
@@ -32,7 +33,7 @@ public class Inquiry extends BaseTime {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artwork_package_id", nullable = false)
+    @JoinColumn(name = "artwork_package_id")
     private ArtworkPackage artworkPackage;
 
     // 문의 라이프사이클 4상태(단일 소스). 예약 완료/취소도 이 값으로 표현한다.
@@ -78,6 +79,24 @@ public class Inquiry extends BaseTime {
     private String packageNameSnapshot;      // 문의 당시 패키지명
 
     private Integer priceSnapshot;           // 문의 당시 패키지 가격
+
+    // ──────────────── 삭제된 작품 대응 ────────────────
+
+    /** 작품이 살아있으면 그 작품, 삭제됐으면 null. */
+    public Artwork getArtworkOrNull() {
+        return artworkPackage == null ? null : artworkPackage.getArtwork();
+    }
+
+    /** 작품 삭제 시 패키지 참조만 끊는다. 표시값은 스냅샷에 남아 있어 문의 기록은 그대로 유지된다. */
+    public void detachArtworkPackage() {
+        this.artworkPackage = null;
+    }
+
+    /** 작품 상세 이동용 ID. 삭제된 작품이면 null 이라 프론트가 이동 링크를 숨긴다. */
+    public Long getArtworkIdOrNull() {
+        Artwork artwork = getArtworkOrNull();
+        return artwork == null ? null : artwork.getArtworkId();
+    }
 
     // ──────────────── 상태 전이 (state machine) ────────────────
 

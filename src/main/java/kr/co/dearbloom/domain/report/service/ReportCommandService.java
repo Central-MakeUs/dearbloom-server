@@ -23,4 +23,9 @@ public class ReportCommandService {
         }
         reportRepository.save(Report.ofArtwork(reporter, artwork, content));
     }
+
+    // 작품 삭제 시 그 작품에 달린 신고 정리(작품 삭제 경로에서 호출).
+    public void deleteByArtwork(Artwork artwork) {
+        reportRepository.deleteByArtwork(artwork);
+    }
 }

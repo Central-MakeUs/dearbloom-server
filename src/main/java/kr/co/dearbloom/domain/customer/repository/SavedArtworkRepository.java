@@ -28,6 +28,9 @@ public interface SavedArtworkRepository extends JpaRepository<SavedArtwork, Long
             + " where sa.customer = :customer order by sa.savedArtworkId desc")
     List<Artwork> findSavedArtworksWithArtist(@Param("customer") Customer customer);
 
+    // 작품 삭제 시 그 작품을 저장해둔 모든 고객의 행을 함께 정리(FK 제약 위반 방지).
+    void deleteByArtwork(Artwork artwork);
+
     void deleteByCustomerAndArtwork_ArtworkId(Customer customer, Long artworkId);
 
     void deleteByCustomerAndArtwork_ArtworkIdIn(Customer customer, Collection<Long> artworkIds);

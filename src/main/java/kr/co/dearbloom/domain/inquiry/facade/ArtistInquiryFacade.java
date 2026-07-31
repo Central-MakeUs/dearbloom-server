@@ -3,6 +3,7 @@ package kr.co.dearbloom.domain.inquiry.facade;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.service.schedule.BookedSlotProvider;
 import kr.co.dearbloom.domain.artist.util.SlotGrid;
+import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryHistoryResponse;
 import kr.co.dearbloom.domain.inquiry.dto.response.InquiryStatusResponse;
@@ -43,7 +44,8 @@ public class ArtistInquiryFacade {
     public ArtistInquiryDetailResponse getInquiryDetail(Artist artist, Long inquiryId) {
         Inquiry inquiry = inquiryQueryService.getById(inquiryId);
         verifyArtistOwns(inquiry, artist);
-        String imageUrl = artworkQueryService.getRepresentativeImageUrl(inquiry.getArtworkPackage().getArtwork());
+        Artwork artwork = inquiry.getArtworkOrNull();
+        String imageUrl = artwork == null ? null : artworkQueryService.getRepresentativeImageUrl(artwork);
         return ArtistInquiryDetailResponse.of(inquiry, imageUrl);
     }
 
@@ -92,8 +94,13 @@ public class ArtistInquiryFacade {
     }
 
     // 문의가 이 작가(작품)의 것인지 검증하고, tx-managed 작가 엔티티를 반환.
+    // 작품이 삭제됐으면 소유자를 확인할 길이 없으므로 접근을 거부한다(작가 탈퇴 후 남은 문의는 조회 대상이 아님).
     private Artist verifyArtistOwns(Inquiry inquiry, Artist artist) {
-        Artist owner = inquiry.getArtworkPackage().getArtwork().getArtist();
+        Artwork artwork = inquiry.getArtworkOrNull();
+        if (artwork == null) {
+            throw new CustomException(ErrorCode.INQUIRY_ACCESS_DENIED);
+        }
+        Artist owner = artwork.getArtist();
         if (!owner.getArtistId().equals(artist.getArtistId())) {
             throw new CustomException(ErrorCode.INQUIRY_ACCESS_DENIED);
         }
