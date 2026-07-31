@@ -1,16 +1,14 @@
 package kr.co.dearbloom.global.auth.jwt;
 
 import kr.co.dearbloom.domain.member.entity.Member;
-import kr.co.dearbloom.global.dto.response.ApiResponse;
+import kr.co.dearbloom.global.auth.ApiErrorResponseWriter;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
-import kr.co.dearbloom.global.dto.response.exception.ErrorDetail;
 import tools.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -73,13 +71,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void writeError(HttpServletResponse response, ErrorCode errorCode) throws IOException {
-        ApiResponse<?> body = ApiResponse.error(new ErrorDetail(errorCode.getCode(), errorCode.getMessage()));
-        response.setStatus(errorCode.getHttpStatus().value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(body));
+        ApiErrorResponseWriter.write(response, objectMapper, errorCode);
     }
-
 
     private String getAccessToken(String authorizationHeader) {
         if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)){

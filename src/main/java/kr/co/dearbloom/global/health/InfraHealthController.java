@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,6 +28,7 @@ import static kr.co.dearbloom.global.health.HealthStatus.DISCONNECTED;
 @RequestMapping("/health/infra")
 @RequiredArgsConstructor
 @Slf4j
+@Profile("!prod")
 @Tag(name = "Health - Infra", description = "[백엔드 전용] 외부 인프라(DB, Redis, Kafka 등) 테스트 API")
 public class InfraHealthController {
     private final DataSource dataSource;

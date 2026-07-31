@@ -2,6 +2,7 @@ package kr.co.dearbloom.global.config;
 
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
+import kr.co.dearbloom.global.auth.RestAuthenticationEntryPoint;
 import kr.co.dearbloom.global.auth.jwt.TokenAuthenticationFilter;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.global.auth.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
@@ -12,13 +13,11 @@ import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
@@ -45,7 +44,9 @@ public class WebSecurityConfig {
                         // SSE(SseEmitter) 등 async 응답의 ASYNC 재디스패치는 인증 재검증에서 제외.
                         // 최초 REQUEST에서 이미 인증 완료 → ASYNC는 응답 생성 단계라 재검증 불필요.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
-//                        .requestMatchers(PublicPaths.antPatterns()).permitAll()
+//                        .requestMatchers(PublicPaths.permitAllPatterns()).permitAll()
+//                        // 조회만 비로그인 허용 — 같은 prefix 의 작가 전용 쓰기(POST/PATCH/PUT/DELETE)는 아래 authenticated() 로 내려간다.
+//                        .requestMatchers(HttpMethod.GET, PublicPaths.optionalAuthGetPatterns()).permitAll()
 //                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll()
                 )
@@ -64,12 +65,16 @@ public class WebSecurityConfig {
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .defaultAuthenticationEntryPointFor(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-//                                new AntPathRequestMatcher("/api/**")
+                                restAuthenticationEntryPoint(),
                                 PathPatternRequestMatcher.withDefaults().matcher("/api/**")
                         )
                 )
                 .build();
+    }
+
+    @Bean
+    public RestAuthenticationEntryPoint restAuthenticationEntryPoint() {
+        return new RestAuthenticationEntryPoint(objectMapper);
     }
 
     @Bean
