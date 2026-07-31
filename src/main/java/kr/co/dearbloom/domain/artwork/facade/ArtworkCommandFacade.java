@@ -12,6 +12,9 @@ import kr.co.dearbloom.domain.artwork.service.ArtworkCommandService;
 import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
 import kr.co.dearbloom.domain.artwork.util.ArtworkPackageFactory;
 import kr.co.dearbloom.domain.artwork.util.PortfolioFileFactory;
+import kr.co.dearbloom.domain.customer.service.SavedArtworkCommandService;
+import kr.co.dearbloom.domain.inquiry.service.InquiryCommandService;
+import kr.co.dearbloom.domain.report.service.ReportCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,9 @@ public class ArtworkCommandFacade {
     private final ArtworkQueryService artworkQueryService;
     private final PortfolioFileFactory portfolioFileFactory;
     private final ArtworkPackageFactory artworkPackageFactory;
+    private final SavedArtworkCommandService savedArtworkCommandService;
+    private final InquiryCommandService inquiryCommandService;
+    private final ReportCommandService reportCommandService;
 
     /**
      * 작품 등록. 제목·기본 가격과 사진들을 받아 작품을 만든다.
@@ -67,12 +73,17 @@ public class ArtworkCommandFacade {
     }
 
     /**
-     * 작품 삭제. 소유권을 검증한 뒤 작품과 사진을 함께 지운다.
+     * 작품 삭제. 소유권을 검증한 뒤 작품·패키지·사진을 함께 지운다.
+     * 이 작품을 참조하는 다른 도메인 행도 먼저 정리해야 FK 제약에 걸리지 않는다 —
+     * 저장(SavedArtwork)은 삭제하고, 문의(Inquiry)는 스냅샷으로 기록을 남겨야 하므로 패키지 참조만 끊는다.
      * S3 객체는 건드리지 않는다(DB row 만 삭제).
      */
     @Transactional
     public void delete(Artist artist, Long artworkId) {
         Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);
+        savedArtworkCommandService.deleteByArtwork(artwork);
+        reportCommandService.deleteByArtwork(artwork);
+        inquiryCommandService.detachArtwork(artwork);
         artworkCommandService.delete(artwork);
     }
 }

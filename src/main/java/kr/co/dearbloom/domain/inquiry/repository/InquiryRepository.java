@@ -58,11 +58,19 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
             @Param("to") LocalDate to,
             @Param("status") InquiryStatus status);
 
-    // 고객 문의 리스트(최근 수정순). 대표 이미지용으로 작품까지 fetch join.
+    // 이 작품의 패키지를 참조하는 문의(작품 삭제 전 FK 해제 대상).
     @Query("""
             select i from Inquiry i
-            join fetch i.artworkPackage p
-            join fetch p.artwork
+            where i.artworkPackage.artwork.artworkId = :artworkId
+            """)
+    List<Inquiry> findByArtwork(@Param("artworkId") Long artworkId);
+
+    // 고객 문의 리스트(최근 수정순). 대표 이미지용으로 작품까지 fetch join.
+    // 작품이 삭제된 문의도 스냅샷으로 표시해야 하므로 left join — inner 면 그 문의가 목록에서 사라진다.
+    @Query("""
+            select i from Inquiry i
+            left join fetch i.artworkPackage p
+            left join fetch p.artwork
             where i.customer.customerId = :customerId
             order by i.modifiedAt desc
             """)

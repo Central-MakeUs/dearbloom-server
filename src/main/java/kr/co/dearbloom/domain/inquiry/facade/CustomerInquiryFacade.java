@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** 고객 관점 문의 유스케이스 (준비/전송/취소/리스트/상세). */
 @Component
@@ -108,11 +109,18 @@ public class CustomerInquiryFacade {
     @Transactional(readOnly = true)
     public List<CustomerInquirySummaryResponse> getMyInquiries(Customer customer) {
         List<Inquiry> inquiries = inquiryQueryService.getByCustomer(customer.getCustomerId());
+        // 삭제된 작품(작가 탈퇴 등)은 이미지가 없다 — 문의 기록 자체는 스냅샷으로 남으므로 목록에서 빼지 않는다.
         Map<Long, String> imageByArtworkId = artworkQueryService.getRepresentativeImageUrls(
-                inquiries.stream().map(inquiry -> inquiry.getArtworkPackage().getArtwork()).toList());
+                inquiries.stream()
+                        .map(Inquiry::getArtworkOrNull)
+                        .filter(Objects::nonNull)
+                        .toList());
         return inquiries.stream()
                 .map(inquiry -> CustomerInquirySummaryResponse.of(
-                        inquiry, imageByArtworkId.get(inquiry.getArtworkPackage().getArtwork().getArtworkId())))
+                        inquiry,
+                        inquiry.getArtworkIdOrNull() == null
+                                ? null
+                                : imageByArtworkId.get(inquiry.getArtworkIdOrNull())))
                 .toList();
     }
 
@@ -123,7 +131,8 @@ public class CustomerInquiryFacade {
         if (!inquiry.getCustomer().getCustomerId().equals(customer.getCustomerId())) {
             throw new CustomException(ErrorCode.INQUIRY_ACCESS_DENIED);
         }
-        String imageUrl = artworkQueryService.getRepresentativeImageUrl(inquiry.getArtworkPackage().getArtwork());
+        Artwork artwork = inquiry.getArtworkOrNull();
+        String imageUrl = artwork == null ? null : artworkQueryService.getRepresentativeImageUrl(artwork);
         return CustomerInquiryDetailResponse.of(inquiry, imageUrl);
     }
 

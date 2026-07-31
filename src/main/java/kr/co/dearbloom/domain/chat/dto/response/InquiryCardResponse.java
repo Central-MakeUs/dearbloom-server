@@ -12,7 +12,7 @@ public record InquiryCardResponse(
         @Schema(description = "문의 ID", example = "1")
         Long inquiryId,
 
-        @Schema(description = "작품 ID (작품상세 보기 이동용)", example = "10")
+        @Schema(description = "작품 ID (작품상세 보기 이동용). 작품이 삭제됐으면 null", nullable = true, example = "10")
         Long artworkId,
 
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
@@ -42,7 +42,7 @@ public record InquiryCardResponse(
     public static InquiryCardResponse from(Inquiry inquiry) {
         return new InquiryCardResponse(
                 inquiry.getInquiryId(),
-                inquiry.getArtworkPackage().getArtwork().getArtworkId(),
+                inquiry.getArtworkIdOrNull(),
                 inquiry.getArtworkNameSnapshot(),
                 inquiry.getPackageNameSnapshot(),
                 inquiry.getArtistNicknameSnapshot(),

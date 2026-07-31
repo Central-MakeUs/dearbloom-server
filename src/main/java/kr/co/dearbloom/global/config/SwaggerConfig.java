@@ -103,4 +103,42 @@ public class SwaggerConfig {
             }));
         };
     }
+
+    /**
+     * Swagger description 에 API 개수 노출.
+     * - 실서비스 API: "/dev/", "/health" 경로 접두사와 "Dev -"/"Health -" 로 시작하는 태그 제외
+     * - Dev API: "/dev/" 경로 접두사
+     * - Health API: "/health" 경로 접두사
+     */
+    @Bean
+    public GlobalOpenApiCustomizer apiCountCustomizer() {
+        return openApi -> {
+            long productionApis = openApi.getPaths().entrySet().stream()
+                    .filter(entry -> !entry.getKey().startsWith("/dev/"))
+                    .filter(entry -> !entry.getKey().startsWith("/health"))
+                    .flatMap(entry -> entry.getValue().readOperations().stream())
+                    .filter(op -> op.getTags() == null
+                            || op.getTags().stream().noneMatch(t -> t.startsWith("Dev -")))
+                    .filter(op -> op.getTags() == null
+                            || op.getTags().stream().noneMatch(t -> t.startsWith("Health -")))
+                    .count();
+
+            long devApis = openApi.getPaths().entrySet().stream()
+                    .filter(entry -> entry.getKey().startsWith("/dev/"))
+                    .flatMap(entry -> entry.getValue().readOperations().stream())
+                    .count();
+
+            long healthApis = openApi.getPaths().entrySet().stream()
+                    .filter(entry -> entry.getKey().startsWith("/health"))
+                    .flatMap(entry -> entry.getValue().readOperations().stream())
+                    .count();
+
+            String original = openApi.getInfo().getDescription();
+            openApi.getInfo().setDescription(
+                    (original == null ? "" : original)
+                            + String.format(
+                                    "<br><br><b>실서비스 API: %d개</b>  /  Dev: %d개  /  Health: %d개",
+                                    productionApis, devApis, healthApis));
+        };
+    }
 }
