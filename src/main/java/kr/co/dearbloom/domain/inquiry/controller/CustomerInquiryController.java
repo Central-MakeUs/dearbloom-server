@@ -66,7 +66,8 @@ public class CustomerInquiryController {
                     <b>시간</b>: startTime 은 09:00~21:00, 30분 단위. 서버가 <b>그 시각부터 패키지 소요시간만큼 연속 예약 가능한지</b> 재검증합니다.<br>
                     <b>인원</b>: 작품의 min~max 범위를 벗어나면 400.<br>
                     작가/작품/패키지명·가격은 문의 시점 스냅샷으로 저장되어 이후 수정/삭제돼도 보존됩니다.<br>
-                    문의는 슬롯을 잠그지 않습니다. 예약 완료시 슬롯을 잠급니다.
+                    문의는 슬롯을 잠그지 않습니다. 예약 완료시 슬롯을 잠급니다.<br>
+                    전송과 동시에 작가와의 채팅방에 문의 카드가 쌓이며, 그 방 ID 를 <code>chatRoomId</code> 로 돌려줍니다(기존 방이 있으면 그 방).
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.ARTWORK_PACKAGE_NOT_FOUND, ErrorCode.UNIVERSITY_NOT_FOUND,

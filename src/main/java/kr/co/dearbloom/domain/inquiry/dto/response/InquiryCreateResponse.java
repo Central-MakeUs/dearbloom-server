@@ -11,6 +11,8 @@ import java.time.LocalTime;
 public record InquiryCreateResponse(
         @Schema(description = "생성된 문의 ID", example = "1")
         Long inquiryId,
+        @Schema(description = "문의 카드가 전송된 채팅방 ID (해당 작가와 기존 방이 있으면 그 방)", example = "3")
+        Long chatRoomId,
         @Schema(description = "작가명", example = "블루밍데이즈 스냅")
         String artistNickname,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
@@ -30,9 +32,10 @@ public record InquiryCreateResponse(
         @Schema(description = "요청 사항", example = "자연스러운 보정 스타일을 선호해요.")
         String requestNote
 ) {
-    public static InquiryCreateResponse from(Inquiry inquiry) {
+    public static InquiryCreateResponse from(Inquiry inquiry, Long chatRoomId) {
         return new InquiryCreateResponse(
                 inquiry.getInquiryId(),
+                chatRoomId,
                 inquiry.getArtistNicknameSnapshot(),
                 inquiry.getArtworkNameSnapshot(),
                 inquiry.getPackageNameSnapshot(),

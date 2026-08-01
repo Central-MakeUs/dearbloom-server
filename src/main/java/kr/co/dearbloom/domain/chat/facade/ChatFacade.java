@@ -118,15 +118,18 @@ public class ChatFacade {
     /**
      * 문의 생성 시 호출(InquiryCreatedEvent 리스너). 방 find-or-create → 문의 카드 append(발신=고객)
      * → 방 미리보기·안읽음 갱신 → 작가에게 브로드캐스트. 문의 트랜잭션 안에서 동기 실행된다.
+     *
+     * @return 문의가 붙은 채팅방 ID (기존 방이 있으면 그 방)
      */
     @Transactional
-    public void onInquiryCreated(Inquiry inquiry) {
+    public Long onInquiryCreated(Inquiry inquiry) {
         Customer customer = inquiry.getCustomer();
         Artist artist = inquiry.getArtworkPackage().getArtwork().getArtist();
         ChatRoom room = chatRoomCommandService.findOrCreate(customer, artist);
         ChatMessage message = chatMessageCommandService.saveInquiryCard(room, MemberRole.CUSTOMER, inquiry);
         room.onNewMessage("[문의] " + inquiry.getPackageNameSnapshot(), sentAt(message), MemberRole.CUSTOMER);
         chatEventPublisher.sendToRoom(room.getChatRoomId(), ChatMessageResponse.from(message));
+        return room.getChatRoomId();
     }
 
     private static LocalDateTime sentAt(ChatMessage message) {

@@ -87,9 +87,10 @@ public class CustomerInquiryFacade {
                 request.getShootDate(), request.getStartTime(), request.getHeadCount(), request.getRequestNote());
         // 생성 이력(null → IN_PROGRESS, 고객).
         inquiryHistoryCommandService.record(inquiry, null, MemberRole.CUSTOMER);
-        // 채팅 방 find-or-create + 문의 카드 append (동기 리스너, 같은 트랜잭션).
-        eventPublisher.publishEvent(new InquiryCreatedEvent(inquiry));
-        return InquiryCreateResponse.from(inquiry);
+        // 채팅 방 find-or-create + 문의 카드 append (동기 리스너, 같은 트랜잭션). 만들어진 방 ID 는 이벤트로 돌려받는다.
+        InquiryCreatedEvent event = new InquiryCreatedEvent(inquiry);
+        eventPublisher.publishEvent(event);
+        return InquiryCreateResponse.from(inquiry, event.chatRoomId());
     }
 
     /** 문의 취소(고객). 본인 문의 + 진행중일 때만. */
