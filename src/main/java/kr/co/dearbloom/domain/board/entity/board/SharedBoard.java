@@ -9,10 +9,10 @@ import lombok.*;
 @Builder
 @Getter
 @Entity
-public class PickBoard {
+public class SharedBoard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pickBoardId;
+    private Long sharedBoardId;
 
     // 방장 (보드 생성자)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -20,8 +20,5 @@ public class PickBoard {
     private Customer owner;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(unique = true, nullable = false)
-    private String inviteCode;
+    private String boardName;
 }

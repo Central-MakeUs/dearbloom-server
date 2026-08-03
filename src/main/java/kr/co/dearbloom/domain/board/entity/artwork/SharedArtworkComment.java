@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.board.entity.candidate;
+package kr.co.dearbloom.domain.board.entity.artwork;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -14,15 +14,15 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class CandidateComment {
+public class SharedArtworkComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long candidateCommentId;
+    private Long sharedArtworkCommentId;
 
-    // 어느 보드의 어느 작품에 단 코멘트인지
+    // 어느 보드의 어느 작품에 단 코멘트인지 — 보드는 sharedArtwork 를 통해 따라간다.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pick_candidate_id", nullable = false)
-    private PickCandidate pickCandidate;
+    @JoinColumn(name = "shared_artwork_id", nullable = false)
+    private SharedArtwork sharedArtwork;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
