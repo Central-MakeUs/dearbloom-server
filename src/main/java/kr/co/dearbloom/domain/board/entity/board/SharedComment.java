@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class SharedBoardComment {
+public class SharedComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long sharedBoardCommentId;
+    private Long sharedCommentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shared_board_id", nullable = false)

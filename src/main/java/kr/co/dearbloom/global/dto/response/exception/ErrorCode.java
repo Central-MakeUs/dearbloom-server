@@ -70,8 +70,8 @@ public enum ErrorCode {
     SHARED_BOARD_OWNER_CANNOT_LEAVE(HttpStatus.FORBIDDEN, "SHARED-BOARD-403", "방장은 공동보드를 나갈 수 없습니다."),
     SHARED_MEMBER_ALREADY_JOINED(HttpStatus.CONFLICT, "SHARED-MEMBER-409", "이미 참여 중인 공동보드입니다."),
     SHARED_MEMBER_NOT_JOINED(HttpStatus.FORBIDDEN, "SHARED-MEMBER-403", "참여 중인 공동보드가 아닙니다."),
-    SHARED_BOARD_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SHARED-BOARD-COMMENT-404", "댓글을 찾을 수 없습니다."),
-    SHARED_BOARD_COMMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "SHARED-BOARD-COMMENT-403", "본인이 작성한 댓글만 삭제할 수 있습니다."),
+    SHARED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SHARED-COMMENT-404", "댓글을 찾을 수 없습니다."),
+    SHARED_COMMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "SHARED-COMMENT-403", "본인이 작성한 댓글만 삭제할 수 있습니다."),
 
     /**
      * Report

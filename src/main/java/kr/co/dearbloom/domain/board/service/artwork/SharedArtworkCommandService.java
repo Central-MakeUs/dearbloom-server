@@ -21,7 +21,7 @@ public class SharedArtworkCommandService {
     /**
      * 보드 삭제 시 그 보드의 공유 작품과 거기 달린 좋아요를 함께 정리한다(보드 삭제 경로에서 호출).
      * 좋아요 → 공유 작품 순서로 지워야 FK 제약에 걸리지 않는다.
-     * 댓글은 보드 단위라 {@code SharedBoardCommentCommandService} 가 따로 정리한다.
+     * 댓글은 보드 단위라 {@code SharedCommentCommandService} 가 따로 정리한다.
      */
     public void deleteBySharedBoard(SharedBoard sharedBoard) {
         sharedArtworkLikeRepository.deleteBySharedArtwork_SharedBoard(sharedBoard);

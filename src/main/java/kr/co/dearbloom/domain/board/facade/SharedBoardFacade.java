@@ -11,7 +11,7 @@ import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkCommandService;
 import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkQueryService;
 import kr.co.dearbloom.domain.board.service.board.SharedBoardCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedBoardQueryService;
-import kr.co.dearbloom.domain.board.service.board.SharedBoardCommentCommandService;
+import kr.co.dearbloom.domain.board.service.board.SharedCommentCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberQueryService;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -33,7 +33,7 @@ public class SharedBoardFacade {
     private final SharedBoardQueryService sharedBoardQueryService;
     private final SharedMemberCommandService sharedMemberCommandService;
     private final SharedMemberQueryService sharedMemberQueryService;
-    private final SharedBoardCommentCommandService sharedBoardCommentCommandService;
+    private final SharedCommentCommandService sharedCommentCommandService;
     private final SharedArtworkCommandService sharedArtworkCommandService;
     private final SharedArtworkQueryService sharedArtworkQueryService;
     private final ArtworkQueryService artworkQueryService;
@@ -84,7 +84,7 @@ public class SharedBoardFacade {
     public SharedBoardResponse delete(Customer customer, Long sharedBoardId) {
         SharedBoard sharedBoard = sharedBoardQueryService.getOwnedBy(sharedBoardId, customer);
         SharedBoardResponse response = SharedBoardResponse.from(sharedBoard);
-        sharedBoardCommentCommandService.deleteBySharedBoard(sharedBoard);
+        sharedCommentCommandService.deleteBySharedBoard(sharedBoard);
         sharedArtworkCommandService.deleteBySharedBoard(sharedBoard);
         sharedMemberCommandService.deleteBySharedBoard(sharedBoard);
         sharedBoardCommandService.delete(sharedBoard);
