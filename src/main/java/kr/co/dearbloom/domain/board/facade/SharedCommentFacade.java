@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** 공동보드 댓글 조회·등록·삭제. 댓글은 개별 공유작품이 아니라 보드 단위로 달린다. */
 @RequiredArgsConstructor
 @Component
 public class SharedCommentFacade {

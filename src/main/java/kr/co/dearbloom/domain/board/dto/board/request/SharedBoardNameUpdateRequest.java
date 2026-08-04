@@ -13,5 +13,5 @@ public class SharedBoardNameUpdateRequest {
     @NotBlank
     @Size(min = 2, max = 12)
     @Schema(description = "변경할 보드 이름 (2~12자)", example = "졸업스냅 최종본")
-    private String boardName;
+    private String sharedBoardName;
 }

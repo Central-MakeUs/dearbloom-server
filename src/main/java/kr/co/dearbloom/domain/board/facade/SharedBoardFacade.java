@@ -61,7 +61,7 @@ public class SharedBoardFacade {
     // 공동보드 생성. 생성한 고객이 방장이 되며, 방장도 참여자(SharedMember) 한 행으로 함께 들어간다.
     @Transactional
     public SharedBoardResponse create(Customer customer, SharedBoardCreateRequest request) {
-        SharedBoard sharedBoard = sharedBoardCommandService.create(customer, request.getBoardName());
+        SharedBoard sharedBoard = sharedBoardCommandService.create(customer, request.getSharedBoardName());
         sharedMemberCommandService.join(sharedBoard, customer);
         return SharedBoardResponse.from(sharedBoard);
     }
@@ -71,7 +71,7 @@ public class SharedBoardFacade {
     public SharedBoardResponse updateBoardName(Customer customer, Long sharedBoardId,
                                                SharedBoardNameUpdateRequest request) {
         SharedBoard sharedBoard = sharedBoardQueryService.getOwnedBy(sharedBoardId, customer);
-        sharedBoardCommandService.updateBoardName(sharedBoard, request.getBoardName());
+        sharedBoardCommandService.updateBoardName(sharedBoard, request.getSharedBoardName());
         return SharedBoardResponse.from(sharedBoard);
     }
 

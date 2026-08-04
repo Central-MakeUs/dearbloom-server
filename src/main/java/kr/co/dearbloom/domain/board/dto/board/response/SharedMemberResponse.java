@@ -8,8 +8,8 @@ public record SharedMemberResponse(
         @Schema(description = "공유멤버 ID", example = "12")
         Long sharedMemberId,
 
-        @Schema(description = "참여자(고객) 이름", example = "김디어")
-        String customerName
+        @Schema(description = "공유 멤버 이름", example = "김디어")
+        String sharedMemberName
 ) {
     public static SharedMemberResponse from(SharedMember sharedMember) {
         return new SharedMemberResponse(

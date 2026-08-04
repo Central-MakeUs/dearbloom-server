@@ -11,7 +11,7 @@ public record SharedCommentResponse(
         Long sharedCommentId,
 
         @Schema(description = "작성자(고객) 이름", example = "김디어")
-        String customerName,
+        String sharedMemberName,
 
         @Schema(description = "댓글 내용", example = "이 컨셉 너무 좋다! 우리 이걸로 갈까?")
         String content,

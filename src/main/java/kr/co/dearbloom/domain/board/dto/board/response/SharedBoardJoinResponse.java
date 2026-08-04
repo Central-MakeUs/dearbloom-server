@@ -12,7 +12,7 @@ public record SharedBoardJoinResponse(
         Long sharedBoardId,
 
         @Schema(description = "보드 이름", example = "우리 졸업스냅 모음")
-        String boardName
+        String sharedBoardName
 ) {
     public static SharedBoardJoinResponse from(SharedMember sharedMember) {
         return new SharedBoardJoinResponse(

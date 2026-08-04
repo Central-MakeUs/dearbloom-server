@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** 공동보드 참여자(공유멤버) 입장·조회·탈퇴. 보드 자체의 생성·수정·삭제는 {@code SharedBoardController}. */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/shared-boards")
@@ -50,9 +49,9 @@ public class SharedMemberController {
     @GetMapping("/{sharedBoardId}/members")
     @Operation(summary = "공동보드 멤버 조회",
             description = """
-                    공동보드의 참여자(공유멤버) 목록과 인원을 입장 순으로 조회합니다. <b>방장도 참여자로 포함</b>됩니다.<br>
+                    공동보드의 참여자(공유멤버) 목록과 인원을 입장 순으로 조회합니다. <b>방장도 공동보드 멤버로 포함</b>됩니다.<br>
                     각 항목은 공유멤버 ID / 고객 이름입니다.<br>
-                    보드 내부 정보이므로 <b>참여 중인 고객만</b> 조회할 수 있으며, 참여자가 아니면 403 을 반환합니다.
+                    보드 내부 정보이므로 <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.SHARED_BOARD_NOT_FOUND,
@@ -69,12 +68,12 @@ public class SharedMemberController {
     @DeleteMapping("/{sharedBoardId}/members/me")
     @Operation(summary = "공동보드 멤버에서 탈퇴",
             description = """
-                    공동보드에서 나갑니다. <b>일반 참여자만 탈퇴</b>할 수 있습니다.<br>
+                    공동보드에서 나갑니다. <b>일반 멤버만 탈퇴</b>할 수 있습니다.<br>
                     <b>방장은 나갈 수 없고</b>(403) 보드 삭제 API 만 사용할 수 있습니다.
-                    참여자가 아니면 403 을 반환합니다.<br>
+                    공유 멤버가 아니면 403 을 반환합니다.<br>
                     탈퇴하면 내가 이 보드에 남긴 <b>댓글 / 공유작품 좋아요 / 공유작품</b>이 함께 삭제됩니다.
-                    내가 담은 공유작품에 다른 참여자가 누른 좋아요도 함께 사라지며,
-                    원본 작품과 다른 참여자가 담은 공유작품·다른 참여자의 댓글은 그대로 남습니다.
+                    내가 담은 공유작품에 다른 멤버가 누른 좋아요도 함께 사라지며,
+                    원본 작품과 다른 멤버가 담은 공유작품·다른 멤버의 댓글은 그대로 남습니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.SHARED_BOARD_NOT_FOUND,

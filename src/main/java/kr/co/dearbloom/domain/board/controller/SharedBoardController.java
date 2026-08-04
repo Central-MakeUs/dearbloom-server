@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** 공동보드 목록·생성·이름 수정·삭제. 참여자는 {@code SharedMemberController}, 댓글은 {@code SharedCommentController}. */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/shared-boards")

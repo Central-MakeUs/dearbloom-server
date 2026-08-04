@@ -13,5 +13,5 @@ public class SharedBoardCreateRequest {
     @NotBlank
     @Size(min = 2, max = 12)
     @Schema(description = "보드 이름 (2~12자)", example = "우리 졸업스냅 모음")
-    private String boardName;
+    private String sharedBoardName;
 }

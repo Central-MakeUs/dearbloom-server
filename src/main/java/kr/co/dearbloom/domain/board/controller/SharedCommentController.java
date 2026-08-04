@@ -38,7 +38,7 @@ public class SharedCommentController {
                     공동보드에 달린 댓글을 <b>작성 순(오래된 것부터)</b>으로 조회합니다.<br>
                     댓글은 개별 공유작품이 아니라 <b>보드 단위</b>로 달립니다.<br>
                     각 항목은 댓글 ID / 작성자 이름 / 내용 / 작성 시각입니다(댓글 ID 는 삭제 API 에 사용).<br>
-                    보드 내부 정보이므로 <b>참여 중인 고객만</b> 조회할 수 있으며, 참여자가 아니면 403 을 반환합니다.
+                    보드 내부 정보이므로 <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.SHARED_BOARD_NOT_FOUND,
@@ -56,7 +56,7 @@ public class SharedCommentController {
     @Operation(summary = "공동보드 댓글 등록",
             description = """
                     공동보드에 댓글을 남깁니다. 내용은 <b>500자 이내</b>입니다.<br>
-                    <b>참여 중인 고객만</b> 남길 수 있으며, 참여자가 아니면 403 을 반환합니다.
+                    <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.PARAMETER_BAD_REQUEST,
