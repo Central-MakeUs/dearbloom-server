@@ -11,6 +11,7 @@ import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkCommandService;
 import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkQueryService;
 import kr.co.dearbloom.domain.board.service.board.SharedBoardCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedBoardQueryService;
+import kr.co.dearbloom.domain.board.service.board.SharedBoardCommentCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberQueryService;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -32,6 +33,7 @@ public class SharedBoardFacade {
     private final SharedBoardQueryService sharedBoardQueryService;
     private final SharedMemberCommandService sharedMemberCommandService;
     private final SharedMemberQueryService sharedMemberQueryService;
+    private final SharedBoardCommentCommandService sharedBoardCommentCommandService;
     private final SharedArtworkCommandService sharedArtworkCommandService;
     private final SharedArtworkQueryService sharedArtworkQueryService;
     private final ArtworkQueryService artworkQueryService;
@@ -75,13 +77,14 @@ public class SharedBoardFacade {
 
     /**
      * 공동보드 삭제. 방장만 가능(방장이 아니면 403).
-     * 하위 데이터를 FK 역순으로 정리한다 — 공유작품 코멘트·좋아요 → 공유작품 → 공유멤버 → 보드.
+     * 하위 데이터를 FK 역순으로 정리한다 — 보드 댓글 / 공유작품 좋아요 → 공유작품 → 공유멤버 → 보드.
      * 응답은 삭제 전 상태로 만들어 돌려준다.
      */
     @Transactional
     public SharedBoardResponse delete(Customer customer, Long sharedBoardId) {
         SharedBoard sharedBoard = sharedBoardQueryService.getOwnedBy(sharedBoardId, customer);
         SharedBoardResponse response = SharedBoardResponse.from(sharedBoard);
+        sharedBoardCommentCommandService.deleteBySharedBoard(sharedBoard);
         sharedArtworkCommandService.deleteBySharedBoard(sharedBoard);
         sharedMemberCommandService.deleteBySharedBoard(sharedBoard);
         sharedBoardCommandService.delete(sharedBoard);

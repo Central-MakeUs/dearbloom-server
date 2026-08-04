@@ -7,6 +7,7 @@ import kr.co.dearbloom.domain.board.entity.board.SharedBoard;
 import kr.co.dearbloom.domain.board.entity.board.SharedMember;
 import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedBoardQueryService;
+import kr.co.dearbloom.domain.board.service.board.SharedBoardCommentCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberCommandService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberQueryService;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -22,6 +23,7 @@ public class SharedMemberFacade {
     private final SharedBoardQueryService sharedBoardQueryService;
     private final SharedMemberCommandService sharedMemberCommandService;
     private final SharedMemberQueryService sharedMemberQueryService;
+    private final SharedBoardCommentCommandService sharedBoardCommentCommandService;
     private final SharedArtworkCommandService sharedArtworkCommandService;
 
     // 공동보드 입장. 이미 참여 중이면 409.
@@ -56,6 +58,7 @@ public class SharedMemberFacade {
             throw new CustomException(ErrorCode.SHARED_BOARD_OWNER_CANNOT_LEAVE);
         }
         SharedMember sharedMember = sharedMemberQueryService.getJoinedMember(sharedBoard, customer);
+        sharedBoardCommentCommandService.deleteBySharedBoardAndCustomer(sharedBoard, customer);
         sharedArtworkCommandService.deleteBySharedBoardAndCustomer(sharedBoard, customer);
         sharedMemberCommandService.delete(sharedMember);
     }
