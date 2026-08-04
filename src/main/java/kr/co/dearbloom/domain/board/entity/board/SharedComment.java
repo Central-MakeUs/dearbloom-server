@@ -1,4 +1,4 @@
-package kr.co.dearbloom.domain.board.entity.candidate;
+package kr.co.dearbloom.domain.board.entity.board;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -8,22 +8,23 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/** 공동 보드에 남기는 댓글. 개별 공유 작품이 아니라 보드 단위로 달린다. */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class CandidateComment {
+public class SharedComment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long candidateCommentId;
+    private Long sharedCommentId;
 
-    // 어느 보드의 어느 작품에 단 코멘트인지
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pick_candidate_id", nullable = false)
-    private PickCandidate pickCandidate;
+    @JoinColumn(name = "shared_board_id", nullable = false)
+    private SharedBoard sharedBoard;
 
+    // 댓글 작성자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
@@ -33,4 +34,8 @@ public class CandidateComment {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    public boolean isWrittenBy(Customer customer) {
+        return this.customer.getCustomerId().equals(customer.getCustomerId());
+    }
 }

@@ -1,9 +1,9 @@
 package kr.co.dearbloom.domain.board.repository.board;
 
-import kr.co.dearbloom.domain.board.entity.board.PickBoard;
+import kr.co.dearbloom.domain.board.entity.board.SharedBoard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PickBoardRepository extends JpaRepository<PickBoard, Long> {
+public interface SharedBoardRepository extends JpaRepository<SharedBoard, Long> {
 }

@@ -1,13 +1,12 @@
-package kr.co.dearbloom.domain.artwork.dto.response;
+package kr.co.dearbloom.domain.board.dto.artwork.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-/** 작품 리스트 항목(카드). 작품탐색, 내 저장 목록, 공동보드, 내 후보 수정하기 리스트 조회에서 사용. */
-public record ArtworkSummaryResponse(
-        @Schema(description = "작품 ID", example = "1")
-        Long artworkId,
+public record SharedArtworkSummaryResponse(
+        @Schema(description = "공유 작품 ID", example = "1")
+        Long sharedArtworkId,
 
         @Schema(description = "작품명", example = "야외 개인 졸업스냅")
         String title,
@@ -31,8 +30,8 @@ public record ArtworkSummaryResponse(
                 example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
         String thumbnailUrl,
 
-        @Schema(description = "내가 저장한 작품인지 여부. 고객 조회 시에만 값이 있고, 비로그인은 null.",
+        @Schema(description = "내가 공유작품 좋아요 등록했는지 여부",
                 example = "false")
-        Boolean isSaved
+        Boolean isLiked
 ) {
 }
