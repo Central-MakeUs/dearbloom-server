@@ -47,7 +47,7 @@ public enum ErrorCode {
     INVALID_SCHEDULE_TIME(HttpStatus.BAD_REQUEST, "SCHEDULE-400", "일정 시간은 09:00~21:00, 30분 단위여야 하며 시작이 종료보다 앞서야 합니다."),
 
     /**
-     * Inquiry (스마트 문의)
+     * Inquiry
      */
     INQUIRY_SLOT_NOT_AVAILABLE(HttpStatus.CONFLICT, "INQUIRY-409", "선택한 날짜·시간에는 예약할 수 없습니다."),
     INQUIRY_INVALID_HEAD_COUNT(HttpStatus.BAD_REQUEST, "INQUIRY-400", "촬영 가능 인원 범위를 벗어났습니다."),
@@ -61,6 +61,15 @@ public enum ErrorCode {
      */
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT-404", "채팅방을 찾을 수 없습니다."),
     CHAT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "CHAT-403", "해당 채팅방에 접근할 권한이 없습니다."),
+
+    /**
+     * Shared Board
+     */
+    SHARED_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "SHARED-BOARD-404", "공동보드를 찾을 수 없습니다."),
+    SHARED_BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "SHARED-BOARD-403", "공동보드 방장만 할 수 있는 동작입니다."),
+    SHARED_BOARD_OWNER_CANNOT_LEAVE(HttpStatus.FORBIDDEN, "SHARED-BOARD-403", "방장은 공동보드를 나갈 수 없습니다."),
+    SHARED_MEMBER_ALREADY_JOINED(HttpStatus.CONFLICT, "SHARED-MEMBER-409", "이미 참여 중인 공동보드입니다."),
+    SHARED_MEMBER_NOT_JOINED(HttpStatus.FORBIDDEN, "SHARED-MEMBER-403", "참여 중인 공동보드가 아닙니다."),
 
     /**
      * Report
