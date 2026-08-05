@@ -19,7 +19,7 @@ public record ArtistInquirySummaryResponse(
         @Schema(description = "상태 한국어 표기", example = "문의 진행중")
         String statusLabel,
         @Schema(description = "문의 신청 시각", example = "2026-06-05T14:23:10")
-        LocalDateTime createdAt,
+        LocalDateTime requestedAt,
         @Schema(description = "문의한 고객명", example = "김디어")
         String customerName,
         @Schema(description = "고객 프로필 이미지 URL", nullable = true)

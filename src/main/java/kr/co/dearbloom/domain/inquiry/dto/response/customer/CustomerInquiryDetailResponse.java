@@ -17,7 +17,7 @@ public record CustomerInquiryDetailResponse(
         @Schema(description = "문의 상태", example = "IN_PROGRESS")
         InquiryStatus status,
         @Schema(description = "문의 신청 시각", example = "2026-06-05T14:23:10")
-        LocalDateTime createdAt,
+        LocalDateTime requestedAt,
         @Schema(description = "작가명", example = "블루밍데이즈 스냅")
         String artistNickname,
         @Schema(description = "작품 ID (작품 상세로 이동용). 작품이 삭제됐으면 null", nullable = true, example = "1")

@@ -19,7 +19,7 @@ public record CustomerInquirySummaryResponse(
         @Schema(description = "상태 한국어 표기", example = "문의 진행중")
         String statusLabel,
         @Schema(description = "문의 신청 시각", example = "2026-06-05T14:23:10")
-        LocalDateTime createdAt,
+        LocalDateTime requestedAt,
         @Schema(description = "작가명", example = "블루밍데이즈 스냅")
         String artistNickname,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
