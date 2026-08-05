@@ -10,6 +10,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -31,7 +32,13 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        // wrap() 은 헤더를 복사한 별개의 accessor 라 setUser 가 원본 메시지에 반영되지 않는다.
+        // StompSubProtocolHandler 가 CONNECT 때 붙여둔 콜백으로 Principal 을 세션에 저장하므로,
+        // 메시지에 실려 있는 accessor 를 그대로 꺼내 써야 다음 프레임(SUBSCRIBE)에서 getUser() 가 산다.
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (accessor == null) {
+            throw new MessagingException("STOMP 헤더를 읽을 수 없습니다.");
+        }
         StompCommand command = accessor.getCommand();
         if (StompCommand.CONNECT.equals(command)) {
             accessor.setUser(authenticate(accessor));
