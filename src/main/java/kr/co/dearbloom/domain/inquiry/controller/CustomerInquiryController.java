@@ -83,7 +83,7 @@ public class CustomerInquiryController {
 
     @GetMapping
     @Operation(summary = "내 문의 리스트 조회",
-            description = "내가 보낸 문의를 <b>최근 수정순</b>으로 조회합니다. 필터 없이 전체를 반환합니다.")
+            description = "내가 보낸 문의를 <b>신청 최근순</b>으로 조회합니다. 필터 없이 전체를 반환합니다.")
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.CUSTOMER_NOT_FOUND})
     public ResponseEntity<ApiResponse<List<CustomerInquirySummaryResponse>>> getMyInquiries(

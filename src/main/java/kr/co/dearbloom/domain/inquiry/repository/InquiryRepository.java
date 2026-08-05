@@ -65,16 +65,17 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
             """)
     List<Inquiry> findByArtwork(@Param("artworkId") Long artworkId);
 
-    // 고객 문의 리스트(최근 수정순). 대표 이미지용으로 작품까지 fetch join.
+    // 고객 문의 리스트(신청 최근순). 대표 이미지용으로 작품까지 fetch join.
     // 작품이 삭제된 문의도 스냅샷으로 표시해야 하므로 left join — inner 면 그 문의가 목록에서 사라진다.
+    // 같은 시각에 만들어진 문의가 있으면 PK 로 tie-break 해서 순서가 흔들리지 않게 한다.
     @Query("""
             select i from Inquiry i
             left join fetch i.artworkPackage p
             left join fetch p.artwork
             where i.customer.customerId = :customerId
-            order by i.modifiedAt desc
+            order by i.createdAt desc, i.inquiryId desc
             """)
-    List<Inquiry> findByCustomerOrderByModifiedAtDesc(@Param("customerId") Long customerId);
+    List<Inquiry> findByCustomerOrderByCreatedAtDesc(@Param("customerId") Long customerId);
 
     // 작가 문의 리스트(내 작품에 들어온 문의, 촬영일 오름차순 → 같은 날은 시작시각 오름차순). 고객명 표시용으로 고객까지 fetch join.
     @Query("""

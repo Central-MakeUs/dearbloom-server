@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.artwork.service;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Region;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkThumbnailResponse;
@@ -74,7 +75,7 @@ public class ArtworkQueryService {
                         artwork.getMinHeadCount(),
                         artwork.getMaxHeadCount(),
                         artwork.getArtist().getNickname(),
-                        artwork.getArtist().getRegions().stream().map(Enum::name).toList(),
+                        Region.toSortedNames(artwork.getArtist().getRegions()),
                         representativeImage.get(artwork.getArtworkId()),
                         artwork.getSavedCount(),
                         artwork.getViewCount()))
@@ -121,7 +122,7 @@ public class ArtworkQueryService {
                         artwork.getMinHeadCount(),
                         artwork.getMaxHeadCount(),
                         artwork.getArtist().getNickname(),
-                        artwork.getArtist().getRegions().stream().map(Enum::name).toList(),
+                        Region.toSortedNames(artwork.getArtist().getRegions()),
                         representativeImage.get(artwork.getArtworkId()),
                         savedArtworkIds == null ? null : savedArtworkIds.contains(artwork.getArtworkId())))
                 .toList();

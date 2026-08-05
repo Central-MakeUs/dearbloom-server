@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.artist.dto.artist.response;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Region;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public record ArtistResponse(
                 artist.getArtistId(),
                 artist.getNickname(),
                 artist.getIntro(),
-                artist.getRegions().stream().map(Enum::name).toList(),
+                Region.toSortedNames(artist.getRegions()),
                 artist.getEtcInfo(),
                 artist.getImageUrl()
         );

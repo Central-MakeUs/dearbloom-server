@@ -106,7 +106,7 @@ public class CustomerInquiryFacade {
         return InquiryStatusResponse.of(inquiry);
     }
 
-    /** 고객이 보낸 문의 리스트(최근 수정순). 작품 대표 이미지는 배치로 조회한다. */
+    /** 고객이 보낸 문의 리스트(신청 최근순). 작품 대표 이미지는 배치로 조회한다. */
     @Transactional(readOnly = true)
     public List<CustomerInquirySummaryResponse> getMyInquiries(Customer customer) {
         List<Inquiry> inquiries = inquiryQueryService.getByCustomer(customer.getCustomerId());

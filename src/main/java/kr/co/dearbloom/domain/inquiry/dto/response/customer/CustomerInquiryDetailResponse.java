@@ -6,6 +6,7 @@ import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /** 고객 문의 상세. 스냅샷 기반이라 작가/작품이 수정·삭제돼도 문의 시점 값이 유지된다. */
@@ -15,6 +16,8 @@ public record CustomerInquiryDetailResponse(
         Long inquiryId,
         @Schema(description = "문의 상태", example = "IN_PROGRESS")
         InquiryStatus status,
+        @Schema(description = "문의 신청 시각", example = "2026-06-05T14:23:10")
+        LocalDateTime createdAt,
         @Schema(description = "작가명", example = "블루밍데이즈 스냅")
         String artistNickname,
         @Schema(description = "작품 ID (작품 상세로 이동용). 작품이 삭제됐으면 null", nullable = true, example = "1")
@@ -48,6 +51,7 @@ public record CustomerInquiryDetailResponse(
         return new CustomerInquiryDetailResponse(
                 inquiry.getInquiryId(),
                 inquiry.getStatus(),
+                inquiry.getCreatedAt(),
                 inquiry.getArtistNicknameSnapshot(),
                 inquiry.getArtworkIdOrNull(),
                 inquiry.getArtworkNameSnapshot(),
