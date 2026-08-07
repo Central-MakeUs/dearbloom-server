@@ -15,6 +15,11 @@ import java.util.Optional;
 public interface SharedMemberRepository extends JpaRepository<SharedMember, Long> {
     boolean existsBySharedBoardAndCustomer(SharedBoard sharedBoard, Customer customer);
 
+    long countBySharedBoard(SharedBoard sharedBoard);
+
+    // 초대 화면용. ViewerContext 는 Customer 엔티티가 아니라 profileId 만 주므로 id 로 판정한다.
+    boolean existsBySharedBoardAndCustomer_CustomerId(SharedBoard sharedBoard, Long customerId);
+
     Optional<SharedMember> findBySharedBoardAndCustomer(SharedBoard sharedBoard, Customer customer);
 
     // 보드 참여자를 입장 순으로, 고객까지 fetch join 해 한 번에 조회(이름 N+1 제거).

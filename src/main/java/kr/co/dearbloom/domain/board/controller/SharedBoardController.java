@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/shared-boards")
-@Tag(name = "Shared Board", description = "공동보드 API")
+@Tag(name = "Shared Board", description = "공동보드 관리 API")
 public class SharedBoardController {
     private final SharedBoardFacade sharedBoardFacade;
 

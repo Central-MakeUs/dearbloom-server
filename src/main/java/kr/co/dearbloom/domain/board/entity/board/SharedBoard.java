@@ -23,6 +23,9 @@ public class SharedBoard extends BaseTime {
     @Column(nullable = false)
     private String boardName;
 
+    @Column(unique = true, nullable = false, length = 16)
+    private String inviteCode;
+
     // 보드 이름 변경. 방장 검증은 호출부(서비스) 책임.
     public void updateBoardName(String boardName) {
         this.boardName = boardName;

@@ -23,9 +23,20 @@ public class SharedMemberQueryService {
         return sharedMemberRepository.findBoardsByCustomerOrderByCreatedAtAsc(customer);
     }
 
-    // 보드 참여자 전원(입장 순, 방장 포함). 고객 fetch join.
+    // 보드 참여자 전원(입장 순). 고객 fetch join.
     public List<SharedMember> getMembers(SharedBoard sharedBoard) {
         return sharedMemberRepository.findBySharedBoardWithCustomer(sharedBoard);
+    }
+
+    // 참여 인원. 초대 화면에서 목록 없이 인원만 필요할 때.
+    public long countMembers(SharedBoard sharedBoard) {
+        return sharedMemberRepository.countBySharedBoard(sharedBoard);
+    }
+
+    // 이 고객이 참여 중인지. 초대 화면은 비로그인도 오므로 customerId(null 가능)로 판정한다.
+    public boolean isJoined(SharedBoard sharedBoard, Long customerId) {
+        return customerId != null
+                && sharedMemberRepository.existsBySharedBoardAndCustomer_CustomerId(sharedBoard, customerId);
     }
 
     // 이 고객의 참여자 행. 참여 중이 아니면 403(보드 내부 정보 접근·탈퇴 전 검증용).

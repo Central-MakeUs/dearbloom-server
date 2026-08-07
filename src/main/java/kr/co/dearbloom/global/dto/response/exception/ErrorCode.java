@@ -68,6 +68,8 @@ public enum ErrorCode {
     SHARED_BOARD_NOT_FOUND(HttpStatus.NOT_FOUND, "SHARED-BOARD-404", "공동보드를 찾을 수 없습니다."),
     SHARED_BOARD_ACCESS_DENIED(HttpStatus.FORBIDDEN, "SHARED-BOARD-403", "공동보드 방장만 할 수 있는 동작입니다."),
     SHARED_BOARD_OWNER_CANNOT_LEAVE(HttpStatus.FORBIDDEN, "SHARED-BOARD-403", "방장은 공동보드를 나갈 수 없습니다."),
+    SHARED_BOARD_INVITE_CODE_INVALID(HttpStatus.NOT_FOUND, "SHARED-BOARD-404", "유효하지 않은 초대 링크입니다."),
+    SHARED_BOARD_INVITE_CODE_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SHARED-BOARD-500", "초대 코드 생성에 실패했습니다."),
     SHARED_MEMBER_ALREADY_JOINED(HttpStatus.CONFLICT, "SHARED-MEMBER-409", "이미 참여 중인 공동보드입니다."),
     SHARED_MEMBER_NOT_JOINED(HttpStatus.FORBIDDEN, "SHARED-MEMBER-403", "참여 중인 공동보드가 아닙니다."),
     SHARED_ARTWORK_NOT_FOUND(HttpStatus.NOT_FOUND, "SHARED-ARTWORK-404", "공유작품을 찾을 수 없습니다."),

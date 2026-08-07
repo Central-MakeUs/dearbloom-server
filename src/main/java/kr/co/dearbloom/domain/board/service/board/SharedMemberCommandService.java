@@ -27,6 +27,18 @@ public class SharedMemberCommandService {
                 .build());
     }
 
+    /**
+     * 초대 링크로 입장. 이미 참여 중이면 기존 행을 그대로 돌려준다(멱등).
+     * 링크는 카톡에 남아 재클릭이 흔하고, 그때 409 를 띄우면 정상 흐름이 에러 화면으로 끝난다.
+     */
+    public SharedMember joinIfAbsent(SharedBoard sharedBoard, Customer customer) {
+        return sharedMemberRepository.findBySharedBoardAndCustomer(sharedBoard, customer)
+                .orElseGet(() -> sharedMemberRepository.save(SharedMember.builder()
+                        .sharedBoard(sharedBoard)
+                        .customer(customer)
+                        .build()));
+    }
+
     // 참여자 행 삭제(탈퇴). 방장 여부·보드에 남긴 데이터 정리는 호출부(파사드) 책임.
     public void delete(SharedMember sharedMember) {
         sharedMemberRepository.delete(sharedMember);
