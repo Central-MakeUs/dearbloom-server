@@ -45,20 +45,28 @@ public class MemberFacade {
     private final TokenProvider tokenProvider;
     private final FileUrlValidator fileUrlValidator;
 
+    // 프로필 이름 길이. 고객 실명·작가 닉네임 검증 규칙(2~12자)과 같아야 한다.
+    private static final int PROFILE_NAME_MIN_LENGTH = 2;
+    private static final int PROFILE_NAME_MAX_LENGTH = 12;
+    private static final String DEFAULT_PROFILE_NAME = "noname";
+    // 외자 이름 보정용 접미사. "김" → "김아무개"
+    private static final String SHORT_NAME_SUFFIX = "아무개";
+
     /**
      * 고객 ↔ 작가 모드 전환. 대상 role 의 프로필 보유 여부를 서버가 재검증한 뒤
      * recentRole 을 갱신하고 activeRole 을 새 role 로 강제한 Access Token 을 재발급한다.
      * Refresh Token 은 재발급하지 않는다.
      */
     public RoleSwitchResponse switchRole(Member member, MemberRole role) {
-        Member updated = memberCommandService.switchActiveRole(member, role);
+        Member updated = memberCommandService.validateRoleAndTouchRecent(member, role);
         String accessToken = tokenService.createAccessToken(updated, role);
         return new RoleSwitchResponse(accessToken, role);
     }
 
     /**
-     * 고객 온보딩. 실명·학교(선택)로 고객 프로필을 만들고,
+     * 고객 온보딩. 학교(선택)로 고객 프로필을 만들고,
      * activeRole 이 CUSTOMER 로 갱신된 새 accessToken 을 함께 반환한다.
+     * 이름은 요청으로 받지 않고 소셜 계정 이름에서 채운다({@link #resolveProfileName}).
      */
     @Transactional
     public CustomerCreateResponse createCustomer(Member member, CustomerCreateRequest request) {
@@ -67,7 +75,8 @@ public class MemberFacade {
                 ? null
                 : universityQueryService.findById(request.getUniversityId());
         Member updated = memberCommandService.markAsCustomer(member);
-        Customer customer = customerCommandService.create(updated, request.getName(), university, request.getRegion());
+        Customer customer = customerCommandService.create(
+                updated, resolveProfileName(member), university, request.getRegion());
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
                 CustomerResponse.from(customer)
@@ -75,8 +84,9 @@ public class MemberFacade {
     }
 
     /**
-     * 작가 온보딩. 닉네임·활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
+     * 작가 온보딩. 활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
      * activeRole 이 ARTIST 로 갱신된 새 accessToken 을 함께 반환한다.
+     * 닉네임은 요청으로 받지 않고 소셜 계정 이름에서 채운다({@link #resolveProfileName}).
      */
     @Transactional
     public ArtistCreateResponse createArtist(Member member, ArtistCreateRequest request) {
@@ -85,7 +95,7 @@ public class MemberFacade {
             fileUrlValidator.validate(request.getImageUrl());
         }
         // 해지 후 재온보딩이면 익명화된 행을 되살린다. markAsArtist 로 활성/비활성을 판별하므로 create 를 먼저 호출.
-        Artist artist = artistCommandService.create(member, request);
+        Artist artist = artistCommandService.create(member, resolveProfileName(member), request);
         Member updated = memberCommandService.markAsArtist(member);
         return new ArtistCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.ARTIST),
@@ -105,8 +115,8 @@ public class MemberFacade {
         }
         Long memberId = tokenProvider.getMemberId(refreshToken);
         Member member = memberQueryService.getByMemberIdOrThrow(memberId);
-        // 프로필 보유 검증(없으면 ROLE_NOT_AVAILABLE) + recentRole 갱신을 switchActiveRole 로 재사용.
-        Member updated = memberCommandService.switchActiveRole(member, role);
+        // role 은 클라이언트가 보낸 값이라 반드시 검증해야 한다 — 없으면 프로필 없는 role 로도 토큰이 발급된다.
+        Member updated = memberCommandService.validateRoleAndTouchRecent(member, role);
         String newAccessToken = tokenService.createAccessToken(updated, role);
         return new TokenRefreshResponse(newAccessToken, refreshToken);
     }
@@ -114,6 +124,34 @@ public class MemberFacade {
     /** 로그아웃. Redis 의 refreshToken 세션을 삭제해 무효화한다. */
     public void logout(Long memberId) {
         tokenService.logout(memberId);
+    }
+
+    /**
+     * 온보딩용 프로필 이름(고객 실명 / 작가 닉네임)을 소셜 계정 이름에서 가져온다.
+     * <p>
+     * 온보딩에서 이름을 따로 입력받지 않는 임시 정책이라, 소셜에서 받아둔 Member.name 을 그대로 쓴다.
+     * 사용자는 프로필 수정 API 로 바꿀 수 있다.
+     * <p>
+     * 소셜 이름은 길이 제한이 없어 그대로 넣으면 검증 규칙(2~12자)을 벗어날 수 있고, 그러면
+     * 사용자가 <b>자기 이름 때문에 프로필 수정을 저장하지 못하는</b> 상태가 된다. 그래서 양끝을 모두 보정한다.
+     * <ul>
+     *   <li>값이 없으면 {@code noname}</li>
+     *   <li>외자면 뒤에 {@code 아무개} 를 붙여 최소 길이를 맞춘다 ("김" → "김아무개")</li>
+     *   <li>12자를 넘으면 앞 12자로 자른다</li>
+     * </ul>
+     */
+    private static String resolveProfileName(Member member) {
+        String name = member.getName();
+        if (name == null || name.isBlank()) {
+            return DEFAULT_PROFILE_NAME;
+        }
+        String trimmed = name.trim();
+        if (trimmed.length() < PROFILE_NAME_MIN_LENGTH) {
+            return trimmed + SHORT_NAME_SUFFIX;
+        }
+        return trimmed.length() <= PROFILE_NAME_MAX_LENGTH
+                ? trimmed
+                : trimmed.substring(0, PROFILE_NAME_MAX_LENGTH);
     }
 
 //    /**
