@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Documented
 @Constraint(validatedBy = RealNameValidator.class)
 public @interface ValidRealName {
-    String message() default "이름은 2-5자의 한글 또는 영문만 가능합니다";
+    String message() default "이름은 2-12자의 한글 또는 영문만 가능합니다";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

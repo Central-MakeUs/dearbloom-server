@@ -45,10 +45,18 @@ public class MemberCommandService {
     }
 
     /**
-     * 고객 ↔ 작가 모드 전환. 요청한 role 에 대응하는 프로필(Customer/Artist)이 없으면 거부.
-     * recentRole 을 갱신할 뿐 Access Token 재발급은 호출부(MemberFacade)의 책임.
+     * 요청한 role 로 활동할 자격이 있는지 검증하고 recentRole 을 갱신한다.
+     * <p>
+     * 이 메서드는 role 을 "전환"하지 않는다. activeRole 은 DB 컬럼이 아니라 Access Token 클레임이고,
+     * 토큰 발급 시 TokenProvider 는 넘겨받은 role 을 그대로 신뢰한다(보유 여부를 확인하지 않는다).
+     * 따라서 role 을 파라미터로 받아 토큰을 발급하는 경로는 <b>반드시 이 메서드를 먼저 거쳐야 한다</b> —
+     * 빠뜨리면 프로필이 없는 role 로도 accessToken 이 발급된다.
+     * <p>
+     * recentRole 갱신은 최근 접속 role 을 기록하기 위한 부수 효과이고, 토큰 발급은 호출부(MemberFacade)의 책임이다.
+     *
+     * @throws CustomException 대상 role 의 프로필이 없으면 ROLE_NOT_AVAILABLE
      */
-    public Member switchActiveRole(Member member, MemberRole role) {
+    public Member validateRoleAndTouchRecent(Member member, MemberRole role) {
         boolean hasProfile = switch (role) {
             case CUSTOMER -> member.isHasCustomer();
             case ARTIST -> member.isHasArtist();

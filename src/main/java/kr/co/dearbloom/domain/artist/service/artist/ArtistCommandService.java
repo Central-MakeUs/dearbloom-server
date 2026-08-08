@@ -23,18 +23,18 @@ public class ArtistCommandService {
     // 온보딩 3개 항목을 한 번에 받아 작가 프로필을 만든다. 한 Member 당 하나만 허용.
     // 과거 역할 해지로 익명화된 행이 남아 있으면(hasArtist=false) 그 행을 되살린다(재가입=같은 사람 복귀).
     // markAsArtist 이전에 호출되므로, 이미 활성 작가(hasArtist=true)가 다시 부르면 중복으로 막는다.
-    public Artist create(Member member, ArtistCreateRequest request) {
+    public Artist create(Member member, String nickname, ArtistCreateRequest request) {
         Artist existing = artistRepository.findByMember(member).orElse(null);
         if (existing != null) {
             if (member.isHasArtist()) {
                 throw new CustomException(ErrorCode.ARTIST_ALREADY_EXISTS);
             }
-            existing.reactivate(request.getNickname(), request.getImageUrl(), new HashSet<>(request.getRegionList()));
+            existing.reactivate(nickname, request.getImageUrl(), new HashSet<>(request.getRegionList()));
             return existing;
         }
         return artistRepository.save(Artist.builder()
                 .member(member)
-                .nickname(request.getNickname())
+                .nickname(nickname)
                 .imageUrl(request.getImageUrl())
                 .regions(new HashSet<>(request.getRegionList()))
                 .build());

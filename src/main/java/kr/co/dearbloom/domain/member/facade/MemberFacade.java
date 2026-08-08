@@ -19,6 +19,7 @@ import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.service.MemberCommandService;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
+import kr.co.dearbloom.domain.member.util.ProfileNameResolver;
 import kr.co.dearbloom.domain.university.entity.University;
 import kr.co.dearbloom.domain.university.service.UniversityQueryService;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
@@ -51,14 +52,15 @@ public class MemberFacade {
      * Refresh Token 은 재발급하지 않는다.
      */
     public RoleSwitchResponse switchRole(Member member, MemberRole role) {
-        Member updated = memberCommandService.switchActiveRole(member, role);
+        Member updated = memberCommandService.validateRoleAndTouchRecent(member, role);
         String accessToken = tokenService.createAccessToken(updated, role);
         return new RoleSwitchResponse(accessToken, role);
     }
 
     /**
-     * 고객 온보딩. 실명·학교(선택)로 고객 프로필을 만들고,
+     * 고객 온보딩. 학교(선택)로 고객 프로필을 만들고,
      * activeRole 이 CUSTOMER 로 갱신된 새 accessToken 을 함께 반환한다.
+     * 이름은 요청으로 받지 않고 소셜 계정 이름에서 채운다({@link ProfileNameResolver}).
      */
     @Transactional
     public CustomerCreateResponse createCustomer(Member member, CustomerCreateRequest request) {
@@ -67,7 +69,8 @@ public class MemberFacade {
                 ? null
                 : universityQueryService.findById(request.getUniversityId());
         Member updated = memberCommandService.markAsCustomer(member);
-        Customer customer = customerCommandService.create(updated, request.getName(), university, request.getRegion());
+        Customer customer = customerCommandService.create(
+                updated, ProfileNameResolver.resolve(member), university, request.getRegion());
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
                 CustomerResponse.from(customer)
@@ -75,8 +78,9 @@ public class MemberFacade {
     }
 
     /**
-     * 작가 온보딩. 닉네임·활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
+     * 작가 온보딩. 활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
      * activeRole 이 ARTIST 로 갱신된 새 accessToken 을 함께 반환한다.
+     * 닉네임은 요청으로 받지 않고 소셜 계정 이름에서 채운다({@link ProfileNameResolver}).
      */
     @Transactional
     public ArtistCreateResponse createArtist(Member member, ArtistCreateRequest request) {
@@ -85,7 +89,7 @@ public class MemberFacade {
             fileUrlValidator.validate(request.getImageUrl());
         }
         // 해지 후 재온보딩이면 익명화된 행을 되살린다. markAsArtist 로 활성/비활성을 판별하므로 create 를 먼저 호출.
-        Artist artist = artistCommandService.create(member, request);
+        Artist artist = artistCommandService.create(member, ProfileNameResolver.resolve(member), request);
         Member updated = memberCommandService.markAsArtist(member);
         return new ArtistCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.ARTIST),
@@ -105,8 +109,8 @@ public class MemberFacade {
         }
         Long memberId = tokenProvider.getMemberId(refreshToken);
         Member member = memberQueryService.getByMemberIdOrThrow(memberId);
-        // 프로필 보유 검증(없으면 ROLE_NOT_AVAILABLE) + recentRole 갱신을 switchActiveRole 로 재사용.
-        Member updated = memberCommandService.switchActiveRole(member, role);
+        // role 은 클라이언트가 보낸 값이라 반드시 검증해야 한다 — 없으면 프로필 없는 role 로도 토큰이 발급된다.
+        Member updated = memberCommandService.validateRoleAndTouchRecent(member, role);
         String newAccessToken = tokenService.createAccessToken(updated, role);
         return new TokenRefreshResponse(newAccessToken, refreshToken);
     }
