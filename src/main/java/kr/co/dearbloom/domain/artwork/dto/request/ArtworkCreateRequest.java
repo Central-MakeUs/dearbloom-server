@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -79,7 +80,7 @@ public class ArtworkCreateRequest {
 
     @NotEmpty(message = "패키지를 1개 이상 등록해주세요")
     @Valid
-    @Schema(description = "작품 패키지 목록(1개 이상). 리스트 화면엔 이 중 최저가가 가격으로 노출됩니다.")
+    @Schema(description = "작품 패키지 목록(1개 이상). 리스트 화면엔 이 중 최저가가 노출됩니다.")
     private List<ArtworkPackageRequest> packageList;
 
     @NotEmpty(message = "사진을 1장 이상 등록해주세요")

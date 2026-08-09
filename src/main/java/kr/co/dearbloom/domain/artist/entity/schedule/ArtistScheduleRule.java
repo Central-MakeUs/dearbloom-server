@@ -21,9 +21,7 @@ import java.time.LocalTime;
 @Getter
 @Entity
 @Table(indexes = {
-        // 작품 목록의 날짜 필터가 (작가, WEEKLY_AVAILABLE, 요일) 로 EXISTS 를 돌린다 — 세 컬럼이 다 인덱스에 있어야 커버된다.
-        // 앞 두 컬럼이 prefix 라 기존 가용성 조회(artist_id + rule_type)도 이 인덱스로 함께 처리된다.
-        @Index(name = "idx_schedule_artist_type_dow", columnList = "artist_id, rule_type, day_of_week"),
+        @Index(name = "idx_schedule_artist_type", columnList = "artist_id, rule_type"),
         @Index(name = "idx_schedule_artist_date", columnList = "artist_id, block_date")
 })
 public class ArtistScheduleRule extends BaseTime {

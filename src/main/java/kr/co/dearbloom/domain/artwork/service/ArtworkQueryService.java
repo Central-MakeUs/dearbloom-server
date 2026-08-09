@@ -2,11 +2,6 @@ package kr.co.dearbloom.domain.artwork.service;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.entity.artist.Region;
-import kr.co.dearbloom.domain.artist.util.BookingWindow;
-import kr.co.dearbloom.domain.artwork.dto.ArtworkCursor;
-import kr.co.dearbloom.domain.artwork.dto.ArtworkFilterCondition;
-import kr.co.dearbloom.domain.artwork.dto.ArtworkPage;
-import kr.co.dearbloom.domain.artwork.dto.request.ArtworkQueryRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtistArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkThumbnailResponse;
@@ -14,7 +9,6 @@ import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 import kr.co.dearbloom.domain.artwork.repository.ArtworkPackageRepository;
-import kr.co.dearbloom.domain.artwork.repository.ArtworkQueryRepository;
 import kr.co.dearbloom.domain.artwork.repository.ArtworkRepository;
 import kr.co.dearbloom.domain.artwork.repository.PortfolioFileRepository;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
@@ -23,10 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,11 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ArtworkQueryService {
-    // 촬영 희망 기간 최대 span. 화면 프리셋이 "오늘부터 30일"까지라 그 이상은 잘못된 요청으로 본다.
-    private static final int MAX_DATE_RANGE_DAYS = 30;
-
     private final ArtworkRepository artworkRepository;
-    private final ArtworkQueryRepository artworkQueryRepository;
     private final PortfolioFileRepository portfolioFileRepository;
     private final ArtworkPackageRepository artworkPackageRepository;
 
@@ -68,70 +54,9 @@ public class ArtworkQueryService {
         return artworkPackageRepository.findByArtwork(artwork);
     }
 
-    /**
-     * 요청 파라미터를 쿼리 조건으로 해석한다. 날짜 범위 검증·요일 접기가 여기서 끝난다.
-     * 페이지 조회와 개수 조회가 같은 조건 객체를 공유해야 총 개수가 목록과 어긋나지 않는다.
-     */
-    public ArtworkFilterCondition resolveCondition(ArtworkQueryRequest request) {
-        return new ArtworkFilterCondition(
-                resolveAvailableDayOfWeeks(request.getStartDate(), request.getEndDate()),
-                request.getRegion(),
-                request.getHeadCount(),
-                request.getSort());
-    }
-
-    /**
-     * 필터·정렬을 적용한 작품 페이지.
-     * 한 페이지보다 한 개 더 가져와서, 그 초과분이 있으면 다음 페이지가 있다고 보고 잘라낸다.
-     */
-    public ArtworkPage findArtworkPage(ArtworkFilterCondition condition, ArtworkCursor cursor, int size) {
-        List<Artwork> found = artworkQueryRepository.findArtworkPage(condition, cursor, size);
-        boolean hasNext = found.size() > size;
-        return new ArtworkPage(hasNext ? found.subList(0, size) : found, hasNext);
-    }
-
-    // 같은 필터를 만족하는 전체 작품 수.
-    public long countArtworks(ArtworkFilterCondition condition) {
-        return artworkQueryRepository.countArtworks(condition);
-    }
-
-    /**
-     * 촬영 희망 기간을 "작가가 가능해야 하는 요일 집합"으로 접는다.
-     * 기간이 연속이라 7일 이상이면 7요일 전부가 되고, 그래서 30일치 날짜를 쿼리에 늘어놓을 일이 없다.
-     * 기간 중 <b>하루라도</b> 가능하면 노출하는 정책이라 요일들의 OR(=IN) 로 충분하다.
-     *
-     * <p>예약 오픈 창(오늘~3개월) 과 교집합을 먼저 잡는다 — 창 밖 날짜는 규칙과 무관하게 예약이 안 되기 때문이다.
-     * 교집합이 비면 빈 Set 을 돌려주고(결과 0건), 날짜를 아예 안 보냈으면 null 을 돌려준다(필터 없음).
-     */
-    private Set<DayOfWeek> resolveAvailableDayOfWeeks(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null && endDate == null) {
-            return null;
-        }
-        if (startDate == null || endDate == null || endDate.isBefore(startDate)
-                || ChronoUnit.DAYS.between(startDate, endDate) > MAX_DATE_RANGE_DAYS) {
-            throw new CustomException(ErrorCode.PARAMETER_BAD_REQUEST);
-        }
-
-        LocalDate from = maxDate(startDate, BookingWindow.firstOpenDate());
-        LocalDate to = minDate(endDate, BookingWindow.lastOpenDate());
-        if (to.isBefore(from)) {
-            return Set.of();
-        }
-
-        Set<DayOfWeek> dayOfWeeks = EnumSet.noneOf(DayOfWeek.class);
-        for (LocalDate date = from; !date.isAfter(to) && dayOfWeeks.size() < DayOfWeek.values().length;
-             date = date.plusDays(1)) {
-            dayOfWeeks.add(date.getDayOfWeek());
-        }
-        return dayOfWeeks;
-    }
-
-    private LocalDate maxDate(LocalDate left, LocalDate right) {
-        return left.isAfter(right) ? left : right;
-    }
-
-    private LocalDate minDate(LocalDate left, LocalDate right) {
-        return left.isBefore(right) ? left : right;
+    // 전체 작품을 최신순으로 리스트 카드 형태로 조회. savedArtworkIds 는 고객이 저장한 작품 id 집합(없으면 null).
+    public List<ArtworkSummaryResponse> getAllLatestSummaries(Set<Long> savedArtworkIds) {
+        return getSummaries(artworkRepository.findAllWithArtistOrderByCreatedAtDesc(), savedArtworkIds);
     }
 
     // 특정 작가의 작품을 최신순으로 작가용 카드(저장 수/조회수 포함)로 조회.
@@ -141,11 +66,12 @@ public class ArtworkQueryService {
             return List.of();
         }
         Map<Long, String> representativeImage = representativeImageMap(artworks);
+        Map<Long, Integer> lowestPrice = lowestPriceMap(artworks);
         return artworks.stream()
                 .map(artwork -> new ArtistArtworkSummaryResponse(
                         artwork.getArtworkId(),
                         artwork.getArtworkName(),
-                        artwork.getLowestPrice(),
+                        lowestPrice.get(artwork.getArtworkId()),
                         artwork.getMinHeadCount(),
                         artwork.getMaxHeadCount(),
                         artwork.getArtist().getNickname(),
@@ -187,11 +113,12 @@ public class ArtworkQueryService {
             return List.of();
         }
         Map<Long, String> representativeImage = representativeImageMap(artworks);
+        Map<Long, Integer> lowestPrice = lowestPriceMap(artworks);
         return artworks.stream()
                 .map(artwork -> new ArtworkSummaryResponse(
                         artwork.getArtworkId(),
                         artwork.getArtworkName(),
-                        artwork.getLowestPrice(),
+                        lowestPrice.get(artwork.getArtworkId()),
                         artwork.getMinHeadCount(),
                         artwork.getMaxHeadCount(),
                         artwork.getArtist().getNickname(),
@@ -221,5 +148,15 @@ public class ArtworkQueryService {
                         file -> file.getArtwork().getArtworkId(),
                         PortfolioFile::getFileUrl,
                         (first, second) -> first));
+    }
+
+    // 작품별 최저 패키지 가격 맵. 한 번의 조회로 N+1 회피. 가격 null 패키지는 제외.
+    private Map<Long, Integer> lowestPriceMap(List<Artwork> artworks) {
+        return artworkPackageRepository.findByArtworkIn(artworks).stream()
+                .filter(pkg -> pkg.getPrice() != null)
+                .collect(Collectors.toMap(
+                        pkg -> pkg.getArtwork().getArtworkId(),
+                        ArtworkPackage::getPrice,
+                        Math::min));
     }
 }
