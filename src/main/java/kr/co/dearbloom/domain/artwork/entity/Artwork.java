@@ -10,6 +10,11 @@ import lombok.*;
 @Builder
 @Getter
 @Entity
+@Table(indexes = {
+        // 목록 정렬 키 그대로. 뒤에 artwork_id 를 붙여야 동점 행까지 인덱스 순서로 정해져 커서 페이지네이션이 성립한다.
+        @Index(name = "idx_artwork_created", columnList = "created_at, artwork_id"),
+        @Index(name = "idx_artwork_price", columnList = "lowest_price, artwork_id")
+})
 public class Artwork extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +28,15 @@ public class Artwork extends BaseTime {
     private String artworkName;
 
     // 촬영 가능 인원. 1~6 범위. maxHeadCount 가 null 이면 "N인 이상"(제한 없음).
+    @Column(nullable = false)
     private Integer minHeadCount;
 
     private Integer maxHeadCount;
+
+    // 카드에 노출하는 가격 = 패키지 중 최저가. 목록 정렬/필터를 SQL 에서 처리하려고 비정규화해 둔다.
+    // 패키지는 등록 시 1개 이상 필수고 가격도 필수라 항상 값이 있다.
+    @Column(nullable = false)
+    private Integer lowestPrice;
 
     @Column(columnDefinition = "TEXT")
     private String description;
