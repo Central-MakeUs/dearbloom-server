@@ -178,12 +178,7 @@ public class MemberFacade {
 //        String accessToken = tokenService.createAccessToken(updated, MemberRole.CUSTOMER);
 //        return RoleRevokeResponse.switched(accessToken, MemberRole.CUSTOMER);
 //    }
-
-    /**
-     * 회원 탈퇴. 계정 행은 남기고(익명화) 부속 데이터와 S3 객체는 지운다.
-     * 어떤 데이터를 지우고 어떤 데이터를 남기는지는 Obsidian
-     * {@code 8. DearBloom/규정/회원 탈퇴 데이터 처리 규정} 참고.
-     */
+    
     @Transactional
     public void withdraw(Member member) {
         Long memberId = member.getMemberId();

@@ -43,7 +43,7 @@ public class Customer extends BaseTime {
 
     // 회원 탈퇴 시 고객 프로필 PII 익명화. 행은 문의·채팅·리뷰 FK 때문에 남긴다.
     public void anonymize() {
-        this.name = "탈퇴한 사용자";
+        this.name = "deleted_user";
         this.university = null;
         this.region = null;
     }
