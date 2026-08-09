@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.inquiry.dto.response.artist;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.co.dearbloom.domain.customer.entity.CustomerProfileImage;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 
@@ -22,8 +23,8 @@ public record ArtistInquirySummaryResponse(
         LocalDateTime requestedAt,
         @Schema(description = "문의한 고객명", example = "김디어")
         String customerName,
-        @Schema(description = "고객 프로필 이미지 URL", nullable = true)
-        String customerImageUrl,
+        @Schema(description = "고객 기본 프로필 이미지 색상(온보딩 시 자동 배정)", example = "GREEN")
+        CustomerProfileImage customerProfileColor,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
         String artworkName,
         @Schema(description = "패키지명", example = "패키지 A")
@@ -48,7 +49,7 @@ public record ArtistInquirySummaryResponse(
                 inquiry.getStatus().getLabel(),
                 inquiry.getCreatedAt(),
                 inquiry.getCustomer().getName(),
-                inquiry.getCustomer().getImageUrl(),
+                inquiry.getCustomer().getProfileColor(),
                 inquiry.getArtworkNameSnapshot(),
                 inquiry.getPackageNameSnapshot(),
                 inquiry.getHeadCount(),

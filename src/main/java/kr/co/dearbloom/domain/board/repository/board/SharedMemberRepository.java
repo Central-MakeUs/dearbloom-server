@@ -24,13 +24,20 @@ public interface SharedMemberRepository extends JpaRepository<SharedMember, Long
 
     // 보드 참여자를 입장 순으로, 고객까지 fetch join 해 한 번에 조회(이름 N+1 제거).
     @Query("select sm from SharedMember sm join fetch sm.customer where sm.sharedBoard = :sharedBoard"
-            + " order by sm.sharedMemberId asc")
+            + " order by sm.createdAt asc, sm.sharedMemberId asc")
     List<SharedMember> findBySharedBoardWithCustomer(@Param("sharedBoard") SharedBoard sharedBoard);
 
     // 내가 참여 중인 보드를 보드 생성 오름차순(먼저 만들어진 보드부터)으로 조회.
     @Query("select sm.sharedBoard from SharedMember sm where sm.customer = :customer"
             + " order by sm.sharedBoard.createdAt asc, sm.sharedBoard.sharedBoardId asc")
     List<SharedBoard> findBoardsByCustomerOrderByCreatedAtAsc(@Param("customer") Customer customer);
+
+    /**
+     * 이 고객을 뺀 나머지 멤버 중 가장 먼저 입장한 한 명(방장 위임 대상).
+     * 같은 시각에 들어온 행이 있어도 순서가 흔들리지 않게 id 로 tie-break 한다.
+     */
+    Optional<SharedMember> findFirstBySharedBoardAndCustomerNotOrderByCreatedAtAscSharedMemberIdAsc(
+            SharedBoard sharedBoard, Customer customer);
 
     // 보드 삭제 시 참여자 행을 함께 정리(FK 제약 위반 방지).
     void deleteBySharedBoard(SharedBoard sharedBoard);
