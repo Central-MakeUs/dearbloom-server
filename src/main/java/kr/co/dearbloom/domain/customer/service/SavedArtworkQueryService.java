@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -30,13 +29,5 @@ public class SavedArtworkQueryService {
     // 이 고객이 저장한 작품 id 집합(리스트 저장 여부 일괄 판정용).
     public Set<Long> getSavedArtworkIds(Long customerId) {
         return savedArtworkRepository.findSavedArtworkIdsByCustomerId(customerId);
-    }
-
-    // 위와 같지만 지금 페이지에 뜬 작품들로만 좁혀 조회한다 — 페이지네이션 목록에서 저장 목록 전체를 끌어올 이유가 없다.
-    public Set<Long> getSavedArtworkIds(Long customerId, Collection<Long> artworkIds) {
-        if (artworkIds.isEmpty()) {
-            return Set.of();
-        }
-        return savedArtworkRepository.findSavedArtworkIdsByCustomerIdAndArtworkIdIn(customerId, artworkIds);
     }
 }

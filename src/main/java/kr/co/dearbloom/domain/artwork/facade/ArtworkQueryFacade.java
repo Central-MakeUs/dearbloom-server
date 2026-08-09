@@ -1,12 +1,8 @@
 package kr.co.dearbloom.domain.artwork.facade;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
-import kr.co.dearbloom.domain.artwork.dto.ArtworkCursor;
-import kr.co.dearbloom.domain.artwork.dto.ArtworkFilterCondition;
-import kr.co.dearbloom.domain.artwork.dto.ArtworkPage;
-import kr.co.dearbloom.domain.artwork.dto.request.ArtworkQueryRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkDetailResponse;
-import kr.co.dearbloom.domain.artwork.dto.response.ArtworkPageResponse;
+import kr.co.dearbloom.domain.artwork.dto.response.ArtworkSummaryResponse;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkThumbnailResponse;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
@@ -14,7 +10,6 @@ import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
 import kr.co.dearbloom.domain.customer.service.SavedArtworkQueryService;
 import kr.co.dearbloom.global.auth.resolver.ViewerContext;
-import kr.co.dearbloom.global.util.CursorCodec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +22,6 @@ import java.util.Set;
 public class ArtworkQueryFacade {
     private final ArtworkQueryService artworkQueryService;
     private final SavedArtworkQueryService savedArtworkQueryService;
-    private final CursorCodec cursorCodec;
 
     /**
      * 비로그인/고객용 작품 상세 조회.
@@ -48,31 +42,12 @@ public class ArtworkQueryFacade {
         return ArtworkDetailResponse.of(artwork, artist, files, packages, otherArtworkList, isSaved);
     }
 
-    /**
-     * 작품 탐색 목록(필터·정렬·무한스크롤).
-     * 다음 페이지 커서는 이번 페이지 마지막 작품의 정렬 키로 만든다.
-     * 저장 여부는 지금 페이지에 뜬 작품들로만 좁혀 조회한다.
-     */
+    // 작품 전체 리스트(최신순). 고객 조회면 각 항목에 저장 여부(isSaved)를 채운다.
     @Transactional(readOnly = true)
-    public ArtworkPageResponse getArtworkPage(ArtworkQueryRequest request, ViewerContext viewer) {
-        ArtworkFilterCondition condition = artworkQueryService.resolveCondition(request);
-        ArtworkCursor cursor = cursorCodec.decode(request.getCursor(), ArtworkCursor.class);
-
-        ArtworkPage page = artworkQueryService.findArtworkPage(condition, cursor, request.getSize());
-        List<Artwork> artworks = page.artworks();
-
+    public List<ArtworkSummaryResponse> getArtworkList(ViewerContext viewer) {
         Set<Long> savedArtworkIds = viewer.isCustomer()
-                ? savedArtworkQueryService.getSavedArtworkIds(viewer.activeProfileId(), artworkIds(artworks))
+                ? savedArtworkQueryService.getSavedArtworkIds(viewer.activeProfileId())
                 : null;
-
-        return new ArtworkPageResponse(
-                artworkQueryService.getSummaries(artworks, savedArtworkIds),
-                artworkQueryService.countArtworks(condition),
-                page.hasNext() ? cursorCodec.encode(ArtworkCursor.from(artworks.get(artworks.size() - 1))) : null,
-                page.hasNext());
-    }
-
-    private List<Long> artworkIds(List<Artwork> artworks) {
-        return artworks.stream().map(Artwork::getArtworkId).toList();
+        return artworkQueryService.getAllLatestSummaries(savedArtworkIds);
     }
 }
