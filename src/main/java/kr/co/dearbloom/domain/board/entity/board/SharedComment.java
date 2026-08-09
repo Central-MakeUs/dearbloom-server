@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.board.entity.board;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.customer.entity.Customer;
+import kr.co.dearbloom.global.entity.BaseTime;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class SharedComment {
+public class SharedComment extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long sharedCommentId;

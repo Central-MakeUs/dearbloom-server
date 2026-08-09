@@ -31,6 +31,9 @@ public interface SavedArtworkRepository extends JpaRepository<SavedArtwork, Long
     // 작품 삭제 시 그 작품을 저장해둔 모든 고객의 행을 함께 정리(FK 제약 위반 방지).
     void deleteByArtwork(Artwork artwork);
 
+    // 회원 탈퇴 시 이 고객의 저장 작품을 모두 정리
+    void deleteByCustomer(Customer customer);
+
     void deleteByCustomerAndArtwork_ArtworkId(Customer customer, Long artworkId);
 
     void deleteByCustomerAndArtwork_ArtworkIdIn(Customer customer, Collection<Long> artworkIds);

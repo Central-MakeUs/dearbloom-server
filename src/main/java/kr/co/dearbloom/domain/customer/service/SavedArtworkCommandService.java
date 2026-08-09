@@ -41,6 +41,11 @@ public class SavedArtworkCommandService {
     }
 
     // 작품이 삭제될 때 그 작품을 저장한 모든 고객의 행을 정리한다(작품 삭제 경로에서 호출).
+    // 회원 탈퇴 시 이 고객의 저장 작품 전체 정리.
+    public void deleteByCustomer(Customer customer) {
+        savedArtworkRepository.deleteByCustomer(customer);
+    }
+
     public void deleteByArtwork(Artwork artwork) {
         savedArtworkRepository.deleteByArtwork(artwork);
     }

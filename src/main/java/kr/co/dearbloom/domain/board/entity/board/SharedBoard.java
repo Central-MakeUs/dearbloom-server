@@ -31,6 +31,10 @@ public class SharedBoard extends BaseTime {
         this.boardName = boardName;
     }
 
+    public void delegateOwner(Customer newOwner) {
+        this.owner = newOwner;
+    }
+
     public boolean isOwner(Customer customer) {
         return this.owner.getCustomerId().equals(customer.getCustomerId());
     }

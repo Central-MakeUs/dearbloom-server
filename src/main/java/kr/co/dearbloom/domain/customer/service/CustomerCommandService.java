@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.customer.service;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Region;
 import kr.co.dearbloom.domain.customer.entity.Customer;
+import kr.co.dearbloom.domain.customer.entity.CustomerProfileImage;
 import kr.co.dearbloom.domain.customer.repository.CustomerRepository;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.university.entity.University;
@@ -17,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomerCommandService {
     private final CustomerRepository customerRepository;
 
-    // 온보딩. 실명·학교(선택)·지역(선택)을 받아 고객 프로필을 만든다.
+    // 온보딩. 실명·학교(선택)·지역(선택)을 받아 고객 프로필을 만든다. 프로필 이미지는 4색 중 하나를 자동 배정한다.
     public Customer create(Member member, String name, University university, Region region) {
         if (customerRepository.findByMember(member).isPresent()) { // 이미 고객 프로필이 존재하면 예외
             throw new CustomException(ErrorCode.CUSTOMER_ALREADY_EXISTS);
@@ -27,6 +28,7 @@ public class CustomerCommandService {
                 .name(name)
                 .university(university)
                 .region(region)
+                .profileColor(CustomerProfileImage.random())
                 .build());
     }
 

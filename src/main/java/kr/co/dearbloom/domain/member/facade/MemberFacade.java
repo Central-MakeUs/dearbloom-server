@@ -5,6 +5,9 @@ import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistCreateResponse;
 import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistResponse;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.service.artist.ArtistCommandService;
+import kr.co.dearbloom.domain.artist.service.artist.ArtistQueryService;
+import kr.co.dearbloom.domain.artist.service.schedule.ScheduleCommandService;
+import kr.co.dearbloom.domain.artwork.service.ArtworkWithdrawalService;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
 import kr.co.dearbloom.domain.auth.service.TokenService;
@@ -12,7 +15,11 @@ import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerCreateResponse;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerResponse;
 import kr.co.dearbloom.domain.customer.entity.Customer;
+import kr.co.dearbloom.domain.board.service.board.SharedBoardWithdrawalService;
+import kr.co.dearbloom.domain.chat.service.ChatWithdrawalService;
 import kr.co.dearbloom.domain.customer.service.CustomerCommandService;
+import kr.co.dearbloom.domain.customer.service.CustomerQueryService;
+import kr.co.dearbloom.domain.customer.service.SavedArtworkCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryWithdrawalService;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
@@ -25,6 +32,8 @@ import kr.co.dearbloom.domain.university.service.UniversityQueryService;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
+import kr.co.dearbloom.domain.report.service.ReportCommandService;
+import kr.co.dearbloom.global.file.FileCleaner;
 import kr.co.dearbloom.global.file.FileUrlValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +50,16 @@ public class MemberFacade {
     private final CustomerCommandService customerCommandService;
     private final UniversityQueryService universityQueryService;
     private final OAuthAccountService oAuthAccountService;
+    private final CustomerQueryService customerQueryService;
+    private final ArtistQueryService artistQueryService;
+    private final SavedArtworkCommandService savedArtworkCommandService;
+    private final ScheduleCommandService scheduleCommandService;
+    private final ArtworkWithdrawalService artworkWithdrawalService;
+    private final ChatWithdrawalService chatWithdrawalService;
+    private final ReportCommandService reportCommandService;
+    private final FileCleaner fileCleaner;
     private final InquiryWithdrawalService inquiryWithdrawalService;
+    private final SharedBoardWithdrawalService sharedBoardWithdrawalService;
     private final TokenService tokenService;
     private final TokenProvider tokenProvider;
     private final FileUrlValidator fileUrlValidator;
@@ -115,6 +133,7 @@ public class MemberFacade {
         return new TokenRefreshResponse(newAccessToken, refreshToken);
     }
 
+
     /** 로그아웃. Redis 의 refreshToken 세션을 삭제해 무효화한다. */
     public void logout(Long memberId) {
         tokenService.logout(memberId);
@@ -161,8 +180,9 @@ public class MemberFacade {
 //    }
 
     /**
-     * 회원 탈퇴(soft delete). 진행 중 문의 자동 취소 → Apple 토큰 revoke(심사 필수) → 소셜 연결(OAuthAccount)
-     * hard delete → 보유 프로필 익명화 → 멤버 탈퇴 처리 → 세션 삭제. 재로그인 시 OAuthAccount 가 없어 신규 멤버로 가입된다.
+     * 회원 탈퇴. 계정 행은 남기고(익명화) 부속 데이터와 S3 객체는 지운다.
+     * 어떤 데이터를 지우고 어떤 데이터를 남기는지는 Obsidian
+     * {@code 8. DearBloom/규정/회원 탈퇴 데이터 처리 규정} 참고.
      */
     @Transactional
     public void withdraw(Member member) {
@@ -175,6 +195,11 @@ public class MemberFacade {
         } catch (Exception e) {
             log.warn("[Withdraw] Apple 토큰 revoke 실패(무시하고 탈퇴 진행) — memberId={}, {}", memberId, e.getMessage());
         }
+        // 공동보드 정리 — 혼자면 보드 삭제, 남는 멤버가 있으면 방장 위임 후 본인 흔적만 삭제(익명화 전에 먼저).
+        sharedBoardWithdrawalService.cleanUpForWithdrawal(member);
+        reportCommandService.deleteByReporter(member);       // 신고자 FK 가 Member 라 행이 남으면 탈퇴자와 계속 이어진다
+        customerQueryService.findByMember(member).ifPresent(this::deleteCustomerOwnedData);
+        artistQueryService.findByMember(member).ifPresent(this::deleteArtistOwnedData);
         oAuthAccountService.deleteByMember(member);          // 소셜 연결 제거
         if (member.isHasCustomer()) {
             customerCommandService.anonymizeByMember(member); // 고객 프로필 익명화
@@ -184,5 +209,19 @@ public class MemberFacade {
         }
         memberCommandService.withdraw(memberId);             // 멤버 soft delete + PII 제거
         tokenService.logout(memberId);                       // Redis refresh 세션 삭제
+    }
+
+    // 고객으로서 남긴 데이터. 저장 작품은 본인만 보는 데이터라 삭제하고, 채팅 사진은 S3 객체만 지운다(대화 행은 유지).
+    private void deleteCustomerOwnedData(Customer customer) {
+        savedArtworkCommandService.deleteByCustomer(customer);
+        chatWithdrawalService.deleteUploadedImages(customer);
+    }
+
+    // 작가로서 남긴 데이터. 작품·사진은 통째로 삭제, 대표 이미지도 S3 에서 제거.
+    private void deleteArtistOwnedData(Artist artist) {
+        artworkWithdrawalService.deleteAllByArtist(artist);
+        scheduleCommandService.deleteByArtist(artist);
+        chatWithdrawalService.deleteUploadedImages(artist);
+        fileCleaner.deleteQuietly(artist.getImageUrl());
     }
 }

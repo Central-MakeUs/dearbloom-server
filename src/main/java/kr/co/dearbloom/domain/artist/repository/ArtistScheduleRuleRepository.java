@@ -31,6 +31,9 @@ public interface ArtistScheduleRuleRepository extends JpaRepository<ArtistSchedu
     // 소유권 검증용 단건 조회.
     Optional<ArtistScheduleRule> findByScheduleRuleIdAndArtist(Long scheduleRuleId, Artist artist);
 
+    // 회원 탈퇴 시 이 작가의 일정 규칙을 모두 정리(본인 운영 데이터라 상대방이 볼 일이 없다).
+    void deleteByArtist(Artist artist);
+
     // 기본 촬영 가능 전체 교체 시 기존 행 제거.
     void deleteByArtistAndRuleType(Artist artist, ScheduleRuleType ruleType);
 }

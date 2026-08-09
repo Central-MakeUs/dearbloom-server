@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.board.entity.board;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.customer.entity.Customer;
+import kr.co.dearbloom.global.entity.BaseTime;
 import lombok.*;
 
 /** 공동 보드 참여자. 방장도 생성 시 한 행으로 들어간다. */
@@ -13,7 +14,7 @@ import lombok.*;
 @Table(uniqueConstraints = @UniqueConstraint(
         name = "uk_shared_member_board_customer",
         columnNames = {"shared_board_id", "customer_id"}))
-public class SharedMember {
+public class SharedMember extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long sharedMemberId;
