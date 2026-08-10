@@ -3,10 +3,10 @@ package kr.co.dearbloom.domain.board.dto.board.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.dearbloom.domain.board.entity.board.SharedMember;
 
-/** 공동보드 입장 결과(생성된 공유멤버 + 입장한 보드). */
+/** 공동보드 입장 결과(참여자 본인 + 입장한 보드). */
 public record SharedBoardJoinResponse(
-        @Schema(description = "공유멤버 ID", example = "12")
-        Long sharedMemberId,
+        @Schema(description = "참여자 고객 ID(입장한 본인)", example = "3")
+        Long customerId,
 
         @Schema(description = "공동보드 ID", example = "1")
         Long sharedBoardId,
@@ -16,7 +16,7 @@ public record SharedBoardJoinResponse(
 ) {
     public static SharedBoardJoinResponse from(SharedMember sharedMember) {
         return new SharedBoardJoinResponse(
-                sharedMember.getSharedMemberId(),
+                sharedMember.getCustomer().getCustomerId(),
                 sharedMember.getSharedBoard().getSharedBoardId(),
                 sharedMember.getSharedBoard().getBoardName());
     }

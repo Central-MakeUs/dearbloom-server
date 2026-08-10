@@ -73,6 +73,7 @@ public enum ErrorCode {
     SHARED_MEMBER_ALREADY_JOINED(HttpStatus.CONFLICT, "SHARED-MEMBER-409", "이미 참여 중인 공동보드입니다."),
     SHARED_MEMBER_NOT_JOINED(HttpStatus.FORBIDDEN, "SHARED-MEMBER-403", "참여 중인 공동보드가 아닙니다."),
     SHARED_ARTWORK_NOT_FOUND(HttpStatus.NOT_FOUND, "SHARED-ARTWORK-404", "공유작품을 찾을 수 없습니다."),
+    SHARED_ARTWORK_ALREADY_SHARED(HttpStatus.CONFLICT, "SHARED-ARTWORK-409", "다른 참여자가 이미 담은 작품입니다."),
     SHARED_ARTWORK_ALREADY_LIKED(HttpStatus.CONFLICT, "SHARED-ARTWORK-409", "이미 좋아요한 공유작품입니다."),
     SHARED_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "SHARED-COMMENT-404", "댓글을 찾을 수 없습니다."),
     SHARED_COMMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "SHARED-COMMENT-403", "본인이 작성한 댓글만 삭제할 수 있습니다."),

@@ -58,7 +58,7 @@ public class SharedMemberController {
                     <b>이미 참여 중이어도 성공(201)</b> 으로 응답합니다 — 카톡에 남은 링크를 다시 눌러도
                     에러 없이 그대로 보드로 들어갈 수 있어야 하기 때문입니다.<br>
                     유효하지 않은 코드면 404 를 반환합니다.<br>
-                    응답으로 공유멤버 ID 와 입장한 보드 정보를 돌려줍니다.
+                    응답으로 참여자 고객 ID 와 입장한 보드 정보를 돌려줍니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.SHARED_BOARD_INVITE_CODE_INVALID})
@@ -95,7 +95,7 @@ public class SharedMemberController {
     @Operation(summary = "공동보드 멤버 조회",
             description = """
                     공동보드의 참여자(공유멤버) 목록과 인원을 입장 순으로 조회합니다. <b>방장도 공동보드 멤버로 포함</b>됩니다.<br>
-                    각 항목은 공유멤버 ID / 고객 이름입니다.<br>
+                    각 항목은 고객 ID / 이름 / 기본 프로필 이미지 색상입니다.<br>
                     보드 내부 정보이므로 <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,

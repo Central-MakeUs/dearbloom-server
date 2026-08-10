@@ -8,8 +8,10 @@ import kr.co.dearbloom.global.entity.BaseTime;
 import lombok.*;
 
 /**
- * 공동 보드에 올라온 작품. 같은 작품을 <b>여러 참여자가 각각 담을 수 있고</b>(참여자마다 한 행),
- * 조회할 때 작품 단위로 중복을 제거한다. 한 참여자가 같은 작품을 두 번 담는 것만 막는다.
+ * 공동 보드에 담긴 작품.
+ * <p>
+ * <b>같은 작품은 보드에 한 번만 담긴다.</b> 먼저 담은 사람이 임자라, 다른 참여자는 그 작품을 또 담을 수 없다.
+ * {@code customer} 가 담은 사람이고, 그 작품을 뺄 수 있는 것도 그 사람뿐이다.
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,8 +19,8 @@ import lombok.*;
 @Getter
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(
-        name = "uk_shared_artwork_board_artwork_customer",
-        columnNames = {"shared_board_id", "artwork_id", "customer_id"}))
+        name = "uk_shared_artwork_board_artwork",
+        columnNames = {"shared_board_id", "artwork_id"}))
 public class SharedArtwork extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

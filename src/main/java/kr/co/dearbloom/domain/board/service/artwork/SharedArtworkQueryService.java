@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,29 +48,26 @@ public class SharedArtworkQueryService {
     }
 
     /**
-     * 보드의 공유작품을 <b>작품 단위로 중복 제거</b>해 화면 정렬대로 돌려준다.
-     * 같은 작품을 여러 참여자가 담았으면 가장 먼저 담긴 행을 대표로 남긴다(응답의 공유작품 ID 도 그 행).
-     * 정렬은 좋아요 많은 순, 같으면 먼저 담긴 순.
+     * 보드의 공유작품을 화면 정렬대로 돌려준다(좋아요 많은 순, 같으면 먼저 담긴 순).
+     * 같은 작품이 중복으로 담기지 않으므로 조회 결과를 그대로 내보내면 된다.
      */
-    public List<SharedArtwork> getDistinctBySharedBoard(SharedBoard sharedBoard) {
-        // 조회 쿼리가 담은 순으로 정렬돼 있어 먼저 만난 행이 곧 대표 행이다.
-        List<SharedArtwork> representatives = sharedArtworkRepository.findBySharedBoardWithArtwork(sharedBoard)
-                .stream()
-                .collect(Collectors.toMap(
-                        sharedArtwork -> sharedArtwork.getArtwork().getArtworkId(),
-                        Function.identity(),
-                        (first, second) -> first,
-                        LinkedHashMap::new))
-                .values().stream()
-                .toList();
+    public List<SharedArtwork> getBySharedBoard(SharedBoard sharedBoard) {
         Map<Long, Long> likeCounts = getLikeCounts(sharedBoard);
-        return representatives.stream()
-                // 정렬은 좋아요 내림차순만 지정 — 동률은 stable sort 라 담은 순(쿼리 순서)이 유지된다.
+        // 쿼리가 담은 순으로 정렬돼 있고, 좋아요 내림차순만 지정 — 동률은 stable sort 라 담은 순이 유지된다.
+        return sharedArtworkRepository.findBySharedBoardWithArtwork(sharedBoard).stream()
                 .sorted(Comparator.comparingLong(
                         (SharedArtwork sharedArtwork) ->
-                                likeCounts.getOrDefault(sharedArtwork.getArtwork().getArtworkId(), 0L))
+                                likeCounts.getOrDefault(sharedArtwork.getSharedArtworkId(), 0L))
                         .reversed())
                 .toList();
+    }
+
+    /** 이 보드에 담긴 작품 id → 담은 사람(고객 id). 저장 목록에서 "누가 담았는지" 표시용. */
+    public Map<Long, Long> getSharerCustomerIdsByArtworkId(SharedBoard sharedBoard) {
+        return sharedArtworkRepository.findBySharedBoardWithCustomer(sharedBoard).stream()
+                .collect(Collectors.toMap(
+                        sharedArtwork -> sharedArtwork.getArtwork().getArtworkId(),
+                        sharedArtwork -> sharedArtwork.getCustomer().getCustomerId()));
     }
 
     // 내가 이 보드에 공유한 작품 id 집합(저장 목록에서 공유 여부 일괄 판정용).
@@ -86,16 +82,16 @@ public class SharedArtworkQueryService {
         return sharedArtworkRepository.findBySharedBoardAndCustomerWithArtwork(sharedBoard, customer);
     }
 
-    // 이 보드에서 내가 좋아요한 작품 id 집합.
-    public Set<Long> getLikedArtworkIds(SharedBoard sharedBoard, Customer customer) {
-        return sharedArtworkLikeRepository.findLikedArtworkIds(sharedBoard, customer);
+    // 이 보드에서 내가 좋아요한 공유작품 id 집합.
+    public Set<Long> getLikedSharedArtworkIds(SharedBoard sharedBoard, Customer customer) {
+        return sharedArtworkLikeRepository.findLikedSharedArtworkIds(sharedBoard, customer);
     }
 
-    // 작품 id → 좋아요 수. 같은 작품의 여러 행에 달린 좋아요를 작품 단위로 합산한다.
+    // 공유작품 id → 좋아요 수(정렬용).
     private Map<Long, Long> getLikeCounts(SharedBoard sharedBoard) {
-        return sharedArtworkLikeRepository.countGroupedByArtwork(sharedBoard).stream()
+        return sharedArtworkLikeRepository.countGroupedBySharedArtwork(sharedBoard).stream()
                 .collect(Collectors.toMap(
-                        SharedArtworkLikeRepository.ArtworkLikeCount::getArtworkId,
-                        SharedArtworkLikeRepository.ArtworkLikeCount::getLikeCount));
+                        SharedArtworkLikeRepository.SharedArtworkLikeCount::getSharedArtworkId,
+                        SharedArtworkLikeRepository.SharedArtworkLikeCount::getLikeCount));
     }
 }

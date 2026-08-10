@@ -38,10 +38,9 @@ public class SharedArtworkController {
     @Operation(summary = "공동보드 공유작품 페이지 조회",
             description = """
                     공동보드 화면 한 장에 필요한 <b>참여자 목록·인원 + 공유작품 목록·개수</b>를 함께 조회합니다.<br>
-                    <b>같은 작품을 여러 참여자가 담았어도 작품 하나로 합쳐서</b> 내려갑니다
-                    (공유작품 ID 는 가장 먼저 담긴 행의 ID 이며, 좋아요 API 에 이 ID 를 사용합니다).<br>
-                    정렬은 <b>좋아요 많은 순</b>, 좋아요가 같으면 <b>먼저 담긴 순</b>입니다.
-                    좋아요 수는 같은 작품의 여러 행에 달린 것을 합산합니다.<br>
+                    <b>보드당 같은 작품은 하나만</b> 담기므로 담긴 그대로 내려갑니다
+                    (좋아요 API 에 응답의 공유작품 ID 를 사용합니다).<br>
+                    정렬은 <b>좋아요 많은 순</b>, 좋아요가 같으면 <b>먼저 담긴 순</b>입니다.<br>
                     보드 내부 정보이므로 <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
@@ -59,11 +58,13 @@ public class SharedArtworkController {
     @GetMapping("/{sharedBoardId}/saved-artworks")
     @Operation(summary = "내 저장 작품 조회 (공동보드 공유 여부 포함)",
             description = """
-                    공유작품을 고르는 화면용입니다. 내 저장 작품 목록을 각 작품의
-                    <b>이 보드 공유 여부(isShared)</b>와 함께 조회합니다.<br>
-                    isShared 는 <b>내가</b> 이 보드에 공유했는지를 뜻합니다(다른 참여자가 담은 것은 false).
-                    공유작품 업데이트 API 의 체크 상태로 그대로 쓰면 됩니다.<br>
-                    <b>공유 중인 작품이 맨 위</b>로 올라오고, 나머지는 저장 최신순입니다.<br>
+                    공유작품을 고르는 화면용입니다. 내 저장 작품 목록을 <b>이 보드에 담겼는지</b>와 함께 조회합니다.<br>
+                    <b>isShared</b> — 내가 담았는지. 공유작품 업데이트 API 의 체크 상태로 그대로 쓰면 됩니다.<br>
+                    <b>sharedBy</b> — 이 작품을 담은 참여자(고객 ID / 이름 / 프로필 색상).
+                    <b>아무도 담지 않았으면 null</b> 이며, 그때만 새로 담을 수 있습니다.
+                    보드당 같은 작품은 하나만 담기므로, isShared=false 인데 sharedBy 가 있으면
+                    <b>다른 참여자가 이미 담은 작품</b>이라 선택할 수 없습니다(해당 카드를 비활성화하고 담은 사람을 표시하세요).<br>
+                    <b>내가 담은 작품이 맨 위</b>로 올라오고, 나머지는 저장 최신순입니다.<br>
                     <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
@@ -85,14 +86,15 @@ public class SharedArtworkController {
                     보낸 목록이 그대로 내 공유작품이 됩니다. <b>최대 3개</b>이며, 빈 배열이면 전부 내려갑니다.<br>
                     - <b>유지할 작품</b>: 기존 작품 ID 를 그대로 다시 포함해 보내면 됩니다(좋아요도 유지).<br>
                     - <b>목록에서 뺀 작품</b>: 내 공유작품에서 사라지며, 거기 달린 좋아요도 함께 삭제됩니다.<br>
-                    다른 참여자가 같은 작품을 담고 있어도 그 사람 공유작품은 그대로 남습니다.<br>
+                    <b>다른 참여자가 이미 담은 작품은 보낼 수 없습니다</b> — 포함하면 409 를 반환합니다.
+                    저장 작품 조회의 sharedBy 로 미리 걸러주세요.<br>
                     응답은 보드 정보와 <b>업데이트 후 내 공유작품 목록</b>입니다.<br>
                     <b>공동보드 멤버만</b> 사용할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
             ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.PARAMETER_BAD_REQUEST,
             ErrorCode.SHARED_BOARD_NOT_FOUND, ErrorCode.SHARED_MEMBER_NOT_JOINED,
-            ErrorCode.ARTWORK_NOT_FOUND})
+            ErrorCode.ARTWORK_NOT_FOUND, ErrorCode.SHARED_ARTWORK_ALREADY_SHARED})
     public ResponseEntity<ApiResponse<SharedArtworkUpdateResponse>> update(
             @CurrentCustomer Customer customer,
             @PathVariable Long sharedBoardId,

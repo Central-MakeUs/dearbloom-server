@@ -20,10 +20,20 @@ public interface SharedArtworkRepository extends JpaRepository<SharedArtwork, Lo
             @Param("sharedBoards") Collection<SharedBoard> sharedBoards);
 
     // 이 보드의 공유 작품을 담은 순으로, 작품·작가까지 fetch join 해 한 번에 조회(N+1 제거).
-    // 같은 작품이 참여자 수만큼 여러 행으로 나올 수 있어 중복 제거는 조회 측(서비스)에서 한다.
+    // 같은 작품이 중복으로 담기지 않으므로 조회 결과에 중복이 없다.
     @Query("select sa from SharedArtwork sa join fetch sa.artwork a join fetch a.artist"
             + " where sa.sharedBoard = :sharedBoard order by sa.createdAt asc, sa.sharedArtworkId asc")
     List<SharedArtwork> findBySharedBoardWithArtwork(@Param("sharedBoard") SharedBoard sharedBoard);
+
+    // 이 보드에 이미 담긴 작품들(담은 사람 fetch join). 중복 담기 차단·저장 목록의 담은 사람 표시용.
+    @Query("select sa from SharedArtwork sa join fetch sa.customer"
+            + " where sa.sharedBoard = :sharedBoard and sa.artwork.artworkId in :artworkIds")
+    List<SharedArtwork> findBySharedBoardAndArtworkIdInWithCustomer(
+            @Param("sharedBoard") SharedBoard sharedBoard, @Param("artworkIds") Collection<Long> artworkIds);
+
+    // 이 보드에 담긴 전체 공유 작품(담은 사람 fetch join).
+    @Query("select sa from SharedArtwork sa join fetch sa.customer where sa.sharedBoard = :sharedBoard")
+    List<SharedArtwork> findBySharedBoardWithCustomer(@Param("sharedBoard") SharedBoard sharedBoard);
 
     // 이 보드에 이 참여자가 담은 공유 작품(참여자 탈퇴·공유작품 업데이트 시 정리 대상).
     List<SharedArtwork> findBySharedBoardAndCustomer(SharedBoard sharedBoard, Customer customer);
