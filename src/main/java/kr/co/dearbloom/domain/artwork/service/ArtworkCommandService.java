@@ -21,12 +21,15 @@ public class ArtworkCommandService {
     private final PortfolioFileRepository portfolioFileRepository;
     private final ArtworkPackageRepository artworkPackageRepository;
 
-    public Artwork create(Artist artist, String title, Integer minHeadCount, Integer maxHeadCount) {
+    // lowestPrice는 패키지 중 최저가. 패키지 엔티티보다 작품이 먼저 저장돼야 해서 호출부에서 미리 계산해 넘긴다.
+    public Artwork create(Artist artist, String title, Integer minHeadCount, Integer maxHeadCount,
+                          Integer lowestPrice) {
         return artworkRepository.save(Artwork.builder()
                 .artist(artist)
                 .artworkName(title)
                 .minHeadCount(minHeadCount)
                 .maxHeadCount(maxHeadCount)
+                .lowestPrice(lowestPrice)
                 .build());
     }
 
