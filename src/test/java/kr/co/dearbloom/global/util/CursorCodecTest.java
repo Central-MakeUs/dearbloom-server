@@ -1,6 +1,7 @@
 package kr.co.dearbloom.global.util;
 
 import kr.co.dearbloom.domain.artwork.dto.ArtworkCursor;
+import kr.co.dearbloom.domain.artwork.dto.type.ArtworkSortOrder;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,28 @@ class CursorCodecTest {
     @DisplayName("깨진 커서는 400 으로 떨어진다")
     void 깨진_커서는_예외() {
         assertThatThrownBy(() -> cursorCodec.decode("not-a-cursor!!", ArtworkCursor.class))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("형식은 맞지만 정렬 키가 빠진 커서는 400 — 쿼리 조건을 만들다 NPE 로 500 나는 걸 막는다")
+    void 키_빠진_커서는_예외() {
+        ArtworkCursor empty = cursorCodec.decode("e30", ArtworkCursor.class); // "{}"
+        assertThat(empty).isNotNull();
+
+        assertThatThrownBy(() -> empty.validateFor(ArtworkSortOrder.LATEST))
+                .isInstanceOf(CustomException.class);
+        assertThatThrownBy(() -> empty.validateFor(ArtworkSortOrder.PRICE_LOW))
+                .isInstanceOf(CustomException.class);
+    }
+
+    @Test
+    @DisplayName("가격 정렬 커서에 가격이 없으면 400 (최신순 키만 있는 커서)")
+    void 정렬에_맞는_키가_있어야_통과() {
+        ArtworkCursor latestOnly = new ArtworkCursor(LocalDateTime.of(2026, 6, 11, 9, 41), null, 31L);
+
+        latestOnly.validateFor(ArtworkSortOrder.LATEST); // 통과
+        assertThatThrownBy(() -> latestOnly.validateFor(ArtworkSortOrder.PRICE_HIGH))
                 .isInstanceOf(CustomException.class);
     }
 }

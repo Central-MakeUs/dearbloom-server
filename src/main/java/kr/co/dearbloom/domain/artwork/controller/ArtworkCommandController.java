@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkCreateRequest;
+import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPackageUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPhotoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkInfoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkResponse;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** 작가 작품 등록/수정/삭제(커맨드). 작가 본인 작품 조회는 {@code ArtistArtworkQueryController}. */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/artworks")
@@ -103,6 +103,29 @@ public class ArtworkCommandController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artworkCommandFacade.replacePhotos(artist, artworkId, request)
+        ));
+    }
+
+    @PutMapping("/{artworkId}/packages")
+    @Operation(summary = "작품 패키지 교체",
+            description = """
+                    작품에 최종적으로 두길 원하는 <b>패키지 전체 목록</b>을 보내주세요(부분 수정 아님).
+                    보낸 목록이 그대로 작품의 패키지가 되며, 유지할 패키지도 함께 보내야 합니다.
+                    패키지는 1개 이상 필수이고, 리스트 화면의 가격은 이 중 최저가로 자동 갱신됩니다.
+                    본인 작품만 수정할 수 있습니다.<br>
+                    <br>
+                    <b>이미 들어온 문의는 영향을 받지 않습니다.</b> 문의 시점의 패키지명·가격·촬영 소요시간·보정본 수는
+                    문의에 스냅샷으로 남아 있어, 패키지를 바꿔도 이전 문의·예약의 합의 조건과 예약된 시간대는 그대로 유지됩니다.
+                    """)
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
+            ErrorCode.ARTIST_NOT_FOUND, ErrorCode.ARTWORK_NOT_FOUND, ErrorCode.ARTWORK_ACCESS_DENIED})
+    public ResponseEntity<ApiResponse<ArtworkResponse>> replacePackages(
+            @CurrentArtist Artist artist,
+            @PathVariable Long artworkId,
+            @RequestBody @Valid ArtworkPackageUpdateRequest request
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                artworkCommandFacade.replacePackages(artist, artworkId, request)
         ));
     }
 

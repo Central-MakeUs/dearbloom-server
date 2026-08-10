@@ -58,6 +58,11 @@ public class Artwork extends BaseTime {
         }
     }
 
+    // 패키지가 바뀌면 반드시 함께 갱신한다 — 목록의 가격 표시·정렬이 이 값만 보기 때문.
+    public void updateLowestPrice(Integer lowestPrice) {
+        this.lowestPrice = lowestPrice;
+    }
+
     // null 이면 변경하지 않는다(PATCH). 빈 문자열이면 설명을 비운다.
     public void updateDescription(String description) {
         if (description != null) {

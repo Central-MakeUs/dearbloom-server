@@ -42,6 +42,8 @@ public record CustomerInquiryDetailResponse(
         LocalTime endTime,
         @Schema(description = "촬영 소요시간(분)", example = "60")
         Integer durationMinutes,
+        @Schema(description = "보정본 수. 문의 당시 패키지 기준이며, 미정이었으면 null.", nullable = true, example = "7")
+        Integer finalPhotoCount,
         @Schema(description = "학교명", example = "홍익대학교 서울캠퍼스")
         String schoolName,
         @Schema(description = "요청 사항", example = "자연스러운 보정 스타일을 선호해요.")
@@ -64,6 +66,7 @@ public record CustomerInquiryDetailResponse(
                 inquiry.getStartTime(),
                 inquiry.getStartTime().plusMinutes(inquiry.getDurationMinutesSnapshot()),
                 inquiry.getDurationMinutesSnapshot(),
+                inquiry.getFinalPhotoCountSnapshot(),
                 inquiry.getSchoolName(),
                 inquiry.getRequestNote());
     }

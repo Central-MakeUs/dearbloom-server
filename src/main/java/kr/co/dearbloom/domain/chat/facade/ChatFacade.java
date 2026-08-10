@@ -124,7 +124,7 @@ public class ChatFacade {
     @Transactional
     public Long onInquiryCreated(Inquiry inquiry) {
         Customer customer = inquiry.getCustomer();
-        Artist artist = inquiry.getArtworkPackage().getArtwork().getArtist();
+        Artist artist = inquiry.getArtist();
         ChatRoom room = chatRoomCommandService.findOrCreate(customer, artist);
         ChatMessage message = chatMessageCommandService.saveInquiryCard(room, MemberRole.CUSTOMER, inquiry);
         room.onNewMessage("[문의] " + inquiry.getPackageNameSnapshot(), sentAt(message), MemberRole.CUSTOMER);

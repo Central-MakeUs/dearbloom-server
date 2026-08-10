@@ -26,7 +26,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     // 이 작가가 작가로 걸린, 특정 상태들의 문의(탈퇴·해지 시 자동 취소 대상 조회).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
               and i.status in :statuses
             """)
     List<Inquiry> findByArtistIdAndStatusIn(
@@ -36,7 +36,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     // 특정 작가의 특정 날짜, 특정 상태 문의(예약확정 슬롯 계산용).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
               and i.shootDate = :date
               and i.status = :status
             """)
@@ -48,7 +48,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     // 특정 작가의 기간 내, 특정 상태 문의(캘린더 예약확정 슬롯 배치 계산용).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
               and i.shootDate between :from and :to
               and i.status = :status
             """)
@@ -58,10 +58,10 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
             @Param("to") LocalDate to,
             @Param("status") InquiryStatus status);
 
-    // 이 작품의 패키지를 참조하는 문의(작품 삭제 전 FK 해제 대상).
+    // 이 작품을 참조하는 문의(작품 삭제 전 FK 해제 대상 / 패키지 교체 전 패키지 참조 해제 대상).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artworkId = :artworkId
+            where i.artwork.artworkId = :artworkId
             """)
     List<Inquiry> findByArtwork(@Param("artworkId") Long artworkId);
 
@@ -70,8 +70,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     // 같은 시각에 만들어진 문의가 있으면 PK 로 tie-break 해서 순서가 흔들리지 않게 한다.
     @Query("""
             select i from Inquiry i
-            left join fetch i.artworkPackage p
-            left join fetch p.artwork
+            left join fetch i.artwork
             where i.customer.customerId = :customerId
             order by i.createdAt desc, i.inquiryId desc
             """)
@@ -81,7 +80,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     @Query("""
             select i from Inquiry i
             join fetch i.customer
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
             order by i.shootDate asc, i.startTime asc
             """)
     List<Inquiry> findByArtistOrderByShootDateAsc(@Param("artistId") Long artistId);

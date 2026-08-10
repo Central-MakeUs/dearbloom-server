@@ -13,6 +13,7 @@ import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.swagger.ApiErrorCodes;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -57,7 +58,9 @@ public class ArtworkQueryController {
     @ApiErrorCodes({ErrorCode.PARAMETER_BAD_REQUEST, ErrorCode.INVALID_CURSOR})
     public ResponseEntity<ApiResponse<ArtworkPageResponse>> getArtworkList(
             @CurrentViewer ViewerContext viewer,
-            @Valid @ModelAttribute ArtworkQueryRequest request
+            // @ParameterObject 가 없으면 Swagger 가 이 DTO 를 파라미터 하나짜리 JSON 객체로 그리고,
+            // 안 채운 필드까지 기본값("string" 등)을 실어 보내 커서가 깨진다. 개별 쿼리 파라미터로 펼치는 용도.
+            @ParameterObject @Valid @ModelAttribute ArtworkQueryRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
                 artworkQueryFacade.getArtworkPage(request, viewer)

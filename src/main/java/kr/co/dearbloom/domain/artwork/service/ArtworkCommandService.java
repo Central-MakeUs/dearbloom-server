@@ -56,6 +56,17 @@ public class ArtworkCommandService {
         return portfolioFileRepository.saveAll(newFiles);
     }
 
+    /**
+     * 기존 패키지를 모두 지우고 받은 목록으로 교체하며 작품의 가격(최저가)까지 갱신한다.
+     * 패키지를 참조하던 문의 FK 는 호출부가 먼저 끊어야 한다(안 끊으면 삭제가 FK 제약에 걸린다).
+     */
+    public List<ArtworkPackage> replacePackages(Artwork artwork, List<ArtworkPackage> newPackages,
+                                                Integer lowestPrice) {
+        artworkPackageRepository.deleteByArtwork(artwork);
+        artwork.updateLowestPrice(lowestPrice);
+        return artworkPackageRepository.saveAll(newPackages);
+    }
+
     // 작품 삭제. 패키지·사진 row 를 먼저 지운 뒤 작품을 지운다. S3 객체는 건드리지 않는다.
     public void delete(Artwork artwork) {
         artworkPackageRepository.deleteByArtwork(artwork);

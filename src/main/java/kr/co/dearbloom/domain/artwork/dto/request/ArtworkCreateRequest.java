@@ -22,14 +22,14 @@ import java.util.List;
           "maxHeadCount": 3,
           "packageList": [
             {
-              "packageName": "1인 60분 촬영",
+              "packageName": "패키지A",
               "price": 200000,
               "durationMinutes": 60,
               "finalPhotoCount": 7,
               "extraInfo": null
             },
             {
-              "packageName": "1인 90분 촬영",
+              "packageName": "패키지B",
               "price": 220000,
               "durationMinutes": 90,
               "finalPhotoCount": 9,

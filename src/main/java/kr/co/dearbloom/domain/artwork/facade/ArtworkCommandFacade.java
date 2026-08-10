@@ -3,6 +3,7 @@ package kr.co.dearbloom.domain.artwork.facade;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkInfoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkCreateRequest;
+import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPackageUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.request.ArtworkPhotoUpdateRequest;
 import kr.co.dearbloom.domain.artwork.dto.response.ArtworkResponse;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
@@ -72,6 +73,24 @@ public class ArtworkCommandFacade {
         List<PortfolioFile> replacedPortfolioFiles = artworkCommandService.replacePortfolioFiles(
                 artwork, portfolioFileFactory.create(artwork, request.getPhotoList()));
         return ArtworkResponse.of(artwork, artworkQueryService.getPackages(artwork), replacedPortfolioFiles);
+    }
+
+    /**
+     * 패키지 전체 교체. 받은 목록으로 기존 패키지 row 를 통째로 갈아끼우고 작품의 가격(최저가)을 다시 계산한다.
+     * <p>
+     * 지우기 전에 그 작품의 문의들이 들고 있는 패키지 참조를 먼저 끊는다 — 안 끊으면 FK 제약에 걸린다.
+     * 문의는 작가·작품 참조를 따로 들고 있어서, 패키지가 끊겨도 작가 문의함·예약 확정 슬롯 계산·작품 상세
+     * 이동이 전부 그대로 동작한다. 합의된 조건(패키지명·가격·소요시간·보정본 수)은 문의 스냅샷에 남는다.
+     */
+    @Transactional
+    public ArtworkResponse replacePackages(Artist artist, Long artworkId, ArtworkPackageUpdateRequest request) {
+        Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);
+        inquiryCommandService.detachArtworkPackages(artwork);
+        List<ArtworkPackage> replacedPackages = artworkCommandService.replacePackages(
+                artwork,
+                artworkPackageFactory.create(artwork, request.getPackageList()),
+                artworkPackageFactory.lowestPrice(request.getPackageList()));
+        return ArtworkResponse.of(artwork, replacedPackages, artworkQueryService.getPortfolioFiles(artwork));
     }
 
     /**

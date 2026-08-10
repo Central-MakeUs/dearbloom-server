@@ -57,6 +57,9 @@ public class ArtworkQueryFacade {
     public ArtworkPageResponse getArtworkPage(ArtworkQueryRequest request, ViewerContext viewer) {
         ArtworkFilterCondition condition = artworkQueryService.resolveCondition(request);
         ArtworkCursor cursor = cursorCodec.decode(request.getCursor(), ArtworkCursor.class);
+        if (cursor != null) {
+            cursor.validateFor(condition.sort());
+        }
 
         ArtworkPage page = artworkQueryService.findArtworkPage(condition, cursor, request.getSize());
         List<Artwork> artworks = page.artworks();
@@ -68,7 +71,7 @@ public class ArtworkQueryFacade {
         return new ArtworkPageResponse(
                 artworkQueryService.getSummaries(artworks, savedArtworkIds),
                 artworkQueryService.countArtworks(condition),
-                page.hasNext() ? cursorCodec.encode(ArtworkCursor.from(artworks.get(artworks.size() - 1))) : null,
+                page.hasNext() ? cursorCodec.encode(ArtworkCursor.from(artworks.getLast())) : null,
                 page.hasNext());
     }
 

@@ -1,6 +1,9 @@
 package kr.co.dearbloom.domain.artwork.dto;
 
+import kr.co.dearbloom.domain.artwork.dto.type.ArtworkSortOrder;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
+import kr.co.dearbloom.global.dto.response.exception.CustomException;
+import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 
 import java.time.LocalDateTime;
 
@@ -20,5 +23,20 @@ public record ArtworkCursor(
                 artwork.getCreatedAt(),
                 artwork.getLowestPrice(),
                 artwork.getArtworkId());
+    }
+
+    /**
+     * 이 정렬이 쓸 키가 다 들어 있는지 확인한다.
+     * 커서는 클라이언트가 돌려보내는 값이라 잘리거나 손댈 수 있는데, 형식만 맞고 값이 빈 커서(예: "{}")를
+     * 그대로 쿼리에 넘기면 조건을 만들다 NPE 로 500 이 난다. 그 전에 400 으로 끊는다.
+     */
+    public void validateFor(ArtworkSortOrder sort) {
+        boolean hasSortKey = switch (sort) {
+            case LATEST -> createdAt != null;
+            case PRICE_LOW, PRICE_HIGH -> lowestPrice != null;
+        };
+        if (artworkId == null || !hasSortKey) {
+            throw new CustomException(ErrorCode.INVALID_CURSOR);
+        }
     }
 }
