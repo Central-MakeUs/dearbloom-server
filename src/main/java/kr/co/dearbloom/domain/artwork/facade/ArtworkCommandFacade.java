@@ -33,14 +33,16 @@ public class ArtworkCommandFacade {
     private final ReportCommandService reportCommandService;
 
     /**
-     * 작품 등록. 제목·기본 가격과 사진들을 받아 작품을 만든다.
+     * 작품 등록. 제목·패키지·사진들을 받아 작품을 만든다.
+     * 카드에 노출할 가격(패키지 최저가)은 작품 행에 함께 저장한다 — 목록 정렬/필터가 SQL 에서 쓴다.
      * 사진은 각각 (fileUrl, 학교) 로 라벨링되며 학교는 선택(null 가능)이다.
      * 등록 순서를 sortOrder 로 보존한다.
      */
     @Transactional
     public ArtworkResponse create(Artist artist, ArtworkCreateRequest request) {
         Artwork artwork = artworkCommandService.create(artist, request.getTitle(),
-                request.getMinHeadCount(), request.getMaxHeadCount());
+                request.getMinHeadCount(), request.getMaxHeadCount(),
+                artworkPackageFactory.lowestPrice(request.getPackageList()));
         List<ArtworkPackage> packages = artworkCommandService.savePackages(
                 artworkPackageFactory.create(artwork, request.getPackageList()));
         List<PortfolioFile> files = artworkCommandService.savePortfolioFiles(
