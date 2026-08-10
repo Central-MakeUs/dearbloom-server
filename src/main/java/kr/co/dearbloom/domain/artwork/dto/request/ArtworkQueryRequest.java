@@ -25,7 +25,7 @@ public class ArtworkQueryRequest {
     private LocalDate startDate;
 
     @Schema(description = "촬영 희망 기간 종료일(yyyy-MM-dd). startDate 로부터 최대 30일까지 허용합니다.",
-            example = "2026-06-18")
+            example = "2026-10-18")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate endDate;
 
