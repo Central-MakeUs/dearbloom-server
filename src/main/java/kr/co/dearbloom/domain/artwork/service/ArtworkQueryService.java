@@ -27,6 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -181,23 +182,30 @@ public class ArtworkQueryService {
     /**
      * 작품 목록을 리스트 카드로 변환. 넘겨받은 순서를 그대로 유지한다(정렬은 호출부 책임).
      * savedArtworkIds 가 null 이면 isSaved 는 전부 null(비로그인 등), 있으면 포함 여부로 채운다.
+     * <p>
+     * 카드가 사진을 여러 장 늘어놓는 형태도 있어 사진 전체를 함께 내려준다.
+     * thumbnailUrl 은 그 목록의 첫 장이라 따로 조회하지 않는다.
      */
     public List<ArtworkSummaryResponse> getSummaries(List<Artwork> artworks, Set<Long> savedArtworkIds) {
         if (artworks.isEmpty()) {
             return List.of();
         }
-        Map<Long, String> representativeImage = representativeImageMap(artworks);
+        Map<Long, List<String>> photoUrls = photoUrlsMap(artworks);
         return artworks.stream()
-                .map(artwork -> new ArtworkSummaryResponse(
-                        artwork.getArtworkId(),
-                        artwork.getArtworkName(),
-                        artwork.getLowestPrice(),
-                        artwork.getMinHeadCount(),
-                        artwork.getMaxHeadCount(),
-                        artwork.getArtist().getNickname(),
-                        Region.toSortedNames(artwork.getArtist().getRegions()),
-                        representativeImage.get(artwork.getArtworkId()),
-                        savedArtworkIds == null ? null : savedArtworkIds.contains(artwork.getArtworkId())))
+                .map(artwork -> {
+                    List<String> photos = photoUrls.getOrDefault(artwork.getArtworkId(), List.of());
+                    return new ArtworkSummaryResponse(
+                            artwork.getArtworkId(),
+                            artwork.getArtworkName(),
+                            artwork.getLowestPrice(),
+                            artwork.getMinHeadCount(),
+                            artwork.getMaxHeadCount(),
+                            artwork.getArtist().getNickname(),
+                            Region.toSortedNames(artwork.getArtist().getRegions()),
+                            photos.isEmpty() ? null : photos.getFirst(),
+                            photos,
+                            savedArtworkIds == null ? null : savedArtworkIds.contains(artwork.getArtworkId()));
+                })
                 .toList();
     }
 
@@ -215,11 +223,18 @@ public class ArtworkQueryService {
     }
 
     // 작품별 대표 이미지(sortOrder 가장 앞선 사진) URL 맵. 한 번의 조회로 N+1 회피.
-    private Map<Long, String> representativeImageMap(List<Artwork> artworks) {
+    /** 작품 id → 사진 URL 전체(sortOrder 오름차순). 사진이 없는 작품은 키 자체가 없다. */
+    private Map<Long, List<String>> photoUrlsMap(List<Artwork> artworks) {
         return portfolioFileRepository.findByArtworkInOrderBySortOrderAsc(artworks).stream()
-                .collect(Collectors.toMap(
+                .collect(Collectors.groupingBy(
                         file -> file.getArtwork().getArtworkId(),
-                        PortfolioFile::getFileUrl,
-                        (first, second) -> first));
+                        LinkedHashMap::new,
+                        Collectors.mapping(PortfolioFile::getFileUrl, Collectors.toList())));
+    }
+
+    // 작품 id → 대표 이미지. 대표 = 사진 목록의 첫 장이라 위 맵에서 파생한다(정의를 한 곳에 둔다).
+    private Map<Long, String> representativeImageMap(List<Artwork> artworks) {
+        return photoUrlsMap(artworks).entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getFirst()));
     }
 }

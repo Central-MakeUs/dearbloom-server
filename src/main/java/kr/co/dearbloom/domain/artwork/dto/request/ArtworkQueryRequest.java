@@ -20,12 +20,12 @@ public class ArtworkQueryRequest {
     private static final int DEFAULT_SIZE = 16;
 
     @Schema(description = "촬영 희망 기간 시작일(yyyy-MM-dd). endDate 와 항상 함께 보냅니다. 하루만 고른 경우 endDate 를 같은 날로 보냅니다.",
-            example = "2026-06-11")
+            example = "2026-09-01")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate startDate;
 
     @Schema(description = "촬영 희망 기간 종료일(yyyy-MM-dd). startDate 로부터 최대 30일까지 허용합니다.",
-            example = "2026-10-18")
+            example = "2026-09-30")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate endDate;
 

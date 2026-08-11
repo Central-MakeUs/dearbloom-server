@@ -27,9 +27,15 @@ public record ArtworkSummaryResponse(
         @Schema(description = "작가 활동 지역 목록", example = "[\"SEOUL\", \"GYEONGGI_NORTH\"]")
         List<String> artistRegionList,
 
-        @Schema(description = "대표 이미지 CDN URL(sortOrder 가 가장 앞선 사진). 사진이 없으면 null.",
+        @Schema(description = "대표 이미지 CDN URL. photoList 의 첫 번째 사진과 같으며, 사진이 없으면 null.",
                 example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
         String thumbnailUrl,
+
+        @Schema(description = "이 작품의 사진 CDN URL 전체(등록 순서). 사진이 없으면 빈 배열. "
+                + "카드 한 장에 여러 장을 늘어놓는 리스트 형태에서 사용합니다.",
+                example = "[\"https://dev-cdn.dearbloom.co.kr/artwork/uuid1.webp\","
+                + "\"https://dev-cdn.dearbloom.co.kr/artwork/uuid2.webp\"]")
+        List<String> photoList,
 
         @Schema(description = "내가 저장한 작품인지 여부. 고객 조회 시에만 값이 있고, 비로그인은 null.",
                 example = "false")

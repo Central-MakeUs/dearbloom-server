@@ -62,8 +62,6 @@ public class ArtworkQueryController {
     @ApiErrorCodes({ErrorCode.PARAMETER_BAD_REQUEST, ErrorCode.INVALID_CURSOR})
     public ResponseEntity<ApiResponse<ArtworkPageResponse>> getArtworkList(
             @CurrentViewer ViewerContext viewer,
-            // @ParameterObject 가 없으면 Swagger 가 이 DTO 를 파라미터 하나짜리 JSON 객체로 그리고,
-            // 안 채운 필드까지 기본값("string" 등)을 실어 보내 커서가 깨진다. 개별 쿼리 파라미터로 펼치는 용도.
             @ParameterObject @Valid @ModelAttribute ArtworkQueryRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
