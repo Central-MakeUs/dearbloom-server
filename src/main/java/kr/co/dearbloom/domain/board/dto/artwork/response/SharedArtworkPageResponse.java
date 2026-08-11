@@ -17,6 +17,11 @@ public record SharedArtworkPageResponse(
         List<SharedArtworkSummaryResponse> sharedArtworkList,
 
         @Schema(description = "공유작품 개수", example = "5")
-        int sharedArtworkCount
+        int sharedArtworkCount,
+
+        @Schema(description = "내가 안 읽은 댓글 수(내가 쓴 댓글 제외). 댓글 아이콘의 안읽음 뱃지에 씁니다. "
+                + "0 이면 뱃지를 숨기세요. 이후 뱃지만 갱신할 땐 GET /{sharedBoardId}/comments/unread-count 를 쓰세요.",
+                example = "1")
+        long unreadCommentCount
 ) {
 }

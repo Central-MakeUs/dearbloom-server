@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.dearbloom.domain.board.dto.board.request.SharedCommentCreateRequest;
 import kr.co.dearbloom.domain.board.dto.board.response.SharedCommentResponse;
+import kr.co.dearbloom.domain.board.dto.board.response.SharedCommentUnreadCountResponse;
 import kr.co.dearbloom.domain.board.facade.SharedCommentFacade;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.global.auth.resolver.CurrentCustomer;
@@ -68,6 +69,49 @@ public class SharedCommentController {
     ) {
         sharedCommentFacade.create(customer, sharedBoardId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
+    }
+
+    @GetMapping("/{sharedBoardId}/comments/unread-count")
+    @Operation(summary = "공동보드 안읽은 댓글 수 조회",
+            description = """
+                    댓글 아이콘의 <b>안읽음 뱃지 숫자만</b> 가볍게 조회합니다(0 이면 뱃지를 숨기세요).<br>
+                    내가 쓴 댓글은 세지 않습니다.<br>
+                    같은 값이 공유작품 페이지 조회 응답(unreadCommentCount)에도 실려 있으니,
+                    <b>화면 진입 시엔 그 값을 쓰고</b> 이후 <b>pull-to-refresh 처럼 뱃지만 갱신할 때 이 API</b> 를 쓰세요
+                    (보드 화면 전체를 다시 받지 않아도 됩니다).<br>
+                    <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
+                    """)
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
+            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.SHARED_BOARD_NOT_FOUND,
+            ErrorCode.SHARED_MEMBER_NOT_JOINED})
+    public ResponseEntity<ApiResponse<SharedCommentUnreadCountResponse>> getUnreadCount(
+            @CurrentCustomer Customer customer,
+            @PathVariable Long sharedBoardId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                sharedCommentFacade.getUnreadCount(customer, sharedBoardId)
+        ));
+    }
+
+    @PostMapping("/{sharedBoardId}/comments/read")
+    @Operation(summary = "공동보드 댓글 읽음 처리",
+            description = """
+                    지금까지 달린 댓글을 모두 읽음 처리합니다 — 이후 안읽음 수(<b>unreadCommentCount</b>)는 0 이 됩니다.<br>
+                    <b>댓글 목록을 연 시점에 호출</b>하세요(댓글 조회 API 와 함께 호출하면 됩니다).<br>
+                    내가 쓴 댓글은 애초에 안읽음으로 세지 않으므로 댓글 등록 후 따로 호출할 필요는 없습니다.<br>
+                    안읽음 수는 <b>실시간으로 내려가지 않고</b> 공유작품 페이지 조회 응답에 실립니다 —
+                    화면 진입 / pull-to-refresh 시점에 갱신하세요.<br>
+                    <b>공동보드 멤버만</b> 호출할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
+                    """)
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,
+            ErrorCode.CUSTOMER_NOT_FOUND, ErrorCode.SHARED_BOARD_NOT_FOUND,
+            ErrorCode.SHARED_MEMBER_NOT_JOINED})
+    public ResponseEntity<ApiResponse<Void>> markCommentsRead(
+            @CurrentCustomer Customer customer,
+            @PathVariable Long sharedBoardId
+    ) {
+        sharedCommentFacade.markCommentsRead(customer, sharedBoardId);
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     @DeleteMapping("/comments/{sharedCommentId}")

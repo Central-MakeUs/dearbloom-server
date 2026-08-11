@@ -12,9 +12,11 @@ import kr.co.dearbloom.domain.board.dto.artwork.response.SharedArtworkUpdateResp
 import kr.co.dearbloom.domain.board.dto.board.response.SharedMemberResponse;
 import kr.co.dearbloom.domain.board.entity.artwork.SharedArtwork;
 import kr.co.dearbloom.domain.board.entity.board.SharedBoard;
+import kr.co.dearbloom.domain.board.entity.board.SharedMember;
 import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkCommandService;
 import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkQueryService;
 import kr.co.dearbloom.domain.board.service.board.SharedBoardQueryService;
+import kr.co.dearbloom.domain.board.service.board.SharedCommentQueryService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberQueryService;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import kr.co.dearbloom.domain.customer.service.SavedArtworkQueryService;
@@ -36,6 +38,7 @@ public class SharedArtworkFacade {
     private final SharedMemberQueryService sharedMemberQueryService;
     private final SharedArtworkCommandService sharedArtworkCommandService;
     private final SharedArtworkQueryService sharedArtworkQueryService;
+    private final SharedCommentQueryService sharedCommentQueryService;
     private final SavedArtworkQueryService savedArtworkQueryService;
     private final ArtworkQueryService artworkQueryService;
 
@@ -46,7 +49,8 @@ public class SharedArtworkFacade {
     @Transactional(readOnly = true)
     public SharedArtworkPageResponse getPage(Customer customer, Long sharedBoardId) {
         SharedBoard sharedBoard = sharedBoardQueryService.getById(sharedBoardId);
-        sharedMemberQueryService.getJoinedMember(sharedBoard, customer);
+        // 참여 검증용으로 이미 읽는 행이라, 안읽은 댓글 수 계산에 그대로 재사용한다(추가 조회 없음).
+        SharedMember me = sharedMemberQueryService.getJoinedMember(sharedBoard, customer);
         List<SharedMemberResponse> members = sharedMemberQueryService.getMembers(sharedBoard).stream()
                 .map(SharedMemberResponse::from)
                 .toList();
@@ -54,7 +58,8 @@ public class SharedArtworkFacade {
                 sharedArtworkQueryService.getBySharedBoard(sharedBoard),
                 sharedArtworkQueryService.getLikedSharedArtworkIds(sharedBoard, customer));
         return new SharedArtworkPageResponse(
-                members.size(), members, sharedArtworks, sharedArtworks.size());
+                members.size(), members, sharedArtworks, sharedArtworks.size(),
+                sharedCommentQueryService.countUnread(me));
     }
 
     /**

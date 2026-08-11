@@ -37,10 +37,14 @@ public class SharedArtworkController {
     @GetMapping("/{sharedBoardId}/artworks")
     @Operation(summary = "공동보드 공유작품 페이지 조회",
             description = """
-                    공동보드 화면 한 장에 필요한 <b>참여자 목록·인원 + 공유작품 목록·개수</b>를 함께 조회합니다.<br>
+                    공동보드 화면 한 장에 필요한 <b>참여자 목록·인원 + 공유작품 목록·개수 + 안읽은 댓글 수</b>를 함께 조회합니다.<br>
                     <b>보드당 같은 작품은 하나만</b> 담기므로 담긴 그대로 내려갑니다
                     (좋아요 API 에 응답의 공유작품 ID 를 사용합니다).<br>
                     정렬은 <b>좋아요 많은 순</b>, 좋아요가 같으면 <b>먼저 담긴 순</b>입니다.<br>
+                    <b>unreadCommentCount</b> 는 댓글 아이콘의 안읽음 뱃지용입니다(내가 쓴 댓글은 제외, 0 이면 뱃지 숨김).
+                    실시간으로 내려가지 않으므로 <b>화면 진입 시엔 이 값</b>을 쓰고, 이후 뱃지만 갱신할 땐
+                    <b>안읽은 댓글 수 조회 API(GET /{sharedBoardId}/comments/unread-count)</b> 를 호출하세요.
+                    댓글 목록을 열었다면 읽음 처리 API(POST /{sharedBoardId}/comments/read)를 호출해야 0 이 됩니다.<br>
                     보드 내부 정보이므로 <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,

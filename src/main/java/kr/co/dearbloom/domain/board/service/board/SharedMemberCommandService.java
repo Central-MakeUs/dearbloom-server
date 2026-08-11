@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -37,6 +39,12 @@ public class SharedMemberCommandService {
                         .sharedBoard(sharedBoard)
                         .customer(customer)
                         .build()));
+    }
+
+    // 이 참여자의 댓글 읽음 시각 갱신(= 안읽음 0). 참여자 검증은 호출부(파사드) 책임.
+    public void markCommentsRead(SharedMember sharedMember, LocalDateTime at) {
+        sharedMember.markCommentsRead(at);
+        sharedMemberRepository.save(sharedMember);
     }
 
     // 참여자 행 삭제(탈퇴). 방장 여부·보드에 남긴 데이터 정리는 호출부(파사드) 책임.
