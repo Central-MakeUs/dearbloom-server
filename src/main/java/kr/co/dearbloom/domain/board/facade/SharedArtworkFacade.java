@@ -149,6 +149,7 @@ public class SharedArtworkFacade {
                     Long sharedArtworkId = sharedArtworks.get(index).getSharedArtworkId();
                     return new SharedArtworkSummaryResponse(
                             sharedArtworkId,
+                            summary.artworkId(),
                             summary.title(),
                             summary.lowestPrice(),
                             summary.minHeadCount(),

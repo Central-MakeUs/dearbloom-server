@@ -19,7 +19,7 @@ import java.util.Map;
  * STOMP 인증/인가 인터셉터.
  * - CONNECT: 핸드셰이크에서 받은 accessToken 쿠키({@link CookieTokenHandshakeInterceptor})를 검증해
  *   (memberId, activeRole, profileId) Principal 세팅. 실패 시 연결 거부.
- * - SUBSCRIBE /topic/rooms/{roomId}: 그 방의 참여자만 구독 허용(타인 방 도청 방지).
+ * - SUBSCRIBE /topic/rooms/{roomId}[/read]: 그 방의 참여자만 구독 허용(타인 방 도청 방지).
  * 인터셉터는 트랜잭션 밖이라 LAZY 없이 참여자 PK만 조회해 검증한다.
  */
 @Component
@@ -94,9 +94,16 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
                 : null;
     }
 
+    /**
+     * 방 토픽에서 roomId 를 뽑는다. 메시지(/topic/rooms/{id})와 읽음(/topic/rooms/{id}/read)처럼
+     * 뒤에 하위 경로가 붙는 토픽이 있어, 첫 '/' 앞까지만 잘라 쓴다.
+     */
     private Long parseRoomId(String destination) {
+        String rest = destination.substring(ROOM_PREFIX.length());
+        int slashIndex = rest.indexOf('/');
+        String roomId = (slashIndex < 0) ? rest : rest.substring(0, slashIndex);
         try {
-            return Long.parseLong(destination.substring(ROOM_PREFIX.length()));
+            return Long.parseLong(roomId);
         } catch (NumberFormatException e) {
             throw new MessagingException("잘못된 채팅방 경로입니다.");
         }

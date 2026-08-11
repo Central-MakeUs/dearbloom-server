@@ -8,6 +8,9 @@ public record SharedArtworkSummaryResponse(
         @Schema(description = "공유 작품 ID", example = "1")
         Long sharedArtworkId,
 
+        @Schema(description = "원본 작품 ID (작품 상세 조회용)", example = "10")
+        Long artworkId,
+
         @Schema(description = "작품명", example = "야외 개인 졸업스냅")
         String title,
 

@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.chat.facade;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.chat.dto.response.ChatMessageResponse;
+import kr.co.dearbloom.domain.chat.dto.response.ChatReadEventResponse;
 import kr.co.dearbloom.domain.chat.dto.response.artist.ArtistChatMessageResponse;
 import kr.co.dearbloom.domain.chat.dto.response.artist.ArtistChatRoomSummaryResponse;
 import kr.co.dearbloom.domain.chat.dto.response.customer.CustomerChatMessageResponse;
@@ -108,11 +109,16 @@ public class ChatFacade {
         return response;
     }
 
-    /** 읽음 처리. 내 쪽 안읽음 0 + 마지막 읽은 시각 갱신. */
+    /**
+     * 읽음 처리. 내 쪽 안읽음 0 + 마지막 읽은 시각 갱신 후, 상대 화면의 안읽음 표시가 즉시 사라지도록
+     * 읽음 이벤트를 브로드캐스트한다(메시지 전송과 동일하게 트랜잭션 안에서 발행).
+     */
     @Transactional
     public void markRead(MemberRole role, Long profileId, Long roomId) {
         ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, role, profileId);
-        room.markRead(role, LocalDateTime.now());
+        LocalDateTime readAt = LocalDateTime.now();
+        room.markRead(role, readAt);
+        chatEventPublisher.sendReadToRoom(roomId, new ChatReadEventResponse(role, readAt));
     }
 
     /**

@@ -38,7 +38,11 @@ public record CustomerChatMessageResponse(
         InquiryCardResponse inquiryCard,
 
         @Schema(description = "발신 시각", example = "2026-06-11T09:00:00")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        @Schema(description = "수신자가 읽었는지 여부. 내가 보낸 메시지(senderRole=CUSTOMER)가 false 면 안읽음 표시.",
+                example = "true")
+        boolean read
 ) {
     /** 작가 정보는 방 기준이라 메시지마다 같은 값이 들어간다(말풍선 옆 프로필 렌더용). */
     public static CustomerChatMessageResponse of(ChatMessage message, ChatRoom room) {
@@ -54,6 +58,7 @@ public record CustomerChatMessageResponse(
                 message.getContent(),
                 message.getImageUrl(),
                 card,
-                message.getCreatedAt());
+                message.getCreatedAt(),
+                room.isReadByReceiver(message.getSenderRole(), message.getCreatedAt()));
     }
 }

@@ -94,4 +94,15 @@ public class ChatRoom extends BaseTime {
     public int unreadFor(MemberRole role) {
         return role == MemberRole.CUSTOMER ? customerUnread : artistUnread;
     }
+
+    /**
+     * 이 메시지를 수신자(발신자의 반대편)가 읽었는지. 1:1 방이라 수신자가 한 명뿐이므로
+     * 메시지별 읽음 컬럼 없이 "발신 시각 <= 수신자의 마지막 읽은 시각" 으로 판정한다.
+     * 수신자가 이 방을 한 번도 읽지 않았으면(lastReadAt == null) 안읽음.
+     */
+    public boolean isReadByReceiver(MemberRole senderRole, LocalDateTime sentAt) {
+        LocalDateTime receiverLastReadAt =
+                (senderRole == MemberRole.CUSTOMER) ? artistLastReadAt : customerLastReadAt;
+        return receiverLastReadAt != null && sentAt != null && !sentAt.isAfter(receiverLastReadAt);
+    }
 }
