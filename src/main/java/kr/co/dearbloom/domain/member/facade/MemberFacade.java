@@ -26,6 +26,7 @@ import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.service.MemberCommandService;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
+import kr.co.dearbloom.domain.notification.service.DeviceTokenCommandService;
 import kr.co.dearbloom.domain.member.util.ProfileNameResolver;
 import kr.co.dearbloom.domain.university.entity.University;
 import kr.co.dearbloom.domain.university.service.UniversityQueryService;
@@ -60,6 +61,7 @@ public class MemberFacade {
     private final FileCleaner fileCleaner;
     private final InquiryWithdrawalService inquiryWithdrawalService;
     private final SharedBoardWithdrawalService sharedBoardWithdrawalService;
+    private final DeviceTokenCommandService deviceTokenCommandService;
     private final TokenService tokenService;
     private final TokenProvider tokenProvider;
     private final FileUrlValidator fileUrlValidator;
@@ -134,8 +136,13 @@ public class MemberFacade {
     }
 
 
-    /** 로그아웃. Redis 의 refreshToken 세션을 삭제해 무효화한다. */
+    /**
+     * 로그아웃. Redis 의 refreshToken 세션을 삭제해 무효화하고, 이 회원의 푸시 토큰도 모두 지운다.
+     * 토큰을 남기면 로그아웃한 기기로 남의 알림이 계속 간다.
+     */
+    @Transactional
     public void logout(Long memberId) {
+        deviceTokenCommandService.deleteAllOf(memberId);
         tokenService.logout(memberId);
     }
 
@@ -182,6 +189,8 @@ public class MemberFacade {
     @Transactional
     public void withdraw(Member member) {
         Long memberId = member.getMemberId();
+        // 푸시 토큰 제거(기기에 남의 알림이 가지 않도록).
+        deviceTokenCommandService.deleteAllOf(memberId);
         // 고객·작가 어느 쪽으로든 걸린 진행중/예약완료 문의 자동 취소(익명화 전에 먼저).
         inquiryWithdrawalService.cancelAllForWithdrawal(member);
         // Apple refresh token 폐기(외부호출). 실패해도 탈퇴는 진행한다.
