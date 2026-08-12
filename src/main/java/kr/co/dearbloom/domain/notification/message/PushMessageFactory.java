@@ -31,7 +31,7 @@ public class PushMessageFactory {
         return PushMessage.of(
                 "예약이 확정됐어요",
                 "[" + artworkName + "] " + schedule(shootDate, startTime) + " 촬영이 예약 완료됐어요.",
-                "/app/my/inquiries/" + inquiryId);
+                "/app/my/reservations/" + inquiryId);
     }
 
     private String schedule(LocalDate shootDate, LocalTime startTime) {
