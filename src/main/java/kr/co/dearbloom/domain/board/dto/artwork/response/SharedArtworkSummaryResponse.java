@@ -35,6 +35,10 @@ public record SharedArtworkSummaryResponse(
 
         @Schema(description = "내가 공유작품 좋아요 등록했는지 여부",
                 example = "false")
-        Boolean isLiked
+        Boolean isLiked,
+
+        @Schema(description = "이 공유작품의 좋아요 수(참여자 전체 기준). 목록 정렬 기준이기도 합니다.",
+                example = "3")
+        long likeCount
 ) {
 }

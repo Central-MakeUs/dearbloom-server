@@ -15,6 +15,7 @@ import kr.co.dearbloom.domain.board.entity.board.SharedBoard;
 import kr.co.dearbloom.domain.board.entity.board.SharedMember;
 import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkCommandService;
 import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkQueryService;
+import kr.co.dearbloom.domain.board.service.artwork.SharedArtworkQueryService.SharedArtworkWithLikeCount;
 import kr.co.dearbloom.domain.board.service.board.SharedBoardQueryService;
 import kr.co.dearbloom.domain.board.service.board.SharedCommentQueryService;
 import kr.co.dearbloom.domain.board.service.board.SharedMemberQueryService;
@@ -139,19 +140,24 @@ public class SharedArtworkFacade {
 
     /**
      * 공유작품 목록을 카드로 변환. 가격·대표 이미지는 작품 도메인의 배치 조회를 재사용하고
-     * (넘긴 순서가 그대로 유지된다), 거기에 공유작품 ID 와 내 좋아요 여부만 얹는다.
+     * (넘긴 순서가 그대로 유지된다), 거기에 공유작품 ID·내 좋아요 여부·좋아요 수를 얹는다.
+     * 좋아요 수는 정렬에 쓰려고 이미 집계된 값이라 추가 조회가 없다.
      */
-    private List<SharedArtworkSummaryResponse> toSummaries(List<SharedArtwork> sharedArtworks,
+    private List<SharedArtworkSummaryResponse> toSummaries(List<SharedArtworkWithLikeCount> sharedArtworks,
                                                            Set<Long> likedSharedArtworkIds) {
         if (sharedArtworks.isEmpty()) {
             return List.of();
         }
         List<ArtworkSummaryResponse> summaries = artworkQueryService.getSummaries(
-                sharedArtworks.stream().map(SharedArtwork::getArtwork).toList(), null);
+                sharedArtworks.stream()
+                        .map(SharedArtworkWithLikeCount::sharedArtwork)
+                        .map(SharedArtwork::getArtwork)
+                        .toList(), null);
         return IntStream.range(0, summaries.size())
                 .mapToObj(index -> {
                     ArtworkSummaryResponse summary = summaries.get(index);
-                    Long sharedArtworkId = sharedArtworks.get(index).getSharedArtworkId();
+                    SharedArtworkWithLikeCount shared = sharedArtworks.get(index);
+                    Long sharedArtworkId = shared.sharedArtwork().getSharedArtworkId();
                     return new SharedArtworkSummaryResponse(
                             sharedArtworkId,
                             summary.artworkId(),
@@ -162,7 +168,8 @@ public class SharedArtworkFacade {
                             summary.artistNickname(),
                             summary.artistRegionList(),
                             summary.thumbnailUrl(),
-                            likedSharedArtworkIds.contains(sharedArtworkId));
+                            likedSharedArtworkIds.contains(sharedArtworkId),
+                            shared.likeCount());
                 })
                 .toList();
     }

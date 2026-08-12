@@ -50,16 +50,21 @@ public class SharedArtworkQueryService {
     /**
      * 보드의 공유작품을 화면 정렬대로 돌려준다(좋아요 많은 순, 같으면 먼저 담긴 순).
      * 같은 작품이 중복으로 담기지 않으므로 조회 결과를 그대로 내보내면 된다.
+     * <p>
+     * 좋아요 수는 정렬에 이미 필요해 세고 있으므로 함께 돌려준다 — 응답에 실으려고 다시 세지 않는다.
      */
-    public List<SharedArtwork> getBySharedBoard(SharedBoard sharedBoard) {
+    public List<SharedArtworkWithLikeCount> getBySharedBoard(SharedBoard sharedBoard) {
         Map<Long, Long> likeCounts = getLikeCounts(sharedBoard);
         // 쿼리가 담은 순으로 정렬돼 있고, 좋아요 내림차순만 지정 — 동률은 stable sort 라 담은 순이 유지된다.
         return sharedArtworkRepository.findBySharedBoardWithArtwork(sharedBoard).stream()
-                .sorted(Comparator.comparingLong(
-                        (SharedArtwork sharedArtwork) ->
-                                likeCounts.getOrDefault(sharedArtwork.getSharedArtworkId(), 0L))
-                        .reversed())
+                .map(sharedArtwork -> new SharedArtworkWithLikeCount(
+                        sharedArtwork, likeCounts.getOrDefault(sharedArtwork.getSharedArtworkId(), 0L)))
+                .sorted(Comparator.comparingLong(SharedArtworkWithLikeCount::likeCount).reversed())
                 .toList();
+    }
+
+    /** 공유작품 + 그 작품의 좋아요 수. 정렬과 응답이 같은 집계 결과를 쓰도록 묶어서 넘긴다. */
+    public record SharedArtworkWithLikeCount(SharedArtwork sharedArtwork, long likeCount) {
     }
 
     /** 이 보드에 담긴 작품 id → 담은 사람(고객 id). 저장 목록에서 "누가 담았는지" 표시용. */
