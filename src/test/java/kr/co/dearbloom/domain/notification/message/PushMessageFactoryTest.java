@@ -31,6 +31,6 @@ class PushMessageFactoryTest {
 
         assertThat(message.title()).isEqualTo("예약이 확정됐어요");
         assertThat(message.body()).isEqualTo("[우정스냅 필름] 6/11 10:00 촬영이 예약 완료됐어요.");
-        assertThat(message.deepLink()).isEqualTo("/app/my/inquiries/2");
+        assertThat(message.deepLink()).isEqualTo("/app/my/reservations/2");
     }
 }
