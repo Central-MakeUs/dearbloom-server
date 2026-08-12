@@ -38,7 +38,7 @@ public class SharedCommentController {
             description = """
                     공동보드에 달린 댓글을 <b>작성 순(오래된 것부터)</b>으로 조회합니다.<br>
                     댓글은 개별 공유작품이 아니라 <b>보드 단위</b>로 달립니다.<br>
-                    각 항목은 댓글 ID / 작성자 이름 / 내용 / 작성 시각입니다(댓글 ID 는 삭제 API 에 사용).<br>
+                    각 항목은 댓글 ID / 작성자 이름 / 내용 / 작성 시각 / <b>내가 쓴 댓글인지(isMine)</b> 입니다.<br>삭제는 본인 댓글만 가능하므로 <b>isMine=true 인 항목에만 삭제 버튼</b>을 노출하고, 삭제 API 에는 댓글 ID 를 사용하세요.<br>
                     보드 내부 정보이므로 <b>공동보드 멤버만</b> 조회할 수 있으며, 공유 멤버가 아니면 403 을 반환합니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,

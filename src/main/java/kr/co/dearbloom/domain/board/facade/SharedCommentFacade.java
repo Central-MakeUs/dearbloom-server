@@ -30,13 +30,14 @@ public class SharedCommentFacade {
 
     /**
      * 보드 댓글 목록(작성 순). 보드 내부 정보이므로 <b>참여 중인 고객만</b> 조회할 수 있다(참여자가 아니면 403).
+     * 삭제는 본인 댓글만 가능하므로 항목마다 isMine 을 채워 프론트가 삭제 버튼 노출을 판단하게 한다.
      */
     @Transactional(readOnly = true)
     public List<SharedCommentResponse> getComments(Customer customer, Long sharedBoardId) {
         SharedBoard sharedBoard = sharedBoardQueryService.getById(sharedBoardId);
         sharedMemberQueryService.getJoinedMember(sharedBoard, customer);
         return sharedCommentQueryService.getBySharedBoard(sharedBoard).stream()
-                .map(SharedCommentResponse::from)
+                .map(sharedComment -> SharedCommentResponse.of(sharedComment, customer))
                 .toList();
     }
 

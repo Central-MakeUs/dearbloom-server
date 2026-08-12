@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.board.dto.board.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.dearbloom.domain.board.entity.board.SharedComment;
+import kr.co.dearbloom.domain.customer.entity.Customer;
 
 import java.time.LocalDateTime;
 
@@ -17,13 +18,18 @@ public record SharedCommentResponse(
         String content,
 
         @Schema(description = "작성 시각", example = "2026-08-04T14:32:10")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        @Schema(description = "내가 쓴 댓글인지 여부. true 일 때만 삭제할 수 있습니다(삭제 버튼 노출 기준).",
+                example = "false")
+        Boolean isMine
 ) {
-    public static SharedCommentResponse from(SharedComment sharedComment) {
+    public static SharedCommentResponse of(SharedComment sharedComment, Customer viewer) {
         return new SharedCommentResponse(
                 sharedComment.getSharedCommentId(),
                 sharedComment.getCustomer().getName(),
                 sharedComment.getContent(),
-                sharedComment.getCreatedAt());
+                sharedComment.getCreatedAt(),
+                sharedComment.isWrittenBy(viewer));
     }
 }
