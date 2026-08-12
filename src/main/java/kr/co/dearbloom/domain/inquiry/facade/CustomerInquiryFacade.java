@@ -18,6 +18,7 @@ import kr.co.dearbloom.domain.inquiry.dto.response.customer.InquiryPreparationRe
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 import kr.co.dearbloom.domain.inquiry.event.InquiryCreatedEvent;
+import kr.co.dearbloom.domain.inquiry.event.InquiryCreatedPushEvent;
 import kr.co.dearbloom.domain.inquiry.service.InquiryCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryHistoryCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryQueryService;
@@ -90,6 +91,13 @@ public class CustomerInquiryFacade {
         // 채팅 방 find-or-create + 문의 카드 append (동기 리스너, 같은 트랜잭션). 만들어진 방 ID 는 이벤트로 돌려받는다.
         InquiryCreatedEvent event = new InquiryCreatedEvent(inquiry);
         eventPublisher.publishEvent(event);
+        // 작가에게 보낼 푸시. 커밋 이후 비동기로 돌기 때문에 여기(트랜잭션 안)에서 값을 미리 꺼내 담는다.
+        eventPublisher.publishEvent(new InquiryCreatedPushEvent(
+                inquiry.getInquiryId(),
+                artist.getMember().getMemberId(),
+                inquiry.getArtworkNameSnapshot(),
+                inquiry.getShootDate(),
+                inquiry.getStartTime()));
         return InquiryCreateResponse.from(inquiry, event.chatRoomId());
     }
 
