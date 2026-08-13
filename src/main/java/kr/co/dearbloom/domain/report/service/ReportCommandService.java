@@ -28,4 +28,9 @@ public class ReportCommandService {
     public void deleteByArtwork(Artwork artwork) {
         reportRepository.deleteByArtwork(artwork);
     }
+
+    // 회원 탈퇴 시 이 회원이 넣은 신고 정리. 신고자 FK 가 Member 라 남겨두면 탈퇴자와 계속 이어진다.
+    public void deleteByReporter(Member reporter) {
+        reportRepository.deleteByReporter(reporter);
+    }
 }

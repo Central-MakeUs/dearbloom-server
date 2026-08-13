@@ -27,7 +27,8 @@ public class Customer extends BaseTime {
 
     private String name;
 
-    private String imageUrl;
+    @Enumerated(EnumType.STRING)
+    private CustomerProfileImage profileColor;
 
     // 활동/거주 지역(선택). 온보딩·프로필 수정에서 설정하며 null 가능.
     @Enumerated(EnumType.STRING)
@@ -40,10 +41,11 @@ public class Customer extends BaseTime {
         this.region = region;
     }
 
-    // 회원 탈퇴 시 고객 프로필 PII 익명화.
+    // 회원 탈퇴 시 고객 프로필 PII 익명화. 행은 문의·채팅·리뷰 FK 때문에 남긴다.
     public void anonymize() {
-        this.name = "탈퇴한 사용자";
+        this.name = "deleted_user";
         this.university = null;
+        this.region = null;
     }
 
     // 역할 해지로 익명화됐던 프로필을 재온보딩 때 되살린다(같은 사람 복귀 — 기존 행·문의 이력 유지).

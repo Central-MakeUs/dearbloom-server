@@ -14,6 +14,6 @@ public class ChatInquiryEventListener {
 
     @EventListener
     public void onInquiryCreated(InquiryCreatedEvent event) {
-        chatFacade.onInquiryCreated(event.inquiry());
+        event.chatRoomId(chatFacade.onInquiryCreated(event.inquiry()));
     }
 }

@@ -28,11 +28,15 @@ public final class PublicPaths {
             "/api/auth/logout"
     );
 
-    /** 비로그인도 접근 가능 — 토큰 있으면 인증 설정, 없으면 비로그인으로 통과 */
+    /**
+     * 비로그인도 접근 가능 — 토큰 있으면 인증 설정, 없으면 비로그인으로 통과.
+     * SKIP_TOKEN_PREFIXES 와 달리 토큰 검증을 <b>스킵하지 않는다</b>. 스킵하면 SecurityContext 가 비어
+     * 로그인한 사용자도 게스트로 취급되기 때문(예: 초대 화면의 alreadyJoined 가 항상 false).
+     */
     public static final List<String> OPTIONAL_AUTH_PREFIXES = List.of(
-            // tmp
-            "/api/discover/",
-            "/api/contents/"
+            // 초대 링크 미리보기(GET). 같은 prefix 의 입장(POST)은 인증이 필요하므로,
+            // 인가를 켤 때 GET 만 permitAll 로 열어야 한다.
+            "/api/shared-boards/invite"
     );
 
     /** Spring Security requestMatchers 용 Ant 패턴 (permitAll 대상 전체) */

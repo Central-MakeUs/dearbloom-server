@@ -73,4 +73,9 @@ public class ScheduleCommandService {
         }
         ruleRepository.delete(rule);
     }
+
+    // 회원 탈퇴 시 이 작가의 일정 규칙(기본 가능·반복 불가·날짜 불가) 전체 정리.
+    public void deleteByArtist(Artist artist) {
+        ruleRepository.deleteByArtist(artist);
+    }
 }

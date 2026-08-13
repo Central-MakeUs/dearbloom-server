@@ -86,7 +86,7 @@ public class Artist extends BaseTime {
 
     // 회원 탈퇴 시 작가 프로필 PII/자유텍스트 익명화.
     public void anonymize() {
-        this.nickname = "탈퇴한 작가";
+        this.nickname = "deleted_artist";
         this.imageUrl = null;
         this.intro = null;
         this.etcInfo = null;

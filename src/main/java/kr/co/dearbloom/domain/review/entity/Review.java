@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.review.entity;
 
 import jakarta.persistence.*;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.customer.entity.Customer;
 import lombok.*;
 
@@ -20,8 +21,8 @@ public class Review {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artist_id", nullable = false)
-    private Artist artist;
+    @JoinColumn(name = "artwork_id", nullable = false)
+    private Artwork artwork;
 
     @Column(nullable = false)
     private Integer rating; // 평점 (1~5)

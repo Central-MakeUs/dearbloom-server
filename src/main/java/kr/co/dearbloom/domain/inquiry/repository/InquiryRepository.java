@@ -26,7 +26,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     // 이 작가가 작가로 걸린, 특정 상태들의 문의(탈퇴·해지 시 자동 취소 대상 조회).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
               and i.status in :statuses
             """)
     List<Inquiry> findByArtistIdAndStatusIn(
@@ -36,7 +36,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     // 특정 작가의 특정 날짜, 특정 상태 문의(예약확정 슬롯 계산용).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
               and i.shootDate = :date
               and i.status = :status
             """)
@@ -48,7 +48,7 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
     // 특정 작가의 기간 내, 특정 상태 문의(캘린더 예약확정 슬롯 배치 계산용).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
               and i.shootDate between :from and :to
               and i.status = :status
             """)
@@ -58,29 +58,29 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
             @Param("to") LocalDate to,
             @Param("status") InquiryStatus status);
 
-    // 이 작품의 패키지를 참조하는 문의(작품 삭제 전 FK 해제 대상).
+    // 이 작품을 참조하는 문의(작품 삭제 전 FK 해제 대상 / 패키지 교체 전 패키지 참조 해제 대상).
     @Query("""
             select i from Inquiry i
-            where i.artworkPackage.artwork.artworkId = :artworkId
+            where i.artwork.artworkId = :artworkId
             """)
     List<Inquiry> findByArtwork(@Param("artworkId") Long artworkId);
 
-    // 고객 문의 리스트(최근 수정순). 대표 이미지용으로 작품까지 fetch join.
+    // 고객 문의 리스트(신청 최근순). 대표 이미지용으로 작품까지 fetch join.
     // 작품이 삭제된 문의도 스냅샷으로 표시해야 하므로 left join — inner 면 그 문의가 목록에서 사라진다.
+    // 같은 시각에 만들어진 문의가 있으면 PK 로 tie-break 해서 순서가 흔들리지 않게 한다.
     @Query("""
             select i from Inquiry i
-            left join fetch i.artworkPackage p
-            left join fetch p.artwork
+            left join fetch i.artwork
             where i.customer.customerId = :customerId
-            order by i.modifiedAt desc
+            order by i.createdAt desc, i.inquiryId desc
             """)
-    List<Inquiry> findByCustomerOrderByModifiedAtDesc(@Param("customerId") Long customerId);
+    List<Inquiry> findByCustomerOrderByCreatedAtDesc(@Param("customerId") Long customerId);
 
     // 작가 문의 리스트(내 작품에 들어온 문의, 촬영일 오름차순 → 같은 날은 시작시각 오름차순). 고객명 표시용으로 고객까지 fetch join.
     @Query("""
             select i from Inquiry i
             join fetch i.customer
-            where i.artworkPackage.artwork.artist.artistId = :artistId
+            where i.artist.artistId = :artistId
             order by i.shootDate asc, i.startTime asc
             """)
     List<Inquiry> findByArtistOrderByShootDateAsc(@Param("artistId") Long artistId);

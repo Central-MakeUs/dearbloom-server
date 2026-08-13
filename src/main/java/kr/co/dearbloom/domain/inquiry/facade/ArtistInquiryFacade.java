@@ -11,12 +11,14 @@ import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquiryDetailRes
 import kr.co.dearbloom.domain.inquiry.dto.response.artist.ArtistInquirySummaryResponse;
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
+import kr.co.dearbloom.domain.inquiry.event.InquiryReservedPushEvent;
 import kr.co.dearbloom.domain.inquiry.service.InquiryHistoryCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryQueryService;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class ArtistInquiryFacade {
     private final InquiryHistoryCommandService inquiryHistoryCommandService;
     private final ArtworkQueryService artworkQueryService;
     private final BookedSlotProvider bookedSlotProvider;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 작가 작품에 들어온 문의 리스트(촬영일 오름차순). 리스트엔 이미지 없음. */
     @Transactional(readOnly = true)
@@ -79,6 +82,13 @@ public class ArtistInquiryFacade {
         InquiryStatus from = inquiry.getStatus();
         inquiry.reserve();
         inquiryHistoryCommandService.record(inquiry, from, MemberRole.ARTIST);
+        // 고객에게 보낼 푸시. 커밋 이후 비동기로 돌기 때문에 여기(트랜잭션 안)에서 값을 미리 꺼내 담는다.
+        eventPublisher.publishEvent(new InquiryReservedPushEvent(
+                inquiry.getInquiryId(),
+                inquiry.getCustomer().getMember().getMemberId(),
+                inquiry.getArtworkNameSnapshot(),
+                inquiry.getShootDate(),
+                inquiry.getStartTime()));
         return InquiryStatusResponse.of(inquiry);
     }
 

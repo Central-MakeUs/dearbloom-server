@@ -3,6 +3,7 @@ package kr.co.dearbloom.domain.customer.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.dearbloom.domain.artist.entity.artist.Region;
 import kr.co.dearbloom.domain.customer.entity.Customer;
+import kr.co.dearbloom.domain.customer.entity.CustomerProfileImage;
 
 /** 고객 정보 상세 조회 응답. */
 public record CustomerDetailResponse(
@@ -11,6 +12,9 @@ public record CustomerDetailResponse(
 
         @Schema(description = "고객 실명", example = "김디어")
         String name,
+
+        @Schema(description = "기본 프로필 이미지 색상. 온보딩 때 자동 배정된 4색 중 하나", example = "GREEN")
+        CustomerProfileImage profileColor,
 
         @Schema(description = "학교 ID. 미설정 시 null.", example = "1")
         Long universityId,
@@ -31,6 +35,7 @@ public record CustomerDetailResponse(
         return new CustomerDetailResponse(
                 customer.getCustomerId(),
                 customer.getName(),
+                customer.getProfileColor(),
                 customer.getUniversity() != null ? customer.getUniversity().getUniversityId() : null,
                 customer.getUniversity() != null ? customer.getUniversity().getName() : null,
                 customer.getRegion(),

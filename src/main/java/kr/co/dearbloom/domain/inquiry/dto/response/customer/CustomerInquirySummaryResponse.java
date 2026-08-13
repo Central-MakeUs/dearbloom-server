@@ -6,9 +6,10 @@ import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-/** 고객 문의 리스트 항목. 최근 수정순으로 반환된다. */
+/** 고객 문의 리스트 항목. 신청 최근순으로 반환된다. */
 @Schema(description = "고객 문의 리스트 항목")
 public record CustomerInquirySummaryResponse(
         @Schema(description = "문의 ID", example = "1")
@@ -17,6 +18,8 @@ public record CustomerInquirySummaryResponse(
         InquiryStatus status,
         @Schema(description = "상태 한국어 표기", example = "문의 진행중")
         String statusLabel,
+        @Schema(description = "문의 신청 시각", example = "2026-06-05T14:23:10")
+        LocalDateTime requestedAt,
         @Schema(description = "작가명", example = "블루밍데이즈 스냅")
         String artistNickname,
         @Schema(description = "작품명", example = "야외 1인 졸업스냅")
@@ -37,6 +40,7 @@ public record CustomerInquirySummaryResponse(
                 inquiry.getInquiryId(),
                 inquiry.getStatus(),
                 inquiry.getStatus().getLabel(),
+                inquiry.getCreatedAt(),
                 inquiry.getArtistNicknameSnapshot(),
                 inquiry.getArtworkNameSnapshot(),
                 inquiry.getPackageNameSnapshot(),

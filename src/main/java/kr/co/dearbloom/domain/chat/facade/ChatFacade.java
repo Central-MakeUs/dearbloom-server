@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.chat.facade;
 
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.chat.dto.response.ChatMessageResponse;
+import kr.co.dearbloom.domain.chat.dto.response.ChatReadEventResponse;
 import kr.co.dearbloom.domain.chat.dto.response.artist.ArtistChatMessageResponse;
 import kr.co.dearbloom.domain.chat.dto.response.artist.ArtistChatRoomSummaryResponse;
 import kr.co.dearbloom.domain.chat.dto.response.customer.CustomerChatMessageResponse;
@@ -108,25 +109,33 @@ public class ChatFacade {
         return response;
     }
 
-    /** 읽음 처리. 내 쪽 안읽음 0 + 마지막 읽은 시각 갱신. */
+    /**
+     * 읽음 처리. 내 쪽 안읽음 0 + 마지막 읽은 시각 갱신 후, 상대 화면의 안읽음 표시가 즉시 사라지도록
+     * 읽음 이벤트를 브로드캐스트한다(메시지 전송과 동일하게 트랜잭션 안에서 발행).
+     */
     @Transactional
     public void markRead(MemberRole role, Long profileId, Long roomId) {
         ChatRoom room = chatRoomQueryService.getParticipatingRoom(roomId, role, profileId);
-        room.markRead(role, LocalDateTime.now());
+        LocalDateTime readAt = LocalDateTime.now();
+        room.markRead(role, readAt);
+        chatEventPublisher.sendReadToRoom(roomId, new ChatReadEventResponse(role, readAt));
     }
 
     /**
      * 문의 생성 시 호출(InquiryCreatedEvent 리스너). 방 find-or-create → 문의 카드 append(발신=고객)
      * → 방 미리보기·안읽음 갱신 → 작가에게 브로드캐스트. 문의 트랜잭션 안에서 동기 실행된다.
+     *
+     * @return 문의가 붙은 채팅방 ID (기존 방이 있으면 그 방)
      */
     @Transactional
-    public void onInquiryCreated(Inquiry inquiry) {
+    public Long onInquiryCreated(Inquiry inquiry) {
         Customer customer = inquiry.getCustomer();
-        Artist artist = inquiry.getArtworkPackage().getArtwork().getArtist();
+        Artist artist = inquiry.getArtist();
         ChatRoom room = chatRoomCommandService.findOrCreate(customer, artist);
         ChatMessage message = chatMessageCommandService.saveInquiryCard(room, MemberRole.CUSTOMER, inquiry);
         room.onNewMessage("[문의] " + inquiry.getPackageNameSnapshot(), sentAt(message), MemberRole.CUSTOMER);
         chatEventPublisher.sendToRoom(room.getChatRoomId(), ChatMessageResponse.from(message));
+        return room.getChatRoomId();
     }
 
     private static LocalDateTime sentAt(ChatMessage message) {

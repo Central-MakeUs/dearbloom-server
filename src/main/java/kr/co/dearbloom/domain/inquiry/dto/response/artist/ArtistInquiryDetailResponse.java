@@ -6,6 +6,7 @@ import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /** 작가 문의 상세. 고객 상세와 동일하되 작가명은 제외(작가 본인이므로 불필요). */
@@ -15,6 +16,8 @@ public record ArtistInquiryDetailResponse(
         Long inquiryId,
         @Schema(description = "문의 상태", example = "IN_PROGRESS")
         InquiryStatus status,
+        @Schema(description = "문의 신청 시각", example = "2026-06-05T14:23:10")
+        LocalDateTime requestedAt,
         @Schema(description = "문의한 고객명", example = "김디어")
         String customerName,
         @Schema(description = "작품 ID (작품 상세로 이동용). 작품이 삭제됐으면 null", nullable = true, example = "1")
@@ -39,6 +42,8 @@ public record ArtistInquiryDetailResponse(
         LocalTime endTime,
         @Schema(description = "촬영 소요시간(분)", example = "60")
         Integer durationMinutes,
+        @Schema(description = "보정본 수. 문의 당시 패키지 기준이며, 미정이었으면 null.", nullable = true, example = "7")
+        Integer finalPhotoCount,
         @Schema(description = "학교명", example = "홍익대학교 서울캠퍼스")
         String schoolName,
         @Schema(description = "요청 사항", example = "자연스러운 보정 스타일을 선호해요.")
@@ -48,6 +53,7 @@ public record ArtistInquiryDetailResponse(
         return new ArtistInquiryDetailResponse(
                 inquiry.getInquiryId(),
                 inquiry.getStatus(),
+                inquiry.getCreatedAt(),
                 inquiry.getCustomer().getName(),
                 inquiry.getArtworkIdOrNull(),
                 inquiry.getArtworkNameSnapshot(),
@@ -60,6 +66,7 @@ public record ArtistInquiryDetailResponse(
                 inquiry.getStartTime(),
                 inquiry.getStartTime().plusMinutes(inquiry.getDurationMinutesSnapshot()),
                 inquiry.getDurationMinutesSnapshot(),
+                inquiry.getFinalPhotoCountSnapshot(),
                 inquiry.getSchoolName(),
                 inquiry.getRequestNote());
     }

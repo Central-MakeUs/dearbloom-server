@@ -2,6 +2,7 @@ package kr.co.dearbloom.domain.artwork.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
+import kr.co.dearbloom.domain.artist.entity.artist.Region;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public record ArtworkArtistResponse(
                 artist.getArtistId(),
                 artist.getNickname(),
                 artist.getIntro(),
-                artist.getRegions().stream().map(Enum::name).toList(),
+                Region.toSortedNames(artist.getRegions()),
                 artist.getEtcInfo(),
                 artist.getTravelFee()
         );

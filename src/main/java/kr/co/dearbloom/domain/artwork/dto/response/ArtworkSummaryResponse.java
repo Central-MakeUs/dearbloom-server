@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-/** 작품 리스트 항목(카드). 목록/저장목록 등 리스트 조회에서 사용. */
+/** 작품 리스트 항목(카드). 작품탐색, 내 저장 목록, 공동보드, 내 후보 수정하기 리스트 조회에서 사용. */
 public record ArtworkSummaryResponse(
         @Schema(description = "작품 ID", example = "1")
         Long artworkId,
@@ -12,7 +12,7 @@ public record ArtworkSummaryResponse(
         @Schema(description = "작품명", example = "야외 개인 졸업스냅")
         String title,
 
-        @Schema(description = "패키지 중 최저가(원). 패키지가 없으면 null.", example = "200000")
+        @Schema(description = "가격(원). 패키지 중 최저가.", example = "200000")
         Integer lowestPrice,
 
         @Schema(description = "최소 촬영 인원(1~6)", example = "2")
@@ -27,9 +27,15 @@ public record ArtworkSummaryResponse(
         @Schema(description = "작가 활동 지역 목록", example = "[\"SEOUL\", \"GYEONGGI_NORTH\"]")
         List<String> artistRegionList,
 
-        @Schema(description = "대표 이미지 CDN URL(sortOrder 가 가장 앞선 사진). 사진이 없으면 null.",
+        @Schema(description = "대표 이미지 CDN URL. photoList 의 첫 번째 사진과 같으며, 사진이 없으면 null.",
                 example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
         String thumbnailUrl,
+
+        @Schema(description = "이 작품의 사진 CDN URL 전체(등록 순서). 사진이 없으면 빈 배열. "
+                + "카드 한 장에 여러 장을 늘어놓는 리스트 형태에서 사용합니다.",
+                example = "[\"https://dev-cdn.dearbloom.co.kr/artwork/uuid1.webp\","
+                + "\"https://dev-cdn.dearbloom.co.kr/artwork/uuid2.webp\"]")
+        List<String> photoList,
 
         @Schema(description = "내가 저장한 작품인지 여부. 고객 조회 시에만 값이 있고, 비로그인은 null.",
                 example = "false")

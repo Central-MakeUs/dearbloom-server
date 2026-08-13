@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.inquiry.entity;
 
 import jakarta.persistence.*;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.customer.entity.Customer;
@@ -15,7 +16,8 @@ import java.time.LocalTime;
 
 /**
  * 스마트 문의. 고객이 작품의 특정 패키지를 골라 촬영 일시·학교·인원·요청사항을 담아 작가에게 보낸다.
- * 문의 시점의 표시 정보(작가/작품/패키지명·가격)는 스냅샷으로 보존한다 — 이후 작가가 수정/삭제해도 문의 기록은 유지.
+ * 문의 시점의 표시 정보(작가/작품/패키지명·가격·소요시간·보정본 수)는 스냅샷으로 보존한다 —
+ * 이후 작가가 수정/삭제해도 문의 기록은 유지.
  * 슬롯 잠금은 하지 않는다(문의=제안). 실제 잠금은 예약 도메인에서.
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,6 +34,17 @@ public class Inquiry extends BaseTime {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    // 문의를 받은 작가. 작가 쪽 조회(문의함·예약 슬롯·캘린더)가 전부 이 컬럼만 본다.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "artist_id", nullable = false)
+    private Artist artist;
+
+    // 문의 대상 작품. 작품 상세 이동 링크용. 작품이 삭제되면 null 이 된다.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "artwork_id")
+    private Artwork artwork;
+
+    // 고른 패키지. 작품 삭제·패키지 교체 시 null 이 된다. 표시값은 아래 스냅샷이 들고 있어 기록은 남는다.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artwork_package_id")
     private ArtworkPackage artworkPackage;
@@ -80,22 +93,35 @@ public class Inquiry extends BaseTime {
 
     private Integer priceSnapshot;           // 문의 당시 패키지 가격
 
-    // ──────────────── 삭제된 작품 대응 ────────────────
+    private Integer finalPhotoCountSnapshot; // 문의 당시 패키지 보정본 수(미정이면 null)
+
+    // ──────────────── 삭제된 작품·교체된 패키지 대응 ────────────────
 
     /** 작품이 살아있으면 그 작품, 삭제됐으면 null. */
     public Artwork getArtworkOrNull() {
-        return artworkPackage == null ? null : artworkPackage.getArtwork();
-    }
-
-    /** 작품 삭제 시 패키지 참조만 끊는다. 표시값은 스냅샷에 남아 있어 문의 기록은 그대로 유지된다. */
-    public void detachArtworkPackage() {
-        this.artworkPackage = null;
+        return artwork;
     }
 
     /** 작품 상세 이동용 ID. 삭제된 작품이면 null 이라 프론트가 이동 링크를 숨긴다. */
     public Long getArtworkIdOrNull() {
-        Artwork artwork = getArtworkOrNull();
         return artwork == null ? null : artwork.getArtworkId();
+    }
+
+    /**
+     * 작품 삭제 시 작품·패키지 참조를 끊는다(작품 삭제 전 호출).
+     * 표시값은 스냅샷에 남아 있어 문의 기록은 그대로 유지되고, artist 는 끊지 않으므로 작가 문의함에도 계속 보인다.
+     */
+    public void detachArtwork() {
+        this.artwork = null;
+        this.artworkPackage = null;
+    }
+
+    /**
+     * 패키지 교체 시 패키지 참조만 끊는다(기존 패키지 행 삭제 전 호출).
+     * 작품은 그대로라 상세 이동 링크가 살아 있고, 고객이 문의할 때 합의된 조건은 스냅샷에 그대로 남는다.
+     */
+    public void detachArtworkPackage() {
+        this.artworkPackage = null;
     }
 
     // ──────────────── 상태 전이 (state machine) ────────────────

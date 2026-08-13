@@ -96,6 +96,13 @@ jwt:
   access_token_expiry: ${ACCESS_TOKEN_EXPIRY:3600}s # 1시간
   refresh_token_expiry: ${REFRESH_TOKEN_EXPIRY:604800}s # 7일
 
+push:
+  fcm:
+    enabled: ${PUSH_FCM_ENABLED:false}          # 로컬 기본값 false — 켜지 않으면 발송 없이 로그만 남는다
+    project-id: ${FCM_PROJECT_ID:}              # Firebase 프로젝트 ID
+    client-email: ${FCM_CLIENT_EMAIL:}          # 서비스 계정 이메일 (서비스 계정 JSON 의 client_email)
+    private-key: ${FCM_PRIVATE_KEY:}            # 서비스 계정 개인키 PEM (JSON 의 private_key, 개행은 \n 이어도 됨)
+
 cookie:
   domain: ${COOKIE_DOMAIN:}
   secure: ${COOKIE_SECURE:false}

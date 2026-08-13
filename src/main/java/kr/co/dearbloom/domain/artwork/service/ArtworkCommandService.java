@@ -21,12 +21,15 @@ public class ArtworkCommandService {
     private final PortfolioFileRepository portfolioFileRepository;
     private final ArtworkPackageRepository artworkPackageRepository;
 
-    public Artwork create(Artist artist, String title, Integer minHeadCount, Integer maxHeadCount) {
+    // lowestPrice는 패키지 중 최저가. 패키지 엔티티보다 작품이 먼저 저장돼야 해서 호출부에서 미리 계산해 넘긴다.
+    public Artwork create(Artist artist, String title, Integer minHeadCount, Integer maxHeadCount,
+                          Integer lowestPrice) {
         return artworkRepository.save(Artwork.builder()
                 .artist(artist)
                 .artworkName(title)
                 .minHeadCount(minHeadCount)
                 .maxHeadCount(maxHeadCount)
+                .lowestPrice(lowestPrice)
                 .build());
     }
 
@@ -51,6 +54,17 @@ public class ArtworkCommandService {
     public List<PortfolioFile> replacePortfolioFiles(Artwork artwork, List<PortfolioFile> newFiles) {
         portfolioFileRepository.deleteByArtwork(artwork);
         return portfolioFileRepository.saveAll(newFiles);
+    }
+
+    /**
+     * 기존 패키지를 모두 지우고 받은 목록으로 교체하며 작품의 가격(최저가)까지 갱신한다.
+     * 패키지를 참조하던 문의 FK 는 호출부가 먼저 끊어야 한다(안 끊으면 삭제가 FK 제약에 걸린다).
+     */
+    public List<ArtworkPackage> replacePackages(Artwork artwork, List<ArtworkPackage> newPackages,
+                                                Integer lowestPrice) {
+        artworkPackageRepository.deleteByArtwork(artwork);
+        artwork.updateLowestPrice(lowestPrice);
+        return artworkPackageRepository.saveAll(newPackages);
     }
 
     // 작품 삭제. 패키지·사진 row 를 먼저 지운 뒤 작품을 지운다. S3 객체는 건드리지 않는다.

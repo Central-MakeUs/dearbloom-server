@@ -18,6 +18,7 @@ import kr.co.dearbloom.domain.inquiry.dto.response.customer.InquiryPreparationRe
 import kr.co.dearbloom.domain.inquiry.entity.Inquiry;
 import kr.co.dearbloom.domain.inquiry.entity.InquiryStatus;
 import kr.co.dearbloom.domain.inquiry.event.InquiryCreatedEvent;
+import kr.co.dearbloom.domain.inquiry.event.InquiryCreatedPushEvent;
 import kr.co.dearbloom.domain.inquiry.service.InquiryCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryHistoryCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryQueryService;
@@ -87,9 +88,17 @@ public class CustomerInquiryFacade {
                 request.getShootDate(), request.getStartTime(), request.getHeadCount(), request.getRequestNote());
         // 생성 이력(null → IN_PROGRESS, 고객).
         inquiryHistoryCommandService.record(inquiry, null, MemberRole.CUSTOMER);
-        // 채팅 방 find-or-create + 문의 카드 append (동기 리스너, 같은 트랜잭션).
-        eventPublisher.publishEvent(new InquiryCreatedEvent(inquiry));
-        return InquiryCreateResponse.from(inquiry);
+        // 채팅 방 find-or-create + 문의 카드 append (동기 리스너, 같은 트랜잭션). 만들어진 방 ID 는 이벤트로 돌려받는다.
+        InquiryCreatedEvent event = new InquiryCreatedEvent(inquiry);
+        eventPublisher.publishEvent(event);
+        // 작가에게 보낼 푸시. 커밋 이후 비동기로 돌기 때문에 여기(트랜잭션 안)에서 값을 미리 꺼내 담는다.
+        eventPublisher.publishEvent(new InquiryCreatedPushEvent(
+                inquiry.getInquiryId(),
+                artist.getMember().getMemberId(),
+                inquiry.getArtworkNameSnapshot(),
+                inquiry.getShootDate(),
+                inquiry.getStartTime()));
+        return InquiryCreateResponse.from(inquiry, event.chatRoomId());
     }
 
     /** 문의 취소(고객). 본인 문의 + 진행중일 때만. */
@@ -105,7 +114,7 @@ public class CustomerInquiryFacade {
         return InquiryStatusResponse.of(inquiry);
     }
 
-    /** 고객이 보낸 문의 리스트(최근 수정순). 작품 대표 이미지는 배치로 조회한다. */
+    /** 고객이 보낸 문의 리스트(신청 최근순). 작품 대표 이미지는 배치로 조회한다. */
     @Transactional(readOnly = true)
     public List<CustomerInquirySummaryResponse> getMyInquiries(Customer customer) {
         List<Inquiry> inquiries = inquiryQueryService.getByCustomer(customer.getCustomerId());

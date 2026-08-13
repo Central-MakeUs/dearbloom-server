@@ -35,9 +35,9 @@ public class InquiryQueryService {
                 .orElseThrow(() -> new CustomException(ErrorCode.INQUIRY_NOT_FOUND));
     }
 
-    // 고객이 보낸 문의 리스트(최근 수정순).
+    // 고객이 보낸 문의 리스트(신청 최근순).
     public List<Inquiry> getByCustomer(Long customerId) {
-        return inquiryRepository.findByCustomerOrderByModifiedAtDesc(customerId);
+        return inquiryRepository.findByCustomerOrderByCreatedAtDesc(customerId);
     }
 
     // 작가 작품에 들어온 문의 리스트(촬영일 오름차순).

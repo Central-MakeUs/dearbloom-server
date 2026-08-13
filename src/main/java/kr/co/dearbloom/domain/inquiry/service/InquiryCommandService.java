@@ -31,6 +31,8 @@ public class InquiryCommandService {
         Artist artist = artwork.getArtist();
         return inquiryRepository.save(Inquiry.builder()
                 .customer(customer)
+                .artist(artist)
+                .artwork(artwork)
                 .artworkPackage(artworkPackage)
                 .university(university)
                 .schoolName(schoolName)
@@ -43,15 +45,30 @@ public class InquiryCommandService {
                 .artworkNameSnapshot(artwork.getArtworkName())
                 .packageNameSnapshot(artworkPackage.getPackageName())
                 .priceSnapshot(artworkPackage.getPrice())
+                .finalPhotoCountSnapshot(artworkPackage.getFinalPhotoCount())
                 .build());
     }
 
     /**
-     * 작품 삭제 시 그 작품의 패키지를 참조하는 문의들의 FK 를 끊는다(작품 삭제 전 호출).
+     * 작품 삭제 시 그 작품을 참조하는 문의들의 작품·패키지 FK 를 끊는다(작품 삭제 전 호출).
      * 문의 행은 스냅샷으로 표시가 유지되므로 지우지 않는다 — 상대방의 거래 이력이기 때문.
+     * 작가 참조는 끊지 않아서 작가 문의함과 예약 슬롯 계산에는 계속 잡힌다.
      */
     public void detachArtwork(Artwork artwork) {
         inquiryRepository.findByArtwork(artwork.getArtworkId())
+                .forEach(Inquiry::detachArtwork);
+        // 참조 해제 UPDATE 를 먼저 DB 에 반영한다. 뒤따르는 삭제가 FK 제약에 걸리지 않도록 순서를 못 박는 것.
+        inquiryRepository.flush();
+    }
+
+    /**
+     * 패키지 교체 시 그 작품의 문의들이 들고 있던 패키지 참조를 끊는다(기존 패키지 행 삭제 전 호출).
+     * 끊지 않으면 FK 제약에 걸려 패키지를 지울 수 없다. 작품 참조는 살려두므로 상세 이동 링크는 유지된다.
+     */
+    public void detachArtworkPackages(Artwork artwork) {
+        inquiryRepository.findByArtwork(artwork.getArtworkId())
                 .forEach(Inquiry::detachArtworkPackage);
+        // 참조 해제 UPDATE 를 먼저 DB 에 반영한다. 뒤따르는 패키지 삭제가 FK 제약에 걸리지 않도록 순서를 못 박는 것.
+        inquiryRepository.flush();
     }
 }
