@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 public class ArtistNicknameUpdateRequest {
     @NotBlank
     @ValidNickname
-    @Schema(description = "새 닉네임 (2-12자의 한글, 영문, 숫자, _)",
-            example = "블룸작가")
+    @Schema(description = "새 닉네임 (2-12자의 한글, 영문, 숫자, _, 단어 사이 공백). "
+            + "앞뒤 공백과 연속 공백은 사용할 수 없습니다.",
+            example = "블루밍데이즈 스냅")
     private String nickname;
 }

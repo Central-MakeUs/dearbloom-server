@@ -71,7 +71,9 @@ public class ArtistController {
     @Operation(summary = "작가 닉네임 수정",
             description = """
                     작가 닉네임을 수정합니다. 최초 등록은 작가 프로필 생성 API 에서 처리합니다.<br>
-                    닉네임은 2-12자의 한글, 영문, 숫자, _ 만 사용할 수 있습니다.
+                    닉네임은 2-12자의 <b>한글, 영문, 숫자, _ 와 단어 사이 공백</b>을 사용할 수 있습니다
+                    (예: "블루밍데이즈 스냅").<br>
+                    앞뒤 공백과 연속 공백(두 칸 이상)은 사용할 수 없습니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})

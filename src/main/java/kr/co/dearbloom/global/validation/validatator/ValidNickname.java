@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Documented
 @Constraint(validatedBy = NicknameValidator.class)
 public @interface ValidNickname {
-    String message() default "닉네임은 2-12자의 한글, 영문, 숫자만 가능합니다";
+    String message() default "닉네임은 2-12자의 한글, 영문, 숫자, _ 와 단어 사이 공백만 가능합니다";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
