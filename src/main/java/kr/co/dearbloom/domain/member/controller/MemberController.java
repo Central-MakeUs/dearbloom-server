@@ -11,6 +11,8 @@ import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;
 import kr.co.dearbloom.domain.customer.dto.response.CustomerCreateResponse;
 import kr.co.dearbloom.domain.member.dto.MemberInfoResponse;
+import kr.co.dearbloom.domain.member.dto.RoleSwitchRequest;
+import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.facade.MemberFacade;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
@@ -22,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,27 +54,34 @@ public class MemberController {
         ));
     }
 
-//    @PatchMapping("/me/role")
-//    @Operation(summary = "역할 전환 (고객 ↔ 작가)", description = "요청한 role 에 대응하는 프로필(Customer/Artist)이 이미 생성되어 있어야 합니다. <br> "
-//            + "성공 시 activeRole 이 갱신된 새 accessToken 을 반환합니다 — 응답받는 즉시 기존 accessToken 을 교체해야 합니다. <br> "
-//            + "refreshToken 은 재발급하지 않으며 그대로 사용합니다.")
-//    @io.swagger.v3.oas.annotations.responses.ApiResponses({
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-//                    responseCode = "200", description = "역할 전환 성공"),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-//                    responseCode = "401", description = "인증 실패 (토큰 누락, 만료, 유효하지 않음)"),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-//                    responseCode = "403", description = "요청한 역할에 대한 프로필이 없음 (예: Artist 미생성 상태에서 ARTIST 로 전환 시도)")
-//    })
-//    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_NOT_AVAILABLE})
-//    public ResponseEntity<ApiResponse<RoleSwitchResponse>> switchRole(
-//            @AuthenticationPrincipal Member member,
-//            @RequestBody @Valid RoleSwitchRequest request
-//    ) {
-//        return ResponseEntity.ok(
-//                ApiResponse.success(memberFacade.switchRole(member, request.getRole()))
-//        );
-//    }
+    @PatchMapping("/me/role")
+    @Operation(summary = "역할 전환 (고객 ↔ 작가)",
+            description = """
+                    로그인한 상태에서 고객 ↔ 작가 모드를 전환합니다.
+                    요청한 role 에 대응하는 프로필(Customer/Artist)이 <b>이미 생성되어 있어야</b> 하며, 없으면 403 입니다
+                    (먼저 온보딩 API 로 해당 프로필을 만들어야 합니다).<br>
+                    성공 시 activeRole 이 갱신된 <b>새 accessToken</b> 을 반환합니다 —
+                    <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b>
+                    교체하지 않으면 이전 역할의 토큰이 그대로 나가 역할 전용 API 가 403 이 됩니다.<br>
+                    refreshToken 은 재발급하지 않으니 기존 값을 그대로 쓰면 됩니다.
+                    """)
+    @io.swagger.v3.oas.annotations.responses.ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "역할 전환 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "401", description = "인증 실패 (토큰 누락, 만료, 유효하지 않음)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403", description = "요청한 역할에 대한 프로필이 없음 (예: Artist 미생성 상태에서 ARTIST 로 전환 시도)")
+    })
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_NOT_AVAILABLE})
+    public ResponseEntity<ApiResponse<RoleSwitchResponse>> switchRole(
+            @AuthenticationPrincipal Member member,
+            @RequestBody @Valid RoleSwitchRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(memberFacade.switchRole(member, request.getRole()))
+        );
+    }
 
     @PostMapping("/customer")
     @Operation(summary = "고객 계정 생성 (온보딩)",
