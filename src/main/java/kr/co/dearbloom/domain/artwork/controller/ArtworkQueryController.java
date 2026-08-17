@@ -29,7 +29,7 @@ public class ArtworkQueryController {
     private final ArtworkQueryFacade artworkQueryFacade;
 
     @GetMapping
-    @Operation(summary = "작품 리스트 조회 (필터·정렬·무한스크롤)",
+    @Operation(summary = "작품 탐색 페이지 조회 (필터·정렬·무한스크롤)",
             description = """
                     작품을 필터·정렬해서 조회합니다. 로그인하지 않아도 조회할 수 있습니다.<br>
                     각 항목은 작품 ID / 제목 / 가격 / 촬영 가능 인원 / 작가 닉네임 / 작가 활동지역 / 대표 이미지 / 저장 여부(isSaved)입니다.<br>

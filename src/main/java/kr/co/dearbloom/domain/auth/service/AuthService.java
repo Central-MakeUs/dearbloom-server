@@ -80,7 +80,8 @@ public class AuthService {
         String ip = HttpRequestUtils.extractClientIp(request);
         String deviceInfo = request.getHeader("User-Agent");
 
-        String refreshToken = tokenProvider.generateToken(member, jwtProperties.refreshTokenExpiry());
+        String refreshToken =
+                tokenProvider.generateToken(member, jwtProperties.refreshTokenExpiry(), overrideActiveRole);
         refreshTokenSessionService.save(member, refreshToken, ip, deviceInfo);
         String accessToken =
                 tokenProvider.generateToken(member, jwtProperties.accessTokenExpiry(), overrideActiveRole);
