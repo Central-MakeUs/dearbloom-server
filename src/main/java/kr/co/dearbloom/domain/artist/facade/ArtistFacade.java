@@ -1,6 +1,6 @@
 package kr.co.dearbloom.domain.artist.facade;
 
-import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistEtcInfoUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistTravelFeeUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistIntroUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistRegionUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistDetailResponse;
@@ -66,9 +66,9 @@ public class ArtistFacade {
     }
 
     @Transactional
-    public ArtistResponse updateEtcInfo(Artist artist, ArtistEtcInfoUpdateRequest request) {
+    public ArtistResponse updateTravelFee(Artist artist, ArtistTravelFeeUpdateRequest request) {
         return ArtistResponse.from(
-                artistCommandService.updateEtcInfo(artist, request.getEtcInfo())
+                artistCommandService.updateTravelFee(artist, request.getTravelFee())
         );
     }
 }

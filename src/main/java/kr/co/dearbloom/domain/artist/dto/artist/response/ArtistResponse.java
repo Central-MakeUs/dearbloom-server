@@ -11,6 +11,7 @@ public record ArtistResponse(
         String intro,
         List<String> regionList,
         String etcInfo,
+        String travelFee,
         String imageUrl
 ) {
     public static ArtistResponse from(Artist artist) {
@@ -23,6 +24,7 @@ public record ArtistResponse(
                 artist.getIntro(),
                 Region.toSortedNames(artist.getRegions()),
                 artist.getEtcInfo(),
+                artist.getTravelFee(),
                 artist.getImageUrl()
         );
     }
