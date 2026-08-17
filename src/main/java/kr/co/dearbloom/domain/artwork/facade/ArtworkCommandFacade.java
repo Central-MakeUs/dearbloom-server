@@ -9,6 +9,7 @@ import kr.co.dearbloom.domain.artwork.dto.response.ArtworkResponse;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
+import kr.co.dearbloom.domain.artwork.event.ArtworkExploreChangedEvent;
 import kr.co.dearbloom.domain.artwork.service.ArtworkCommandService;
 import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
 import kr.co.dearbloom.domain.artwork.util.ArtworkPackageFactory;
@@ -17,11 +18,16 @@ import kr.co.dearbloom.domain.customer.service.SavedArtworkCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryCommandService;
 import kr.co.dearbloom.domain.report.service.ReportCommandService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 작품 변경은 모두 작품 탐색 첫 화면 카드에 드러나므로, 각 메서드가
+ * {@link ArtworkExploreChangedEvent} 를 발행해 그 화면 캐시를 버린다(커밋 후에 지워진다).
+ */
 @Component
 @RequiredArgsConstructor
 public class ArtworkCommandFacade {
@@ -32,6 +38,7 @@ public class ArtworkCommandFacade {
     private final SavedArtworkCommandService savedArtworkCommandService;
     private final InquiryCommandService inquiryCommandService;
     private final ReportCommandService reportCommandService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 작품 등록. 제목·패키지·사진들을 받아 작품을 만든다.
@@ -48,6 +55,7 @@ public class ArtworkCommandFacade {
                 artworkPackageFactory.create(artwork, request.getPackageList()));
         List<PortfolioFile> files = artworkCommandService.savePortfolioFiles(
                 portfolioFileFactory.create(artwork, request.getPhotoList()));
+        eventPublisher.publishEvent(new ArtworkExploreChangedEvent()); // 새 작품이 최신순 첫 자리에 온다
         return ArtworkResponse.of(artwork, packages, files);
     }
 
@@ -59,6 +67,7 @@ public class ArtworkCommandFacade {
     public ArtworkResponse updateBasicInfo(Artist artist, Long artworkId, ArtworkInfoUpdateRequest request) {
         Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);
         artworkCommandService.updateBasicInfo(artwork, request.getTitle(), request.getDescription());
+        eventPublisher.publishEvent(new ArtworkExploreChangedEvent()); // 카드의 작품명
         return ArtworkResponse.of(artwork, artworkQueryService.getPackages(artwork),
                 artworkQueryService.getPortfolioFiles(artwork));
     }
@@ -72,6 +81,7 @@ public class ArtworkCommandFacade {
         Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);
         List<PortfolioFile> replacedPortfolioFiles = artworkCommandService.replacePortfolioFiles(
                 artwork, portfolioFileFactory.create(artwork, request.getPhotoList()));
+        eventPublisher.publishEvent(new ArtworkExploreChangedEvent()); // 카드의 thumbnailUrl·photoList
         return ArtworkResponse.of(artwork, artworkQueryService.getPackages(artwork), replacedPortfolioFiles);
     }
 
@@ -90,6 +100,7 @@ public class ArtworkCommandFacade {
                 artwork,
                 artworkPackageFactory.create(artwork, request.getPackageList()),
                 artworkPackageFactory.lowestPrice(request.getPackageList()));
+        eventPublisher.publishEvent(new ArtworkExploreChangedEvent()); // 카드의 가격(최저가) + 가격 정렬
         return ArtworkResponse.of(artwork, replacedPackages, artworkQueryService.getPortfolioFiles(artwork));
     }
 
@@ -106,5 +117,6 @@ public class ArtworkCommandFacade {
         reportCommandService.deleteByArtwork(artwork);
         inquiryCommandService.detachArtwork(artwork);
         artworkCommandService.delete(artwork);
+        eventPublisher.publishEvent(new ArtworkExploreChangedEvent()); // 목록에서 빠지고 totalCount 가 줄어든다
     }
 }
