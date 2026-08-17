@@ -27,7 +27,6 @@ import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.service.MemberCommandService;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
 import kr.co.dearbloom.domain.notification.service.DeviceTokenCommandService;
-import kr.co.dearbloom.domain.member.util.ProfileNameResolver;
 import kr.co.dearbloom.domain.university.entity.University;
 import kr.co.dearbloom.domain.university.service.UniversityQueryService;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
@@ -78,9 +77,9 @@ public class MemberFacade {
     }
 
     /**
-     * 고객 온보딩. 학교(선택)로 고객 프로필을 만들고,
+     * 고객 온보딩. 이름과 학교·지역(선택)으로 고객 프로필을 만들고,
      * activeRole 이 CUSTOMER 로 갱신된 새 accessToken 을 함께 반환한다.
-     * 이름은 요청으로 받지 않고 소셜 계정 이름에서 채운다({@link ProfileNameResolver}).
+     * 이름은 실명이라 중복을 허용한다(동명이인).
      */
     @Transactional
     public CustomerCreateResponse createCustomer(Member member, CustomerCreateRequest request) {
@@ -90,7 +89,7 @@ public class MemberFacade {
                 : universityQueryService.findById(request.getUniversityId());
         Member updated = memberCommandService.markAsCustomer(member);
         Customer customer = customerCommandService.create(
-                updated, ProfileNameResolver.resolve(member), university, request.getRegion());
+                updated, request.getName(), university, request.getRegion());
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
                 CustomerResponse.from(customer)
@@ -98,18 +97,23 @@ public class MemberFacade {
     }
 
     /**
-     * 작가 온보딩. 활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
+     * 작가 온보딩. 닉네임·활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
      * activeRole 이 ARTIST 로 갱신된 새 accessToken 을 함께 반환한다.
-     * 닉네임은 요청으로 받지 않고 소셜 계정 이름에서 채운다({@link ProfileNameResolver}).
+     * <p>
+     * 닉네임은 작가를 가리키는 이름이라 중복을 막는다 — 온보딩에서 빠지면 닉네임 수정 API 의
+     * 중복 검사를 우회해 같은 닉네임이 둘 생긴다.
      */
     @Transactional
     public ArtistCreateResponse createArtist(Member member, ArtistCreateRequest request) {
+        if (artistQueryService.existsByNickname(request.getNickname())) {
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
         // 대표 이미지는 선택. 보냈다면 CDN 경로인지 검증한다.
         if (request.getImageUrl() != null) {
             fileUrlValidator.validate(request.getImageUrl());
         }
         // 해지 후 재온보딩이면 익명화된 행을 되살린다. markAsArtist 로 활성/비활성을 판별하므로 create 를 먼저 호출.
-        Artist artist = artistCommandService.create(member, ProfileNameResolver.resolve(member), request);
+        Artist artist = artistCommandService.create(member, request.getNickname(), request);
         Member updated = memberCommandService.markAsArtist(member);
         return new ArtistCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.ARTIST),

@@ -13,10 +13,11 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 public class ArtistCreateRequest {
-//    @NotBlank
-//    @ValidNickname
-//    @Schema(description = "닉네임 (2-12자의 한글, 영문, 숫자, _)", example = "블룸작가")
-//    private String nickname;
+    @NotBlank
+    @ValidNickname
+    @Schema(description = "닉네임 (2-12자의 한글, 영문, 숫자, _ 그리고 단어 사이 공백). 중복 불가.",
+            example = "블룸작가")
+    private String nickname;
 
     @Schema(description = "대표 이미지 CDN URL (presigned 업로드로 받은 fileUrl). 선택 항목이며, "
             + "보내지 않거나 null 이면 이미지 없이 생성됩니다.",

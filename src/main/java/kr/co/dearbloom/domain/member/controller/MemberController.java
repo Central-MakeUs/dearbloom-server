@@ -86,9 +86,9 @@ public class MemberController {
     @PostMapping("/customer")
     @Operation(summary = "고객 계정 생성 (온보딩)",
             description = """
-                    학교 / 지역을 받아 고객 프로필을 생성합니다. 학교는 한 곳만 선택(선택 항목), 지역도 한 곳 선택(선택 항목)입니다.<br>
-                    <b>이름은 요청으로 받지 않습니다.</b> 소셜 계정에서 받아둔 이름을 그대로 쓰며(12자 초과 시 앞 12자,
-                    이름이 없으면 <code>noname</code>, 외자면 뒤에 "아무개"), 사용자는 프로필 수정 API 로 변경할 수 있습니다.<br>
+                    이름 / 학교 / 지역을 받아 고객 프로필을 생성합니다. 학교는 한 곳만 선택(선택 항목), 지역도 한 곳 선택(선택 항목)입니다.<br>
+                    <b>이름</b>은 2-5자의 한글 또는 영문입니다 — 공백과 숫자는 받지 않습니다.
+                    실명이라 중복을 허용하며, 이후 프로필 수정 API 로 변경할 수 있습니다.<br>
                     회원가입 직후의 accessToken 으로는 아직 고객 API 를 호출할 수 없으므로, 이 API 는
                     <b>고객 API 호출이 가능한 새 accessToken</b> 을 응답 바디로 함께 반환합니다.<br>
                     <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b> 그래야 이후 고객 API 가 정상 동작합니다.<br>
@@ -108,11 +108,12 @@ public class MemberController {
     @PostMapping("/artist")
     @Operation(summary = "작가 계정 생성 (온보딩)",
             description = """
-                    활동 지역 / 대표 이미지를 받아 작가 프로필을 생성합니다.<br>
-                    활동 지역은 필수, <b>대표 이미지는 선택</b>입니다 — 보내지 않으면 이미지 없이 생성되며
+                    닉네임 / 활동 지역 / 대표 이미지를 받아 작가 프로필을 생성합니다.<br>
+                    닉네임과 활동 지역은 필수, <b>대표 이미지는 선택</b>입니다 — 보내지 않으면 이미지 없이 생성되며
                     이후 대표 이미지 수정 API 로 등록할 수 있습니다.<br>
-                    <b>닉네임은 요청으로 받지 않습니다.</b> 소셜 계정에서 받아둔 이름을 그대로 쓰며(12자 초과 시 앞 12자,
-                    이름이 없으면 <code>noname</code>, 외자면 뒤에 "아무개"), 사용자는 닉네임 수정 API 로 변경할 수 있습니다.<br>
+                    <b>닉네임</b>은 2-12자의 한글·영문·숫자·<code>_</code> 에 단어 사이 공백까지 허용합니다
+                    (앞뒤 공백과 연속 공백은 불가). <b>이미 쓰이는 닉네임이면 409</b> 를 반환하며,
+                    이후 닉네임 수정 API 로 변경할 수 있습니다.<br>
                     회원가입 직후의 accessToken 으로는 아직 작가 API 를 호출할 수 없으므로, 이 API 는
                     <b>작가 API 호출이 가능한 새 accessToken</b> 을 응답 바디로 함께 반환합니다.<br>
                     <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b> 그래야 이후 작가 API 가 정상 동작합니다.<br>
@@ -122,7 +123,8 @@ public class MemberController {
                     SEOUL, GYEONGGI_NORTH, GYEONGGI_SOUTH, INCHEON, BUSAN, DAEGU, GWANGJU, DAEJEON_SEJONG, ULSAN,
                     GANGWON, CHUNGBUK, CHUNGNAM, JEONBUK, JEONNAM, GYEONGBUK, GYEONGNAM, JEJU
                     """)
-    @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.INVALID_FILE_URL, ErrorCode.ARTIST_ALREADY_EXISTS})
+    @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.INVALID_FILE_URL,
+            ErrorCode.NICKNAME_ALREADY_EXISTS, ErrorCode.ARTIST_ALREADY_EXISTS})
     public ResponseEntity<ApiResponse<ArtistCreateResponse>> createArtist(
             @AuthenticationPrincipal Member member,
             @RequestBody @Valid ArtistCreateRequest request
