@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class CustomerProfileUpdateRequest {
     @NotBlank
     @ValidRealName
-    @Schema(description = "고객 실명 (2-12자의 한글 또는 영문). 중복 허용.", example = "김디어")
+    @Schema(description = "고객 실명 (2-5자의 한글 또는 영문, 공백·숫자 불가). 중복 허용.", example = "김디어")
     private String name;
 
     @Schema(description = "대학교 ID (선택). 대학생이 아니거나 미설정으로 비울 경우 null.", example = "12")

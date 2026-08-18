@@ -12,12 +12,19 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
-/** 작품 탐색 목록의 필터·정렬·커서 파라미터. 모든 필터는 선택이고, 안 보내면 그 조건은 적용하지 않는다. */
+/**
+ * 작품 탐색 목록의 필터·정렬·커서 파라미터. 모든 필터는 선택이고, 안 보내면 그 조건은 적용하지 않는다.
+ * <p>
+ * 페이지 크기는 {@link #PAGE_SIZE} 로 고정이다 — 요청으로 받지 않는다.
+ * 크기를 클라이언트가 정하면 파라미터 없는 첫 화면이 확정 쿼리가 아니게 되어 캐시 키가 성립하지 않는다
+ * ({@link #isFirstScreen()} 참고).
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 public class ArtworkQueryRequest {
-    private static final int DEFAULT_SIZE = 16;
+    /** 한 페이지 크기(고정). 화면이 2열 그리드라 16 = 8행이다. */
+    public static final int PAGE_SIZE = 16;
 
     @Schema(description = "촬영 희망 기간 시작일(yyyy-MM-dd). endDate 와 항상 함께 보냅니다. 하루만 고른 경우 endDate 를 같은 날로 보냅니다.",
             example = "2026-09-01")
@@ -46,21 +53,25 @@ public class ArtworkQueryRequest {
     @Schema(description = "커서. 첫 페이지는 비워서 보내고, 다음 페이지부터는 직전 응답의 nextCursor 를 그대로 보냅니다.")
     private String cursor;
 
-    @Schema(description = "페이지 크기(4~40). 기본값은 16 입니다.", defaultValue = "16")
-    @Min(4)
-    @Max(40)
-    private Integer size = DEFAULT_SIZE;
-
-    // sort= / size= 처럼 빈 값으로 오면 Spring 이 null 을 넣는다. 그 경우 기본값을 지키도록 세터에서 막는다.
+    // sort= 처럼 빈 값으로 오면 Spring 이 null 을 넣는다. 그 경우 기본값을 지키도록 세터에서 막는다.
     public void setSort(ArtworkSortOrder sort) {
         if (sort != null) {
             this.sort = sort;
         }
     }
 
-    public void setSize(Integer size) {
-        if (size != null) {
-            this.size = size;
-        }
+    /**
+     * 작품 탐색 첫 진입 화면인가 — 필터·커서가 하나도 없고 정렬이 기본(LATEST)인 요청.
+     * <p>
+     * 이 조건이면 쿼리가 딱 하나로 확정되므로(전체 작품 최신순 첫 {@value #PAGE_SIZE} 개)
+     * 모든 방문자가 같은 결과를 받는다 → 캐시 대상이다. 필터가 하나라도 붙으면 조합이 폭발해서 캐시하지 않는다.
+     */
+    public boolean isFirstScreen() {
+        return startDate == null
+                && endDate == null
+                && region == null
+                && headCount == null
+                && cursor == null
+                && sort == ArtworkSortOrder.LATEST;
     }
 }

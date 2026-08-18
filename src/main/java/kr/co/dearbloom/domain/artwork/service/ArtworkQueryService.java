@@ -135,7 +135,7 @@ public class ArtworkQueryService {
         return left.isBefore(right) ? left : right;
     }
 
-    // 특정 작가의 작품을 최신순으로 작가용 카드(저장 수/조회수 포함)로 조회.
+    // 특정 작가의 작품을 최신순으로 작가용 카드로 조회.
     public List<ArtistArtworkSummaryResponse> getArtistArtworkSummaries(Artist artist) {
         List<Artwork> artworks = artworkRepository.findByArtistWithArtistOrderByCreatedAtDesc(artist);
         if (artworks.isEmpty()) {
@@ -151,9 +151,7 @@ public class ArtworkQueryService {
                         artwork.getMaxHeadCount(),
                         artwork.getArtist().getNickname(),
                         Region.toSortedNames(artwork.getArtist().getRegions()),
-                        representativeImage.get(artwork.getArtworkId()),
-                        artwork.getSavedCount(),
-                        artwork.getViewCount()))
+                        representativeImage.get(artwork.getArtworkId())))
                 .toList();
     }
 
@@ -163,7 +161,7 @@ public class ArtworkQueryService {
      */
     public List<ArtworkThumbnailResponse> getOtherArtworkThumbnails(Artist artist, Long excludeArtworkId) {
         List<Artwork> others =
-                artworkRepository.findByArtistAndArtworkIdNotOrderBySavedCountDesc(artist, excludeArtworkId);
+                artworkQueryRepository.findOtherArtworksBySavedCountDesc(artist, excludeArtworkId);
         if (others.isEmpty()) {
             return List.of();
         }

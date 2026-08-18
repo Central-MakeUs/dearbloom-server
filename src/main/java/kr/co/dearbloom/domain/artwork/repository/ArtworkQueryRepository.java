@@ -1,12 +1,15 @@
 package kr.co.dearbloom.domain.artwork.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.EnumPath;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.entity.artist.QArtist;
 import kr.co.dearbloom.domain.artist.entity.artist.Region;
 import kr.co.dearbloom.domain.artist.entity.schedule.QArtistScheduleRule;
@@ -16,6 +19,7 @@ import kr.co.dearbloom.domain.artwork.dto.ArtworkFilterCondition;
 import kr.co.dearbloom.domain.artwork.dto.type.ArtworkSortOrder;
 import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.QArtwork;
+import kr.co.dearbloom.domain.customer.entity.QSavedArtwork;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -46,6 +50,32 @@ public class ArtworkQueryRepository {
                 .where(where)
                 .orderBy(orderSpecifiers(condition.sort()))
                 .limit(size + 1L) // hasNext 판단용 +1
+                .fetch();
+    }
+
+    /**
+     * 이 작가의 다른 작품(현재 작품 제외)을 <b>저장 많은 순</b>으로 조회. 작품 상세의 "이 작가의 다른 작품" 목록.
+     * <p>
+     * 저장 수를 작품 행에 들고 있지 않으므로 상관 서브쿼리로 그때그때 센다 — 비정규화 컬럼을 두면
+     * 저장/저장취소/작품삭제/회원탈퇴 네 경로에서 증감을 맞춰야 하고 한 곳만 놓쳐도 영구히 틀어진다.
+     * 한 작가의 작품 수는 많아야 수십 개고 작품 상세에서만 쓰이는 목록이라 세는 비용이 그 부담보다 싸다.
+     * <p>
+     * 저장 수가 같은 작품끼리 순서가 흔들리지 않도록 작품 ID 를 마지막 키로 덧붙인다 —
+     * 서비스 초기엔 저장이 0 인 작품이 대부분이라 이게 없으면 매 요청 순서가 달라진다.
+     */
+    public List<Artwork> findOtherArtworksBySavedCountDesc(Artist artist, Long excludeArtworkId) {
+        QArtwork artwork = QArtwork.artwork;
+        QSavedArtwork savedArtwork = QSavedArtwork.savedArtwork;
+
+        SubQueryExpression<Long> savedCount = JPAExpressions
+                .select(savedArtwork.count())
+                .from(savedArtwork)
+                .where(savedArtwork.artwork.eq(artwork));
+
+        return jpaQueryFactory
+                .selectFrom(artwork)
+                .where(artwork.artist.eq(artist), artwork.artworkId.ne(excludeArtworkId))
+                .orderBy(new OrderSpecifier<>(Order.DESC, savedCount), artwork.artworkId.desc())
                 .fetch();
     }
 

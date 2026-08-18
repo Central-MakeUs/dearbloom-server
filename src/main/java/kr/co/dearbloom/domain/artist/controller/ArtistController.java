@@ -3,7 +3,7 @@ package kr.co.dearbloom.domain.artist.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistEtcInfoUpdateRequest;
+import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistTravelFeeUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistIntroUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistNicknameUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistImageUpdateRequest;
@@ -122,19 +122,19 @@ public class ArtistController {
         ));
     }
 
-    @PatchMapping("/etc-info")
-    @Operation(summary = "작가 기타 안내 수정",
+    @PatchMapping("/travel-fee")
+    @Operation(summary = "작가 출장비 수정",
             description = """
-                    기타 안내(촬영 취소·환불 규정 등 자유 형식 텍스트)를 수정합니다. 빈 문자열을 보내면 비웁니다.
+                    출장비 안내(지역별 금액 등 자유 형식 텍스트)를 수정합니다. 빈 문자열을 보내면 비웁니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
-    public ResponseEntity<ApiResponse<ArtistResponse>> updateEtcInfo(
+    public ResponseEntity<ApiResponse<ArtistResponse>> updateTravelFee(
             @CurrentArtist Artist artist,
-            @RequestBody @Valid ArtistEtcInfoUpdateRequest request
+            @RequestBody @Valid ArtistTravelFeeUpdateRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(
-                artistFacade.updateEtcInfo(artist, request)
+                artistFacade.updateTravelFee(artist, request)
         ));
     }
 

@@ -12,9 +12,6 @@ import java.util.List;
 public interface ArtworkRepository extends JpaRepository<Artwork, Long> {
     List<Artwork> findByArtist(Artist artist);
 
-    // 이 작가의 다른 작품(현재 작품 제외)을 저장 수 많은 순으로 조회.
-    List<Artwork> findByArtistAndArtworkIdNotOrderBySavedCountDesc(Artist artist, Long artworkId);
-
     // 특정 작가의 작품을 최신순으로 조회(작가 fetch join).
     @Query("select a from Artwork a join fetch a.artist where a.artist = :artist"
             + " order by a.createdAt desc, a.artworkId desc")

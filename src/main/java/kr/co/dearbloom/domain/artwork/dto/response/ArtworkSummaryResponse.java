@@ -41,4 +41,14 @@ public record ArtworkSummaryResponse(
                 example = "false")
         Boolean isSaved
 ) {
+    /**
+     * 저장 여부만 채운 복사본.
+     * <p>
+     * 작품 탐색 첫 화면 캐시에는 isSaved 를 담지 않는다 — 사람마다 다른 값이라 담으면 남의 저장 상태가 나간다.
+     * 그래서 캐시에는 isSaved 가 null 인 카드를 넣어두고, 조회 시점에 그 사람 기준으로 이 메서드가 덧씌운다.
+     */
+    public ArtworkSummaryResponse withSaved(boolean saved) {
+        return new ArtworkSummaryResponse(artworkId, title, lowestPrice, minHeadCount, maxHeadCount,
+                artistNickname, artistRegionList, thumbnailUrl, photoList, saved);
+    }
 }

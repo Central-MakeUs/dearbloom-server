@@ -10,7 +10,7 @@ import kr.co.dearbloom.domain.university.entity.University;
 import java.util.List;
 import java.util.Objects;
 
-/** 공개/고객용 작품 상세. 작가 본인용 지표(저장 수/조회수)는 별도 응답(ArtistArtworkDetailResponse). */
+/** 공개/고객용 작품 상세. 작가 본인용은 별도 응답(ArtistArtworkDetailResponse). */
 public record ArtworkDetailResponse(
         @Schema(description = "작품 ID", example = "1")
         Long artworkId,

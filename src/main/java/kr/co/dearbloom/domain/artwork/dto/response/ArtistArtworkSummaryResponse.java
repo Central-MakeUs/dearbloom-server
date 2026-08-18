@@ -4,7 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-/** 작가 본인 작품 리스트 항목(카드). 기본 카드 + 저장 수/조회수(작가 전용 지표). */
+/**
+ * 작가 본인 작품 리스트 항목(카드).
+ * 공개 카드({@link ArtworkSummaryResponse})와 달리 사진 전체 목록·저장 여부가 없다 — 둘 다 고객 화면 전용이다.
+ */
 public record ArtistArtworkSummaryResponse(
         @Schema(description = "작품 ID", example = "1")
         Long artworkId,
@@ -29,12 +32,6 @@ public record ArtistArtworkSummaryResponse(
 
         @Schema(description = "대표 이미지 CDN URL(sortOrder 가 가장 앞선 사진). 사진이 없으면 null.",
                 example = "https://dev-cdn.dearbloom.co.kr/artwork/uuid.webp")
-        String thumbnailUrl,
-
-        @Schema(description = "저장 수", example = "12")
-        Integer savedCount,
-
-        @Schema(description = "조회수 (집계는 추후 추가 예정)", example = "0")
-        Integer viewCount
+        String thumbnailUrl
 ) {
 }

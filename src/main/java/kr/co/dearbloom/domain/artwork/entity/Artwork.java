@@ -41,12 +41,6 @@ public class Artwork extends BaseTime {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // 고객이 이 작품을 저장한 수
-    @Builder.Default
-    @Column(nullable = false)
-    private Integer savedCount = 0;
-
-    // 작품 조회수
     @Builder.Default
     @Column(nullable = false)
     private Integer viewCount = 0;
@@ -67,20 +61,6 @@ public class Artwork extends BaseTime {
     public void updateDescription(String description) {
         if (description != null) {
             this.description = description;
-        }
-    }
-
-    public void increaseSavedCount() {
-        this.savedCount++;
-    }
-
-    public void increaseViewCount() {
-        this.viewCount++;
-    }
-
-    public void decreaseSavedCount() {
-        if (this.savedCount > 0) {
-            this.savedCount--;
         }
     }
 }

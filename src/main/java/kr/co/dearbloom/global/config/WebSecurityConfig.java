@@ -2,6 +2,7 @@ package kr.co.dearbloom.global.config;
 
 import kr.co.dearbloom.domain.auth.service.AuthService;
 import kr.co.dearbloom.domain.auth.service.OAuthOneTimeCodeService;
+import kr.co.dearbloom.global.auth.jwt.PublicPaths;
 import kr.co.dearbloom.global.auth.jwt.TokenAuthenticationFilter;
 import kr.co.dearbloom.global.auth.jwt.TokenProvider;
 import kr.co.dearbloom.global.auth.oauth.OAuth2AuthorizationRequestBasedOnCookieRepository;
@@ -12,6 +13,7 @@ import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -45,8 +47,14 @@ public class WebSecurityConfig {
                         // SSE(SseEmitter) 등 async 응답의 ASYNC 재디스패치는 인증 재검증에서 제외.
                         // 최초 REQUEST에서 이미 인증 완료 → ASYNC는 응답 생성 단계라 재검증 불필요.
                         .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
-//                        .requestMatchers(PublicPaths.antPatterns()).permitAll()
-//                        .requestMatchers("/api/**").authenticated()
+                        // CORS preflight 는 Authorization 헤더 없이 온다. CORS 설정이 MVC 레이어(CorsConfig)라
+                        // 시큐리티 체인 뒤에서 동작하므로, 여기서 열어주지 않으면 preflight 가 401 로 막힌다.
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(PublicPaths.permitAllPatterns()).permitAll()
+                        // 조회만 공개. 같은 prefix 의 쓰기(작품 등록·삭제, 보드 입장)는 아래 authenticated 로 떨어진다.
+                        .requestMatchers(HttpMethod.GET, PublicPaths.publicGetPatterns()).permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                        // /ws(웹소켓), /oauth2/**(소셜 로그인 리다이렉트) 등 API 밖 경로는 그대로 통과시킨다.
                         .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2

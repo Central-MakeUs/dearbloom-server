@@ -63,8 +63,8 @@ public class ArtistCommandService {
         return managed;
     }
 
-    public Artist updateEtcInfo(Artist artist, String etcInfo) {
-        artist.updateEtcInfo(etcInfo);
+    public Artist updateTravelFee(Artist artist, String travelFee) {
+        artist.updateTravelFee(travelFee);
         return artistRepository.save(artist);
     }
 
