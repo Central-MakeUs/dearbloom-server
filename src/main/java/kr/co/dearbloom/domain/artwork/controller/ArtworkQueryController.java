@@ -74,7 +74,7 @@ public class ArtworkQueryController {
             description = """
                     작품 상세를 조회합니다. 로그인하지 않아도 조회할 수 있습니다.<br>
                     <b>고객 토큰</b>으로 조회하면 저장 여부(isSaved)가 채워지고, 비로그인은 null 입니다.<br>
-                    작가 본인용 상세(저장 수/조회수 포함)는 <b>GET /api/artists/me/artworks/{artworkId}</b> 를 사용하세요.
+                    작가 본인용 상세는 <b>GET /api/artists/me/artworks/{artworkId}</b> 를 사용하세요.
                     """)
     @ApiErrorCodes({ErrorCode.ARTWORK_NOT_FOUND})
     public ResponseEntity<ApiResponse<ArtworkDetailResponse>> getDetail(

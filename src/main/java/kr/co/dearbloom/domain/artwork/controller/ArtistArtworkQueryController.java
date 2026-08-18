@@ -31,7 +31,7 @@ public class ArtistArtworkQueryController {
     @Operation(summary = "작가 본인 작품 리스트 조회 (최신순)",
             description = """
                     현재 로그인한 작가가 등록한 작품 전체를 최신 등록순으로 조회합니다.<br>
-                    각 항목은 작품 ID / 제목 / 가격 / 촬영 가능 인원 / 작가 닉네임 / 작가 활동지역 / 대표 이미지 / 저장 수 / 조회수입니다.
+                    각 항목은 작품 ID / 제목 / 가격 / 촬영 가능 인원 / 작가 닉네임 / 작가 활동지역 / 대표 이미지입니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN,
             ErrorCode.ROLE_ACCESS_DENIED, ErrorCode.ARTIST_NOT_FOUND})
@@ -46,8 +46,7 @@ public class ArtistArtworkQueryController {
     @GetMapping("/{artworkId}")
     @Operation(summary = "작가 본인 작품 상세 조회",
             description = """
-                    작가 본인 작품의 상세를 조회합니다. 공개 상세 정보(촬영 가능 인원 포함)에 더해
-                    <b>저장 수(savedCount) / 조회수(viewCount)</b> 가 포함됩니다.<br>
+                    작가 본인 작품의 상세를 조회합니다.<br>
                     본인 작품만 조회할 수 있습니다.
                     """)
     @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.ROLE_ACCESS_DENIED,

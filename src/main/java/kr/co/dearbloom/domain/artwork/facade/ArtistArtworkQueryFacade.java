@@ -20,13 +20,13 @@ import java.util.List;
 public class ArtistArtworkQueryFacade {
     private final ArtworkQueryService artworkQueryService;
 
-    /** 작가 본인의 작품 리스트(최신순). 저장 수/조회수 포함. */
+    /** 작가 본인의 작품 리스트(최신순). */
     @Transactional(readOnly = true)
     public List<ArtistArtworkSummaryResponse> getArtistArtworkList(Artist artist) {
         return artworkQueryService.getArtistArtworkSummaries(artist);
     }
 
-    /** 작가 본인용 작품 상세 조회. 소유권을 검증하고 저장 수/조회수를 포함한다. */
+    /** 작가 본인용 작품 상세 조회. 소유권을 검증한다. */
     @Transactional(readOnly = true)
     public ArtistArtworkDetailResponse getArtistArtworkDetail(Artist artist, Long artworkId) {
         Artwork artwork = artworkQueryService.getOwnedBy(artworkId, artist);

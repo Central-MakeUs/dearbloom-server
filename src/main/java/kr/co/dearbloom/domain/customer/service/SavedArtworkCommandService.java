@@ -19,7 +19,6 @@ public class SavedArtworkCommandService {
     private final SavedArtworkRepository savedArtworkRepository;
 
     // 작품 하나 저장. 이미 저장했으면 409.
-    // TODO: MQ 도입 시 저장 이벤트를 발행해 artwork.savedCount 를 비동기 갱신.
     public void save(Customer customer, Artwork artwork) {
         if (savedArtworkRepository.existsByCustomerAndArtwork(customer, artwork)) {
             throw new CustomException(ErrorCode.ARTWORK_ALREADY_SAVED);
