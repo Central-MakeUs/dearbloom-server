@@ -48,10 +48,7 @@ public class SwaggerConfig {
 
         Info info = new Info()
                 .title("DearBloom " + serverEnvName + " 서버 API 명세서")
-                .description("DearBloom " + serverEnvName + " 서버 API 명세서입니다."
-                        + "<br><br>⚠️ <b>개발 편의성: 인가(접근 제어)가 열려 있습니다.</b> "
-                        + "<br>인증 필터는 동작합니다 — 토큰이 있으면 검증해 사용자 정보를 채우고, 없어도 통과합니다. "
-                        + "<br>개발이 어느 정도 진행되면 인가(authenticated)를 활성화할 예정입니다.");
+                .description("DearBloom " + serverEnvName + " 서버 API 명세서입니다.");
 
         Components components = new Components()
                 .addSecuritySchemes("Bearer Token", apiKey);
