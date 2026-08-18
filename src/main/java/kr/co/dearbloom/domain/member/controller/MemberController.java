@@ -4,8 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistCreateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistCreateResponse;
+import kr.co.dearbloom.domain.artist.dto.artist.response.NicknameAvailabilityResponse;
+import kr.co.dearbloom.domain.artist.facade.ArtistFacade;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshRequest;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.customer.dto.request.CustomerCreateRequest;
@@ -18,6 +21,7 @@ import kr.co.dearbloom.domain.member.facade.MemberFacade;
 import kr.co.dearbloom.global.dto.response.ApiResponse;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import kr.co.dearbloom.global.swagger.ApiErrorCodes;
+import kr.co.dearbloom.global.validation.validatator.ValidNickname;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -36,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Member", description = "회원 관리 API")
 public class MemberController {
     private final MemberFacade memberFacade;
+    private final ArtistFacade artistFacade;
 
     @GetMapping("/me")
     @Operation(summary = "내 계정 정보 조회", description = "최근 접속 Role과 Customer/Artist 각각의 생성 여부를 함께 반환합니다. <br> "
@@ -102,6 +108,29 @@ public class MemberController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
                 memberFacade.createCustomer(member, request)
+        ));
+    }
+
+    @GetMapping("/artist/nickname/availability")
+    @Operation(summary = "작가 닉네임 중복 검사 (온보딩·닉네임 수정)",
+            description = """
+                    이 닉네임을 쓸 수 있는지 확인합니다. 작가 온보딩과 닉네임 수정 화면에서 입력 중에 호출하세요.<br>
+                    <br>
+                    <b>available=true</b> 면 등록/수정에 쓸 수 있고, <b>false</b> 면 이미 다른 작가가 쓰고 있습니다.<br>
+                    <b>이미 본인이 쓰고 있는 닉네임은 true</b> 입니다 — 수정 화면에서 닉네임을 바꾸지 않고 저장하는 경우가
+                    "중복" 으로 보이면 안 되기 때문입니다. 실제 등록/수정 API 의 판정과 같은 규칙입니다.<br>
+                    <br>
+                    형식(2-12자의 한글·영문·숫자·<code>_</code> 와 단어 사이 공백)에 맞지 않으면 <b>400</b> 을 돌려줍니다.<br>
+                    <b>이 API 결과만 믿고 제출하면 안 됩니다.</b> 검사와 제출 사이에 다른 작가가 같은 닉네임을 선점할 수 있어
+                    작가 계정 생성/닉네임 수정이 여전히 409 를 낼 수 있습니다.
+                    """)
+    @ApiErrorCodes({ErrorCode.INVALID_TOKEN, ErrorCode.EXPIRED_TOKEN, ErrorCode.PARAMETER_BAD_REQUEST})
+    public ResponseEntity<ApiResponse<NicknameAvailabilityResponse>> checkArtistNickname(
+            @AuthenticationPrincipal Member member,
+            @RequestParam @NotBlank @ValidNickname String nickname
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                artistFacade.checkNicknameAvailability(member, nickname)
         ));
     }
 

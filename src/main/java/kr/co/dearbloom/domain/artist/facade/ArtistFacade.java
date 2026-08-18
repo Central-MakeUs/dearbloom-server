@@ -5,9 +5,11 @@ import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistIntroUpdateRequest
 import kr.co.dearbloom.domain.artist.dto.artist.request.ArtistRegionUpdateRequest;
 import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistDetailResponse;
 import kr.co.dearbloom.domain.artist.dto.artist.response.ArtistResponse;
+import kr.co.dearbloom.domain.artist.dto.artist.response.NicknameAvailabilityResponse;
 import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.service.artist.ArtistCommandService;
 import kr.co.dearbloom.domain.artist.service.artist.ArtistQueryService;
+import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.artwork.event.ArtworkExploreChangedEvent;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
@@ -32,6 +34,17 @@ public class ArtistFacade {
     private final ArtistQueryService artistQueryService;
     private final FileUrlValidator fileUrlValidator;
     private final ApplicationEventPublisher eventPublisher;
+
+    @Transactional(readOnly = true)
+    public NicknameAvailabilityResponse checkNicknameAvailability(Member member, String nickname) {
+        if (!artistQueryService.existsByNickname(nickname)) {
+            return new NicknameAvailabilityResponse(true);
+        }
+        boolean isMine = artistQueryService.findByMember(member)
+                .map(artist -> nickname.equals(artist.getNickname()))
+                .orElse(false);
+        return new NicknameAvailabilityResponse(isMine);
+    }
 
     // regions 를 함께 조회하므로 매핑 시점에 이미 초기화되어 있다.
     public ArtistDetailResponse getMyInfo(Artist artist) {
