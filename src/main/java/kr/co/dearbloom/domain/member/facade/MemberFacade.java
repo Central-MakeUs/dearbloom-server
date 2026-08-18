@@ -7,6 +7,7 @@ import kr.co.dearbloom.domain.artist.entity.artist.Artist;
 import kr.co.dearbloom.domain.artist.service.artist.ArtistCommandService;
 import kr.co.dearbloom.domain.artist.service.artist.ArtistQueryService;
 import kr.co.dearbloom.domain.artist.service.schedule.ScheduleCommandService;
+import kr.co.dearbloom.domain.artwork.event.ArtworkExploreChangedEvent;
 import kr.co.dearbloom.domain.artwork.service.ArtworkWithdrawalService;
 import kr.co.dearbloom.domain.auth.dto.TokenRefreshResponse;
 import kr.co.dearbloom.domain.auth.service.OAuthAccountService;
@@ -37,6 +38,7 @@ import kr.co.dearbloom.global.file.FileCleaner;
 import kr.co.dearbloom.global.file.FileUrlValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +66,7 @@ public class MemberFacade {
     private final TokenService tokenService;
     private final TokenProvider tokenProvider;
     private final FileUrlValidator fileUrlValidator;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 고객 ↔ 작가 모드 전환. 대상 role 의 프로필 보유 여부를 서버가 재검증한 뒤
@@ -231,5 +234,7 @@ public class MemberFacade {
         scheduleCommandService.deleteByArtist(artist);
         chatWithdrawalService.deleteUploadedImages(artist);
         fileCleaner.deleteQuietly(artist.getImageUrl());
+        // 이 작가의 작품이 통째로 빠지므로 작품 탐색 첫 화면 캐시를 버린다(커밋 후에 지워진다).
+        eventPublisher.publishEvent(new ArtworkExploreChangedEvent());
     }
 }
