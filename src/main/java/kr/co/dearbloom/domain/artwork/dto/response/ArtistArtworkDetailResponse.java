@@ -8,7 +8,10 @@ import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 
 import java.util.List;
 
-/** 작가 본인용 작품 상세. 공개 상세 기본 정보 + 저장 수/조회수(작가 전용 지표). */
+/**
+ * 작가 본인용 작품 상세.
+ * 공개 상세({@link ArtworkDetailResponse})와 달리 저장 여부·작가 이메일이 없다 — 본인에게는 의미가 없는 값이다.
+ */
 public record ArtistArtworkDetailResponse(
         @Schema(description = "작품 ID", example = "1")
         Long artworkId,
@@ -38,13 +41,7 @@ public record ArtistArtworkDetailResponse(
         ArtworkArtistResponse artist,
 
         @Schema(description = "이 작가의 다른 작품 목록(현재 작품 제외, 저장 많은 순).")
-        List<ArtworkThumbnailResponse> otherArtworkList,
-
-        @Schema(description = "저장 수", example = "12")
-        Integer savedCount,
-
-        @Schema(description = "조회수 (집계는 추후 추가 예정)", example = "0")
-        Integer viewCount
+        List<ArtworkThumbnailResponse> otherArtworkList
 ) {
     public static ArtistArtworkDetailResponse of(Artwork artwork, Artist artist, List<PortfolioFile> files,
                                                  List<ArtworkPackage> packages,
@@ -59,9 +56,7 @@ public record ArtistArtworkDetailResponse(
                 ArtworkDetailResponse.schoolNames(files),
                 packages.stream().map(ArtworkPackageResponse::from).toList(),
                 ArtworkArtistResponse.from(artist),
-                otherArtworkList,
-                artwork.getSavedCount(),
-                artwork.getViewCount()
+                otherArtworkList
         );
     }
 }
