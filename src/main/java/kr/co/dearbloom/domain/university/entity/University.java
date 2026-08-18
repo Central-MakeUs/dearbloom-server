@@ -34,4 +34,8 @@ public class University {
     private String website;
 
     private String phone;
+
+    private Double lat;
+
+    private Double lng;
 }
