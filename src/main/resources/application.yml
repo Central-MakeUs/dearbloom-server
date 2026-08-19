@@ -96,6 +96,10 @@ jwt:
   access_token_expiry: ${ACCESS_TOKEN_EXPIRY:3600}s # 1시간
   refresh_token_expiry: ${REFRESH_TOKEN_EXPIRY:604800}s # 7일
 
+dev:
+  sample:
+    access-password: ${DEV_SAMPLE_ACCESS_PASSWORD:}
+
 push:
   fcm:
     enabled: ${PUSH_FCM_ENABLED:false}          # 로컬 기본값 false — 켜지 않으면 발송 없이 로그만 남는다
