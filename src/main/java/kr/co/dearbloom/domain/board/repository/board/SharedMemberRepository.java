@@ -39,6 +39,18 @@ public interface SharedMemberRepository extends JpaRepository<SharedMember, Long
     Optional<SharedMember> findFirstBySharedBoardAndCustomerNotOrderByCreatedAtAscSharedMemberIdAsc(
             SharedBoard sharedBoard, Customer customer);
 
+    /**
+     * 이 고객을 뺀 참여자들의 memberId. 댓글 알림 수신자 목록이다.
+     * <p>
+     * 엔티티가 아니라 id 만 뽑는다 — 푸시는 memberId 만 있으면 되고, SharedMember → Customer → Member 를
+     * 타고 들어가면 참여자 수만큼 조회가 늘어난다(N+1).
+     */
+    @Query("select sm.customer.member.memberId from SharedMember sm"
+            + " where sm.sharedBoard.sharedBoardId = :sharedBoardId"
+            + " and sm.customer.customerId <> :excludeCustomerId")
+    List<Long> findMemberIdsBySharedBoardIdExcludingCustomer(@Param("sharedBoardId") Long sharedBoardId,
+                                                             @Param("excludeCustomerId") Long excludeCustomerId);
+
     // 보드 삭제 시 참여자 행을 함께 정리(FK 제약 위반 방지).
     void deleteBySharedBoard(SharedBoard sharedBoard);
 }

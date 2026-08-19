@@ -39,6 +39,12 @@ public class SharedMemberQueryService {
                 && sharedMemberRepository.existsBySharedBoardAndCustomer_CustomerId(sharedBoard, customerId);
     }
 
+    /** 작성자를 뺀 참여자들의 memberId. 보드 알림을 "나 말고 나머지" 에게 보낼 때 쓴다. */
+    public List<Long> getOtherMemberIds(Long sharedBoardId, Long excludeCustomerId) {
+        return sharedMemberRepository
+                .findMemberIdsBySharedBoardIdExcludingCustomer(sharedBoardId, excludeCustomerId);
+    }
+
     // 이 고객의 참여자 행. 참여 중이 아니면 403(보드 내부 정보 접근·탈퇴 전 검증용).
     public SharedMember getJoinedMember(SharedBoard sharedBoard, Customer customer) {
         return sharedMemberRepository.findBySharedBoardAndCustomer(sharedBoard, customer)
