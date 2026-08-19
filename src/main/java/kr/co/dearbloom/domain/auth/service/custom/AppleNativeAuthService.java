@@ -1,6 +1,7 @@
 package kr.co.dearbloom.domain.auth.service.custom;
 
 import kr.co.dearbloom.domain.auth.dto.SocialUserInfo;
+import kr.co.dearbloom.domain.auth.util.ApplePrivateRelayEmail;
 import kr.co.dearbloom.global.dto.response.exception.CustomException;
 import kr.co.dearbloom.global.dto.response.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -56,9 +57,11 @@ public class AppleNativeAuthService {
             String sub = jwt.getSubject();
             if (sub == null) throw new CustomException(ErrorCode.INVALID_OAUTH_TOKEN);
 
-            // Apple 은 이메일 공유에 동의한 첫 로그인에만 email 을 넣어준다. 이후 로그인은 sub 로 계정 식별.
+            // Apple 은 이메일 공유에 동의했을 때만 email 을 넣어준다("이메일 가리기" 여도 중계 주소는 준다).
+            // 클레임이 아예 없으면 OAuthAccount.email 이 NOT NULL 이라 대체 주소를 채운다 —
+            // 그 주소는 실재하지 않으므로 메일 발송 전에 걸러야 한다(ApplePrivateRelayEmail 참고).
             String email = jwt.getClaimAsString("email");
-            String resolvedEmail = (email != null) ? email : sub + "@privaterelay.appleid.com";
+            String resolvedEmail = (email != null) ? email : ApplePrivateRelayEmail.placeholderFor(sub);
 
             return new SocialUserInfo(sub, resolvedEmail, resolvedEmail);
         } catch (JwtException e) {

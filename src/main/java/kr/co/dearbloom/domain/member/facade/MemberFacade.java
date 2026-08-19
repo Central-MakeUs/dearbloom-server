@@ -25,6 +25,7 @@ import kr.co.dearbloom.domain.inquiry.service.InquiryWithdrawalService;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
+import kr.co.dearbloom.domain.member.event.MemberSignedUpEvent;
 import kr.co.dearbloom.domain.member.service.MemberCommandService;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
 import kr.co.dearbloom.domain.notification.service.DeviceTokenCommandService;
@@ -93,6 +94,8 @@ public class MemberFacade {
         Member updated = memberCommandService.markAsCustomer(member);
         Customer customer = customerCommandService.create(
                 updated, request.getName(), university, request.getRegion());
+        eventPublisher.publishEvent(
+                new MemberSignedUpEvent(updated.getMemberId(), MemberRole.CUSTOMER, customer.getName()));
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
                 CustomerResponse.from(customer)
@@ -118,6 +121,8 @@ public class MemberFacade {
         // 해지 후 재온보딩이면 익명화된 행을 되살린다. markAsArtist 로 활성/비활성을 판별하므로 create 를 먼저 호출.
         Artist artist = artistCommandService.create(member, request.getNickname(), request);
         Member updated = memberCommandService.markAsArtist(member);
+        eventPublisher.publishEvent(
+                new MemberSignedUpEvent(updated.getMemberId(), MemberRole.ARTIST, artist.getNickname()));
         return new ArtistCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.ARTIST),
                 ArtistResponse.from(artist)
