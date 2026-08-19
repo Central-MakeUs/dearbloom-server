@@ -7,13 +7,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * 가입 안내 메일의 제목·본문 생성.
+ * 가입 안내 메일의 제목·본문 생성. HTML 과 텍스트 대체본을 함께 만든다.
  *
- * <p>지금은 텍스트만 만든다. HTML 디자인이 나오면 {@code html} 을 채워 {@link MailMessage} 로 함께 넘기면 되고,
- * 발송 경로는 그대로 둬도 된다.
+ * <p>HTML 이 메일 치고 낡아 보이는 이유가 있다 — 메일 클라이언트는 브라우저가 아니다.
+ * Outlook 데스크톱은 Word 렌더링 엔진이라 flex·grid 를 모르고, Gmail 은 {@code <style>} 태그와
+ * {@code <svg>} 를 지운다. 그래서 <b>표 레이아웃 + 인라인 스타일 + 이미지</b> 로만 짠다.
+ * 폰트도 마찬가지라 Pretendard 는 로드되지 않는 곳이 많고, 폴백 스택이 실제로 쓰인다.
+ *
+ * <p>버튼과 로고는 CDN 이미지다. 메일 클라이언트는 이미지를 기본 차단하는 경우가 많아
+ * <b>{@code alt} 가 실제로 화면에 보인다</b> — 버튼은 {@code <a>} 로 감싸 이미지가 막혀도 링크가 살아 있게 했다.
  */
 @Component
 public class SignUpMailFactory {
+    /** 메일용 브랜드 이미지. 환경과 무관한 고정 자산이라 운영 CDN 을 그대로 쓴다. */
+    private static final String LOGO_URL = "https://cdn.dearbloom.co.kr/mail/dearbloom_email_logo.png";
+    private static final String BUTTON_URL = "https://cdn.dearbloom.co.kr/mail/dearbloom_email_connect.png";
+
     private final MailProperties properties;
     private final String serviceUrl;
 
@@ -25,7 +34,17 @@ public class SignUpMailFactory {
 
     public MailMessage signUp(String profileName, MemberRole role, OAuthProvider provider) {
         String subject = "%s님, 디어블룸 가입을 환영합니다.".formatted(profileName);
-        String text = """
+        return new MailMessage(
+                subject,
+                text(profileName, role, provider),
+                html(profileName, role, provider));
+    }
+
+    /**
+     * HTML 을 못 읽는 클라이언트용 대체본. 없으면 그런 클라이언트에서 빈 화면이 되고 스팸 점수도 올라간다.
+     */
+    private String text(String profileName, MemberRole role, OAuthProvider provider) {
+        return """
                 %s님, 디어블룸 가입을 환영합니다.
 
                 디어블룸 가입이 완료되었습니다.
@@ -43,11 +62,23 @@ public class SignUpMailFactory {
                 """.formatted(
                 profileName, profileName, roleLabel(role), providerLabel(provider),
                 serviceUrl, properties.supportAddress());
-
-        return MailMessage.textOnly(subject, text);
     }
 
-    /** 화면에서 고객은 "모델" 로 부른다 — 내부 role 이름을 그대로 노출하지 않는다. */
+    /**
+     * 치환은 {@code String.formatted} 가 아니라 이름표({@code {{...}}})로 한다 —
+     * 템플릿에 {@code width="100%"} 처럼 {@code %} 가 들어 있어 포맷 문자열로 다루면 escape 를 놓치기 쉽다.
+     */
+    private String html(String profileName, MemberRole role, OAuthProvider provider) {
+        return SIGN_UP_HTML
+                .replace("{{logoUrl}}", LOGO_URL)
+                .replace("{{buttonUrl}}", BUTTON_URL)
+                .replace("{{serviceUrl}}", serviceUrl)
+                .replace("{{supportAddress}}", properties.supportAddress())
+                .replace("{{profileName}}", escapeHtml(profileName))
+                .replace("{{roleLabel}}", roleLabel(role))
+                .replace("{{providerLabel}}", providerLabel(provider));
+    }
+
     private String roleLabel(MemberRole role) {
         return switch (role) {
             case CUSTOMER -> "모델";
@@ -61,4 +92,128 @@ public class SignUpMailFactory {
             case APPLE -> "Apple 계정";
         };
     }
+
+    /**
+     * 이름은 사용자가 정한 값이라 그대로 넣으면 마크업이 깨질 수 있다.
+     * 지금은 입력 검증이 한글·영문·숫자만 허용해 이런 문자가 들어올 수 없지만,
+     * 검증이 느슨해지는 순간 메일이 조용히 망가지므로 여기서 한 번 더 막는다.
+     */
+    private String escapeHtml(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
+    }
+
+    private static final String SIGN_UP_HTML = """
+            <!DOCTYPE html>
+            <html lang="ko">
+            <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>DearBloom 가입 안내</title>
+            <style>
+              @font-face {
+                font-family: 'Pretendard';
+                font-weight: 500;
+                font-style: normal;
+                src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2/Pretendard-Medium.woff2') format('woff2');
+              }
+              @font-face {
+                font-family: 'Pretendard';
+                font-weight: 700;
+                font-style: normal;
+                src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2/Pretendard-Bold.woff2') format('woff2');
+              }
+              body { margin: 0; padding: 0; background-color: #FFFFFF; }
+              table { border-collapse: collapse; }
+              img { -ms-interpolation-mode: bicubic; }
+            </style>
+            </head>
+            <body style="margin:0; padding:0; background-color:#FFFFFF;">
+            <div style="background-color:#FFFFFF; width:100%; margin:0; padding:0;">
+            <table role="presentation" width="498" cellpadding="0" cellspacing="0" border="0" align="center"
+                   style="width:498px; max-width:498px; background-color:#FFFFFF; margin:0 auto;
+                          font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;">
+              <tr>
+                <td style="padding:40px 28px 0 28px;">
+                  <img src="{{logoUrl}}" width="116" alt="DearBloom"
+                       style="display:block; width:116px; height:auto; border:0; outline:none; text-decoration:none;">
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:24px 28px 0 28px;">
+                  <div style="font-weight:700; font-size:20px; line-height:28px; letter-spacing:-0.005em;">
+                    <span style="color:#296A48;">{{profileName}}</span><span style="color:#2A2A2A;">님, 디어블룸 가입을</span><br>
+                    <span style="color:#2A2A2A;">환영합니다.</span>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:12px 28px 0 28px;">
+                  <div style="font-weight:500; font-size:14px; line-height:21px; letter-spacing:0; color:#5C5C5C;">
+                    디어블룸 가입이 완료되었습니다.<br>
+                    아래 정보로 계정이 생성되었어요.
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:24px 28px 0 28px;">
+                  <table role="presentation" width="443" cellpadding="0" cellspacing="0" border="0"
+                         style="width:443px; background-color:#EEF3F0; border-radius:8px;">
+                    <tr>
+                      <td style="padding:20px 24px;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td width="80" valign="top" style="padding-bottom:16px; font-weight:500; font-size:12px; line-height:12.6px; letter-spacing:0; color:#4F7F63;">프로필명</td>
+                            <td valign="top" style="padding-bottom:16px; font-weight:500; font-size:12px; line-height:12.6px; letter-spacing:0; color:#1F1F1F;">{{profileName}}</td>
+                          </tr>
+                          <tr>
+                            <td width="80" valign="top" style="padding-bottom:16px; font-weight:500; font-size:12px; line-height:12.6px; letter-spacing:0; color:#4F7F63;">가입 유형</td>
+                            <td valign="top" style="padding-bottom:16px; font-weight:500; font-size:12px; line-height:12.6px; letter-spacing:0; color:#1F1F1F;">{{roleLabel}}</td>
+                          </tr>
+                          <tr>
+                            <td width="80" valign="top" style="font-weight:500; font-size:12px; line-height:12.6px; letter-spacing:0; color:#4F7F63;">로그인 방식</td>
+                            <td valign="top" style="font-weight:500; font-size:12px; line-height:12.6px; letter-spacing:0; color:#1F1F1F;">{{providerLabel}}</td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+
+              <tr>
+                <td align="center" style="padding:40px 28px 0 28px;">
+                  <a href="{{serviceUrl}}" target="_blank" style="display:inline-block; text-decoration:none;">
+                    <img src="{{buttonUrl}}" width="118" alt="디어블룸 바로가기"
+                         style="display:block; width:118px; height:auto; border:0; outline:none; text-decoration:none; color:#296A48; font-size:14px; font-weight:700;">
+                  </a>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:48px 28px 0 28px;">
+                  <table role="presentation" width="443" cellpadding="0" cellspacing="0" border="0" style="width:443px;">
+                    <tr><td style="border-top:1px solid #EAEAEA; font-size:0; line-height:0;">&nbsp;</td></tr>
+                  </table>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding:24px 28px 40px 28px;">
+                  <div style="width:443px; font-weight:500; font-size:12px; line-height:18px; letter-spacing:0; color:#767676;">
+                    본 메일은 DearBloom 회원가입 안내 메일로, 발신 전용입니다.<br>
+                    문의사항은 {{supportAddress}}으로 연락해 주세요.
+                  </div>
+                </td>
+              </tr>
+            </table>
+            </div>
+            </body>
+            </html>
+            """;
 }

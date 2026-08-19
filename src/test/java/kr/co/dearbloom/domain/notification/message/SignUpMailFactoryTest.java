@@ -49,8 +49,49 @@ class SignUpMailFactoryTest {
     }
 
     @Test
-    @DisplayName("디자인 적용 전이라 HTML 은 없다 — 텍스트로만 나간다")
-    void textOnlyForNow() {
-        assertThat(factory.signUp("김졸업", MemberRole.CUSTOMER, OAuthProvider.GOOGLE).hasHtml()).isFalse();
+    @DisplayName("HTML 과 텍스트 대체본이 함께 만들어진다 — HTML 만 보내면 못 읽는 클라이언트가 빈 화면이 된다")
+    void buildsBothHtmlAndText() {
+        MailMessage mail = factory.signUp("김졸업", MemberRole.CUSTOMER, OAuthProvider.GOOGLE);
+
+        assertThat(mail.hasHtml()).isTrue();
+        assertThat(mail.text()).isNotBlank();
+    }
+
+    @Test
+    @DisplayName("HTML 에 치환되지 않은 자리표시자가 남지 않는다")
+    void leavesNoUnreplacedPlaceholder() {
+        String html = factory.signUp("김졸업", MemberRole.ARTIST, OAuthProvider.APPLE).html();
+
+        assertThat(html).doesNotContain("{{");
+    }
+
+    @Test
+    @DisplayName("HTML 에도 프로필명·가입 유형·로그인 방식이 들어간다")
+    void htmlCarriesTheThreeFields() {
+        String html = factory.signUp("블룸작가", MemberRole.ARTIST, OAuthProvider.APPLE).html();
+
+        assertThat(html)
+                .contains("블룸작가")
+                .contains("작가")
+                .contains("Apple 계정")
+                .contains("https://dearbloom.co.kr")
+                .contains("dearbloom.dev@gmail.com");
+    }
+
+    @Test
+    @DisplayName("이름의 특수문자는 이스케이프된다 — 마크업이 깨지거나 태그가 주입되면 안 된다")
+    void escapesProfileName() {
+        String html = factory.signUp("<b>김</b>", MemberRole.CUSTOMER, OAuthProvider.GOOGLE).html();
+
+        assertThat(html).contains("&lt;b&gt;김&lt;/b&gt;");
+        assertThat(html).doesNotContain("<b>김</b>");
+    }
+
+    @Test
+    @DisplayName("표 레이아웃의 width=\"100%\" 가 그대로 남는다 — 포맷 문자열로 다루다 깨지기 쉬운 지점")
+    void keepsPercentWidthIntact() {
+        String html = factory.signUp("김졸업", MemberRole.CUSTOMER, OAuthProvider.GOOGLE).html();
+
+        assertThat(html).contains("width=\"100%\"");
     }
 }
