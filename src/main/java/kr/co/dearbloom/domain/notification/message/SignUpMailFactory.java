@@ -111,6 +111,8 @@ public class SignUpMailFactory {
             <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="color-scheme" content="light">
+            <meta name="supported-color-schemes" content="light">
             <title>DearBloom 가입 안내</title>
             <style>
               @font-face {
@@ -125,13 +127,21 @@ public class SignUpMailFactory {
                 font-style: normal;
                 src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2/Pretendard-Bold.woff2') format('woff2');
               }
-              body { margin: 0; padding: 0; background-color: #FFFFFF; }
+              body { margin: 0; padding: 0; background-color: #E5EBE8; }
               table { border-collapse: collapse; }
               img { -ms-interpolation-mode: bicubic; }
             </style>
             </head>
-            <body style="margin:0; padding:0; background-color:#FFFFFF;">
-            <div style="background-color:#FFFFFF; width:100%; margin:0; padding:0;">
+            <body style="margin:0; padding:0; background-color:#E5EBE8;">
+
+            <!-- 바깥 배경. Gmail 은 <body> 를 걷어내고 내용만 자기 DOM 에 넣어 body 배경이 사라지므로,
+                 배경은 전체를 감싸는 이 표에 건다. bgcolor 속성은 CSS 를 무시하는 Outlook 용이라 style 과 함께 준다. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#E5EBE8"
+                   style="width:100%; background-color:#E5EBE8; margin:0; padding:0;">
+              <tr>
+                <!-- 세로 padding 이 없으면 카드 위아래로 배경이 안 보여 카드가 떠 보이지 않는다. -->
+                <td align="center" style="padding:32px 16px;">
+
             <table role="presentation" width="498" cellpadding="0" cellspacing="0" border="0" align="center"
                    style="width:498px; max-width:498px; background-color:#FFFFFF; margin:0 auto;
                           font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;">
@@ -212,7 +222,11 @@ public class SignUpMailFactory {
                 </td>
               </tr>
             </table>
-            </div>
+
+                </td>
+              </tr>
+            </table>
+
             </body>
             </html>
             """;
