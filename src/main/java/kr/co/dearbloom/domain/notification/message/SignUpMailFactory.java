@@ -57,7 +57,7 @@ public class SignUpMailFactory {
                 디어블룸 바로가기: %s
 
                 ---
-                본 메일은 DearBloom 회원가입 안내 메일로, 발신 전용입니다.
+                본 메일은 회원가입 안내 메일로, 발신 전용입니다.
                 문의사항은 %s으로 연락해 주세요.
                 """.formatted(
                 profileName, profileName, roleLabel(role), providerLabel(provider),
@@ -219,7 +219,7 @@ public class SignUpMailFactory {
               <tr>
                 <td style="padding:24px 28px 40px 28px;">
                   <div style="font-weight:500; font-size:12px; line-height:18px; letter-spacing:0; color:#767676;">
-                    본 메일은 DearBloom 회원가입 안내 메일로, 발신 전용입니다.<br>
+                    본 메일은 회원가입 안내 메일로, 발신 전용입니다.<br>
                     문의사항은 {{supportAddress}}으로 연락해 주세요.
                   </div>
                 </td>
