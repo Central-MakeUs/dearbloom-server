@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/artists/me/inquiries")
 @RequiredArgsConstructor
-@Tag(name = "Inquiry - Artist", description = "작가 문의 관리 API")
+@Tag(name = "3-4 [Artist] Inquiry", description = "작가 문의 관리 API")
 public class ArtistInquiryController {
     private final ArtistInquiryFacade artistInquiryFacade;
 

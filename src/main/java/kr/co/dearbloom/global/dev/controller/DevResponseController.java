@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dev/response")
-@Tag(name = "Dev - Response", description = "API 공통 응답 형태 예시")
+@Tag(name = "9-2 [Dev] Response", description = "API 공통 응답 형태 예시")
 @Profile("!prod")
 public class DevResponseController {
     @GetMapping("/success/data")

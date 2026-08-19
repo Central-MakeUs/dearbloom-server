@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
-@Tag(name = "Member", description = "회원 관리 API")
+@Tag(name = "1-1 [Common] Member", description = "회원 관리 API")
 public class MemberController {
     private final MemberFacade memberFacade;
     private final ArtistFacade artistFacade;

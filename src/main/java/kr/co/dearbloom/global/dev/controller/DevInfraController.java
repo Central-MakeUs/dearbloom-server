@@ -21,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dev/infra")
-@Tag(name = "Dev - Infra", description = "[백엔드 전용] 외부 인프라 테스트 API")
+@Tag(name = "9-3 [Dev] Infra", description = "백엔드 전용 — 외부 인프라 호출 테스트 API")
 @Profile("!prod")
 public class DevInfraController {
     private final StringRedisTemplate stringRedisTemplate;

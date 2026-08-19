@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/artists/me/chat")
 @RequiredArgsConstructor
-@Tag(name = "Chat - Artist", description = "작가 채팅 API")
+@Tag(name = "3-5 [Artist] Chat", description = "작가 채팅 API")
 public class ArtistChatController {
     private final ChatFacade chatFacade;
 

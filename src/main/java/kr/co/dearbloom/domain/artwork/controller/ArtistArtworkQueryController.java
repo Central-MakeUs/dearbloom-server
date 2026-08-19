@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/artists/me/artworks")
 @RequiredArgsConstructor
-@Tag(name = "Artwork - Artist")
+@Tag(name = "3-3 [Artist] Artwork")
 public class ArtistArtworkQueryController {
     private final ArtistArtworkQueryFacade artistArtworkQueryFacade;
 

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/customers/me")
-@Tag(name = "Report - Customer", description = "고객 신고 API")
+@Tag(name = "2-6 [Customer] Report", description = "고객 신고 API")
 public class CustomerReportController {
     private final ReportFacade reportFacade;
 

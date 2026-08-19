@@ -36,7 +36,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/artists/me/schedule")
 @RequiredArgsConstructor
-@Tag(name = "Artist Schedule", description = "작가 일정 관리 API")
+@Tag(name = "3-2 [Artist] Schedule", description = "작가 일정 관리 API")
 public class ScheduleController {
     private final ScheduleFacade scheduleFacade;
 

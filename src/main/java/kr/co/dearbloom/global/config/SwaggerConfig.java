@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
 import kr.co.dearbloom.global.auth.resolver.CurrentArtist;
 import kr.co.dearbloom.global.auth.resolver.CurrentCustomer;
 import kr.co.dearbloom.global.auth.resolver.CurrentViewer;
@@ -19,8 +20,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Configuration
 public class SwaggerConfig {
@@ -64,50 +66,40 @@ public class SwaggerConfig {
                 .addServersItem(new Server().url("/"));
     }
 
-    private static final List<String> TAG_ORDER = List.of(
-            "Social Login",
-            "Social Login - Local Web",
-            "Member",
-            "- Customer -",
-            "Artwork - Viewer/Customer",
-            "Saved Artwork",
-            "Shared Board",
-            "Shared Member",
-            "Shared Artwork",
-            "Shared Comment",
-            "Inquiry - Customer",
-            "Chat - Customer",
-            "Report - Customer",
-            "- Artist -",
-            "Artist Schedule",
-            "Artwork - Artist",
-            "Inquiry - Artist",
-            "Chat - Artist",
-            "University",
-            "File",
-            "Dev - Member",
-            "Dev - Response",
-            "Dev - Infra",
-            "Health - Spring",
-            "Health - Infra"
-    );
+    /** 태그 이름 앞머리의 "섹션-순번" 을 뽑는다. 형식에 안 맞으면 정렬상 맨 뒤로 보낸다. */
+    private static final Pattern TAG_INDEX = Pattern.compile("^(\\d+)-(\\d+)\\s");
 
+    private static int[] tagIndex(String name) {
+        Matcher matcher = TAG_INDEX.matcher(name == null ? "" : name);
+        if (!matcher.find()) {
+            return new int[]{Integer.MAX_VALUE, Integer.MAX_VALUE};
+        }
+        return new int[]{Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))};
+    }
+
+    /**
+     * 태그 정렬. 태그 이름이 {@code 섹션-순번 [그룹] 리소스} 형식이라 번호가 곧 의도한 노출 순서다.
+     * (0 인증 → 1 공통 → 2 고객 → 3 작가 → 9 개발/운영)
+     *
+     * <p>순서 목록을 따로 두지 않으므로 새 컨트롤러가 추가돼도 등록을 빠뜨려 맨 뒤로 밀리는 일이 없다.
+     * 사전순이 아니라 <b>숫자로</b> 비교하므로 한 섹션이 10개를 넘어도("2-10") 자리를 채울 필요가 없다.
+     */
     @Bean
     public GlobalOpenApiCustomizer tagOrderCustomizer() {
         return openApi -> {
             if (openApi.getTags() == null) {
                 return;
             }
-            openApi.getTags().sort(Comparator.comparingInt(tag -> {
-                int idx = TAG_ORDER.indexOf(tag.getName());
-                return idx < 0 ? Integer.MAX_VALUE : idx;
-            }));
+            openApi.getTags().sort(Comparator
+                    .comparingInt((Tag tag) -> tagIndex(tag.getName())[0])
+                    .thenComparingInt(tag -> tagIndex(tag.getName())[1])
+                    .thenComparing(Tag::getName));
         };
     }
 
     /**
      * Swagger description 에 API 개수 노출.
-     * - 실서비스 API: "/dev/", "/health" 경로 접두사와 "Dev -"/"Health -" 로 시작하는 태그 제외
+     * - 실서비스 API: "/dev/", "/health" 경로 접두사와 "9-" (개발/운영 섹션) 태그 제외
      * - Dev API: "/dev/" 경로 접두사
      * - Health API: "/health" 경로 접두사
      */
@@ -119,9 +111,7 @@ public class SwaggerConfig {
                     .filter(entry -> !entry.getKey().startsWith("/health"))
                     .flatMap(entry -> entry.getValue().readOperations().stream())
                     .filter(op -> op.getTags() == null
-                            || op.getTags().stream().noneMatch(t -> t.startsWith("Dev -")))
-                    .filter(op -> op.getTags() == null
-                            || op.getTags().stream().noneMatch(t -> t.startsWith("Health -")))
+                            || op.getTags().stream().noneMatch(t -> t.startsWith("9-")))
                     .count();
 
             long devApis = openApi.getPaths().entrySet().stream()

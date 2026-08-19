@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/artists/me")
 @RequiredArgsConstructor
-@Tag(name = "- Artist -", description = "작가 정보 관리 API")
+@Tag(name = "3-1 [Artist] Profile", description = "작가 정보 관리 API")
 public class ArtistController {
     private final ArtistFacade artistFacade;
     private final MemberFacade memberFacade;

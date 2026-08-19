@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/artworks")
-@Tag(name = "Artwork - Viewer/Customer", description = "뷰어/고객 작품 조회 API")
+@Tag(name = "2-2 [Customer] Artwork", description = "뷰어/고객 작품 조회 API")
 public class ArtworkQueryController {
     private final ArtworkQueryFacade artworkQueryFacade;
 

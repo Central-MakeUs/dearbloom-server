@@ -27,7 +27,7 @@ import static kr.co.dearbloom.global.health.HealthStatus.DISCONNECTED;
 @RequestMapping("/health/infra")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Health - Infra", description = "[백엔드 전용] 외부 인프라(DB, Redis, Kafka 등) 테스트 API")
+@Tag(name = "9-5 [Health] Infra", description = "백엔드 전용 — 외부 인프라(DB, Redis, Kafka 등) 상태 점검 API")
 public class InfraHealthController {
     private final DataSource dataSource;
     private final RedisConnectionFactory redisConnectionFactory;

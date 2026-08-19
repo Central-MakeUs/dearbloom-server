@@ -35,7 +35,7 @@ import java.io.IOException;
  */
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Social Login", description = "소셜 로그인 (구글·애플 / 앱·웹)")
+@Tag(name = "0-1 [Auth] Social Login", description = "소셜 로그인 (구글·애플 / 앱·웹)")
 public class SocialLoginController {
     private final AuthFacade authFacade;
 
