@@ -127,23 +127,26 @@ public class SignUpMailFactory {
                 font-style: normal;
                 src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/woff2/Pretendard-Bold.woff2') format('woff2');
               }
-              body { margin: 0; padding: 0; background-color: #E5EBE8; }
-              table { border-collapse: collapse; }
+              body { margin: 0; padding: 0; background-color: #FFFFFF; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+              table { border-collapse: collapse; }  /* 단, 모서리를 둥글릴 표는 인라인으로 separate 를 준다 — collapse 상태에선 border-radius 가 무시된다 */
               img { -ms-interpolation-mode: bicubic; }
             </style>
             </head>
-            <body style="margin:0; padding:0; background-color:#E5EBE8;">
+            <body style="margin:0; padding:0; background-color:#FFFFFF;">
 
-            <!-- 바깥 배경. Gmail 은 <body> 를 걷어내고 내용만 자기 DOM 에 넣어 body 배경이 사라지므로,
-                 배경은 전체를 감싸는 이 표에 건다. bgcolor 속성은 CSS 를 무시하는 Outlook 용이라 style 과 함께 준다. -->
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#E5EBE8"
-                   style="width:100%; background-color:#E5EBE8; margin:0; padding:0;">
+            <!-- 바깥 여백. 배경은 흰색이고, 카드 구분은 카드 자체의 테두리가 맡는다.
+                 배경색 대신 테두리를 쓰는 이유 — Gmail 은 <body> 를 걷어내고 다크 모드에서 배경을 뒤집기도 해서
+                 배경색은 환경에 따라 사라지지만, 테두리는 거의 모든 클라이언트에서 그대로 그려진다. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF"
+                   style="width:100%; background-color:#FFFFFF; margin:0; padding:0;">
               <tr>
-                <!-- 세로 padding 이 없으면 카드 위아래로 배경이 안 보여 카드가 떠 보이지 않는다. -->
+                <!-- 카드가 수신함 가장자리에 붙지 않도록 띄운다. 좌우 16px 은 모바일에서 테두리가 잘리지 않게 하는 여백이다. -->
                 <td align="center" style="padding:32px 16px;">
 
             <table role="presentation" width="498" cellpadding="0" cellspacing="0" border="0" align="center"
-                   style="width:498px; max-width:498px; background-color:#FFFFFF; margin:0 auto;
+                   style="width:100%; max-width:498px; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; background-color:#FFFFFF; margin:0 auto;
+                          border:1px solid #EAEAEA; border-radius:16px;
+                          border-collapse:separate; border-spacing:0;
                           font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;">
               <tr>
                 <td style="padding:40px 28px 0 28px;">
@@ -172,8 +175,8 @@ public class SignUpMailFactory {
 
               <tr>
                 <td style="padding:24px 28px 0 28px;">
-                  <table role="presentation" width="443" cellpadding="0" cellspacing="0" border="0"
-                         style="width:443px; background-color:#EEF3F0; border-radius:8px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+                         style="width:100%; background-color:#EEF3F0; border-radius:8px; border-collapse:separate; border-spacing:0;">
                     <tr>
                       <td style="padding:20px 24px;">
                         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -207,7 +210,7 @@ public class SignUpMailFactory {
 
               <tr>
                 <td style="padding:48px 28px 0 28px;">
-                  <table role="presentation" width="443" cellpadding="0" cellspacing="0" border="0" style="width:443px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
                     <tr><td style="border-top:1px solid #EAEAEA; font-size:0; line-height:0;">&nbsp;</td></tr>
                   </table>
                 </td>
@@ -215,7 +218,7 @@ public class SignUpMailFactory {
 
               <tr>
                 <td style="padding:24px 28px 40px 28px;">
-                  <div style="width:443px; font-weight:500; font-size:12px; line-height:18px; letter-spacing:0; color:#767676;">
+                  <div style="font-weight:500; font-size:12px; line-height:18px; letter-spacing:0; color:#767676;">
                     본 메일은 DearBloom 회원가입 안내 메일로, 발신 전용입니다.<br>
                     문의사항은 {{supportAddress}}으로 연락해 주세요.
                   </div>
