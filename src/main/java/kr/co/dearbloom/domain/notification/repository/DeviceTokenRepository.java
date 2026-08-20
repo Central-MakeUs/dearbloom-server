@@ -10,8 +10,8 @@ import java.util.Optional;
 public interface DeviceTokenRepository extends JpaRepository<DeviceToken, Long> {
     Optional<DeviceToken> findByToken(String token);
 
-    /** 발송 대상 조회. 1차 범위가 iOS 뿐이라 플랫폼으로 좁혀 부른다. */
-    List<DeviceToken> findAllByMember_MemberIdAndPlatform(Long memberId, DevicePlatform platform);
+    /** 발송 대상 조회. iOS·Android 를 모두 보낸다. */
+    List<DeviceToken> findAllByMember_MemberId(Long memberId);
 
     void deleteByToken(String token);
 
