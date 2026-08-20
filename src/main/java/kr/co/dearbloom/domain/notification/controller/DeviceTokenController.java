@@ -33,8 +33,7 @@ public class DeviceTokenController {
                     앱(네이티브 셸)이 Firebase 에서 받은 FCM 토큰을 등록합니다. 로그인 직후와, 토큰이 갱신될 때마다 호출하세요.<br>
                     <b>멱등합니다</b> — 같은 토큰을 다시 보내면 행이 늘지 않고 소유자를 현재 로그인 회원으로 옮깁니다.
                     (기기 하나를 여러 계정이 번갈아 쓸 때 이전 소유자에게 알림이 가는 것을 막습니다.)<br><br>
-                    <b>현재 발송은 iOS 만 이뤄집니다.</b> ANDROID 로 등록해도 저장은 되지만 발송 대상에서 제외됩니다 —
-                    앱도 Android 에서는 토큰을 요청하지 않습니다.
+                    <b>iOS·Android 모두 발송됩니다.</b> 한 회원이 두 기기를 함께 쓰면 각 기기로 모두 나갑니다.
                     """)
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(

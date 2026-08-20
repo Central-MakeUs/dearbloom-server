@@ -16,6 +16,7 @@ public class DeviceTokenRegisterRequest {
     private String token;
 
     @NotNull
-    @Schema(description = "기기 플랫폼. 현재는 IOS 만 실제로 발송됩니다.", example = "IOS")
+    @Schema(description = "기기 플랫폼. IOS·ANDROID 모두 발송 대상입니다.",
+            example = "IOS")
     private DevicePlatform platform;
 }
