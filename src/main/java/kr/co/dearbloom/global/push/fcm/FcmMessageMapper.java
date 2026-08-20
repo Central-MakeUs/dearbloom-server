@@ -18,6 +18,10 @@ import java.util.Map;
  */
 @Component
 public class FcmMessageMapper {
+    /**
+     * Android 알림 채널 ID. <b>앱의 채널 생성 코드(nativePush.ts 의 ANDROID_CHANNEL_ID)와 반드시 같아야 한다</b> —
+     * 어긋나면 알림이 에러 없이 누락되고 발송 로그는 SUCCESS 로 남아 원인을 찾기 어렵다.
+     */
     static final String NOTIFICATION_CHANNEL_ID = "dearbloom-default";
 
     public Map<String, Object> toRequestBody(String deviceToken, PushMessage message) {
@@ -54,11 +58,12 @@ public class FcmMessageMapper {
      * Android 블록.
      *
      * <ul>
-     *   <li>{@code channel_id} — <b>Android 8 부터는 채널이 없으면 알림이 표시되지 않는다.</b>
-     *       앱이 만들어 둔 채널과 ID 가 정확히 같아야 한다({@code NOTIFICATION_CHANNEL_ID} 참고)</li>
      *   <li>{@code priority: high} — 잠금화면에 즉시 띄운다. 기본값은 지연 전송될 수 있다</li>
      *   <li>{@code default_sound} — 없으면 무음으로 도착한다</li>
      * </ul>
+     *
+     * <p>{@code channel_id} — Android 8+ 는 채널이 있어야 알림을 표시한다. 앱이 시작할 때
+     * notifee 로 같은 ID 의 채널("디어블룸 알림")을 만들어 두므로 사용자 알림 설정에도 그 이름으로 노출된다.
      *
      * <p>제목·본문은 최상위 {@code notification} 블록을 그대로 쓰므로 여기서 다시 넣지 않는다.
      */
