@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/shared-boards")
-@Tag(name = "Shared Comment", description = "공동보드 댓글 API")
+@Tag(name = "2-10 [Customer] Shared Comment", description = "공동보드 댓글 API")
 public class SharedCommentController {
     private final SharedCommentFacade sharedCommentFacade;
 

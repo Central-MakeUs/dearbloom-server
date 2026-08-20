@@ -24,6 +24,22 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:95206326}
 
+  mail:
+    host: ${MAIL_HOST:email-smtp.ap-northeast-2.amazonaws.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          # 기본값이 무한이라 SMTP 연결이 물리면 메일 스레드가 영영 잡힌다.
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -70,6 +86,11 @@ spring:
 
 app:
   server-env-name: ${SERVER_ENV_NAME}
+  service-url: ${APP_SERVICE_URL:}
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    from: no-reply@dearbloom.co.kr
+    support-address: dearbloom.dev@gmail.com
 
 file:
   cdn-url: ${FILE_CDN_URL}
@@ -95,6 +116,10 @@ jwt:
   secret_key: ${JWT_SECRET_KEY:abcdefgh1234567890}
   access_token_expiry: ${ACCESS_TOKEN_EXPIRY:3600}s # 1시간
   refresh_token_expiry: ${REFRESH_TOKEN_EXPIRY:604800}s # 7일
+
+dev:
+  sample:
+    access-password: ${DEV_SAMPLE_ACCESS_PASSWORD:}
 
 push:
   fcm:

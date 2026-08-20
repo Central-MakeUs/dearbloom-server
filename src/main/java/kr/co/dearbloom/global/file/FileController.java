@@ -1,5 +1,6 @@
 package kr.co.dearbloom.global.file;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
-@Tag(name = "File", description = "파일 업로드 API")
+@Tag(name = "1-3 [Common] File", description = "파일 업로드 API")
 public class FileController {
     private final FileService fileService;
     private final FileUrlValidator fileUrlValidator;
@@ -48,18 +49,18 @@ public class FileController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    @DeleteMapping
-    @Operation(summary = "[개발용] 파일 삭제", description = "fileUrl로 S3 저장소에서 파일을 직접 삭제합니다.")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200", description = "삭제 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "400", description = "잘못된 fileUrl (허용된 저장소 경로가 아님)")
-    })
-    @ApiErrorCodes(ErrorCode.INVALID_FILE_URL)
-    public ResponseEntity<ApiResponse<Void>> delete(@RequestParam String fileUrl) {
-        fileUrlValidator.validate(fileUrl);
-        fileService.delete(fileUrl);
-        return ResponseEntity.ok(ApiResponse.success());
-    }
+//    @DeleteMapping
+//    @Operation(summary = "[개발용] 파일 삭제", description = "fileUrl로 S3 저장소에서 파일을 직접 삭제합니다.")
+//    @ApiResponses({
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+//                    responseCode = "200", description = "삭제 성공"),
+//            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+//                    responseCode = "400", description = "잘못된 fileUrl (허용된 저장소 경로가 아님)")
+//    })
+//    @ApiErrorCodes(ErrorCode.INVALID_FILE_URL)
+//    public ResponseEntity<ApiResponse<Void>> delete(@RequestParam String fileUrl) {
+//        fileUrlValidator.validate(fileUrl);
+//        fileService.delete(fileUrl);
+//        return ResponseEntity.ok(ApiResponse.success());
+//    }
 }

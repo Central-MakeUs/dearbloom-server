@@ -24,8 +24,8 @@ import kr.co.dearbloom.domain.customer.service.SavedArtworkCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryWithdrawalService;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
 import kr.co.dearbloom.domain.member.entity.Member;
-import kr.co.dearbloom.domain.member.util.ProfileNameResolver;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
+import kr.co.dearbloom.domain.member.event.MemberSignedUpEvent;
 import kr.co.dearbloom.domain.member.service.MemberCommandService;
 import kr.co.dearbloom.domain.member.service.MemberQueryService;
 import kr.co.dearbloom.domain.notification.service.DeviceTokenCommandService;
@@ -81,12 +81,8 @@ public class MemberFacade {
     }
 
     /**
-     * 고객 온보딩. 학교·지역(선택)으로 고객 프로필을 만들고,
+     * 고객 온보딩. 이름과 학교·지역(선택)으로 고객 프로필을 만들고,
      * activeRole 이 CUSTOMER 로 갱신된 새 accessToken 을 함께 반환한다.
-     * <p>
-     * <b>[임시]</b> 이름을 입력받지 않고 소셜 계정 이메일에서 만든다({@link ProfileNameResolver}).
-     * 입력받는 정책으로 되돌릴 때는 아래 주석 처리한 줄을 살리고 자동 생성을 지우면 된다
-     * (요청 DTO 의 name 필드도 함께 주석 해제).
      * 이름은 실명이라 중복을 허용한다(동명이인).
      */
     @Transactional
@@ -96,10 +92,10 @@ public class MemberFacade {
                 ? null
                 : universityQueryService.findById(request.getUniversityId());
         Member updated = memberCommandService.markAsCustomer(member);
-        String name = ProfileNameResolver.customerName(member.getEmail());
-//        String name = request.getName();   // 이름을 입력받는 정책으로 되돌릴 때 사용
         Customer customer = customerCommandService.create(
-                updated, name, university, request.getRegion());
+                updated, request.getName(), university, request.getRegion());
+        eventPublisher.publishEvent(
+                new MemberSignedUpEvent(updated.getMemberId(), MemberRole.CUSTOMER, customer.getName()));
         return new CustomerCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.CUSTOMER),
                 CustomerResponse.from(customer)
@@ -107,30 +103,26 @@ public class MemberFacade {
     }
 
     /**
-     * 작가 온보딩. 활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
+     * 작가 온보딩. 닉네임·활동 지역·대표 이미지(선택)로 작가 프로필을 만들고,
      * activeRole 이 ARTIST 로 갱신된 새 accessToken 을 함께 반환한다.
      * <p>
-     * <b>[임시]</b> 닉네임을 입력받지 않고 소셜 계정 이메일에서 만든다({@link ProfileNameResolver}).
-     * 입력받는 정책으로 되돌릴 때는 아래 주석 처리한 줄들을 살리고 자동 생성을 지우면 된다
-     * (요청 DTO 의 nickname 필드도 함께 주석 해제).
-     * <p>
-     * 닉네임은 작가를 가리키는 이름이라 중복을 막는다. 자동 생성은 사용자가 값을 고를 수 없어
-     * 중복이면 온보딩 자체가 막히므로, 409 를 던지는 대신 뒤에 번호를 붙여 빈 닉네임을 찾는다.
+     * 닉네임은 작가를 가리키는 이름이라 중복을 막는다 — 온보딩에서 빠지면 닉네임 수정 API 의
+     * 중복 검사를 우회해 같은 닉네임이 둘 생긴다.
      */
     @Transactional
     public ArtistCreateResponse createArtist(Member member, ArtistCreateRequest request) {
-//        if (artistQueryService.existsByNickname(request.getNickname())) {   // 닉네임을 입력받는 정책으로 되돌릴 때 사용
-//            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
-//        }
-        String nickname = resolveAvailableNickname(ProfileNameResolver.artistNickname(member.getEmail()));
-//        String nickname = request.getNickname();   // 닉네임을 입력받는 정책으로 되돌릴 때 사용
+        if (artistQueryService.existsByNickname(request.getNickname())) {
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
         // 대표 이미지는 선택. 보냈다면 CDN 경로인지 검증한다.
         if (request.getImageUrl() != null) {
             fileUrlValidator.validate(request.getImageUrl());
         }
         // 해지 후 재온보딩이면 익명화된 행을 되살린다. markAsArtist 로 활성/비활성을 판별하므로 create 를 먼저 호출.
-        Artist artist = artistCommandService.create(member, nickname, request);
+        Artist artist = artistCommandService.create(member, request.getNickname(), request);
         Member updated = memberCommandService.markAsArtist(member);
+        eventPublisher.publishEvent(
+                new MemberSignedUpEvent(updated.getMemberId(), MemberRole.ARTIST, artist.getNickname()));
         return new ArtistCreateResponse(
                 tokenService.createAccessToken(updated, MemberRole.ARTIST),
                 ArtistResponse.from(artist)
@@ -249,26 +241,5 @@ public class MemberFacade {
         fileCleaner.deleteQuietly(artist.getImageUrl());
         // 이 작가의 작품이 통째로 빠지므로 작품 탐색 첫 화면 캐시를 버린다(커밋 후에 지워진다).
         eventPublisher.publishEvent(new ArtworkExploreChangedEvent());
-    }
-
-    /**
-     * [임시] 자동 생성 닉네임의 중복을 피한다. 이메일 로컬 파트가 같은 사용자끼리
-     * (예: {@code a@gmail.com} / {@code a@naver.com}) 같은 닉네임이 나오기 때문.
-     * 뒤에 2, 3, 4... 를 붙여 비어 있는 닉네임을 찾고, 길이 상한을 넘으면 앞부분을 잘라 자리를 만든다.
-     */
-    private String resolveAvailableNickname(String base) {
-        if (!artistQueryService.existsByNickname(base)) {
-            return base;
-        }
-        for (int suffix = 2; suffix <= 9999; suffix++) {
-            String suffixText = String.valueOf(suffix);
-            int keepLength = Math.min(base.length(),
-                    ProfileNameResolver.ARTIST_NICKNAME_MAX_LENGTH - suffixText.length());
-            String candidate = base.substring(0, keepLength) + suffixText;
-            if (!artistQueryService.existsByNickname(candidate)) {
-                return candidate;
-            }
-        }
-        throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
     }
 }

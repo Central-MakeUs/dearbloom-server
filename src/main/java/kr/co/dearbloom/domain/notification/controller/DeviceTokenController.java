@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/notifications/device-tokens")
 @RequiredArgsConstructor
-@Tag(name = "Notification", description = "푸시 알림 (앱 전용)")
+@Tag(name = "1-2 [Common] Notification", description = "푸시 알림 (앱 전용)")
 public class DeviceTokenController {
     private final DeviceTokenFacade deviceTokenFacade;
 

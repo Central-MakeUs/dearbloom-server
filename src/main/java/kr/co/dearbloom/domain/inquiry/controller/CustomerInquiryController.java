@@ -32,7 +32,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/inquiries")
 @RequiredArgsConstructor
-@Tag(name = "Inquiry - Customer", description = "고객 문의 관리 API")
+@Tag(name = "2-4 [Customer] Inquiry", description = "고객 문의 관리 API")
 public class CustomerInquiryController {
     private final CustomerInquiryFacade customerInquiryFacade;
 

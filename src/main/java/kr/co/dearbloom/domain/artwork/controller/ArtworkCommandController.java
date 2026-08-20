@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/artworks")
-@Tag(name = "Artwork - Artist", description = "작가 작품 관리 API")
+@Tag(name = "3-3 [Artist] Artwork", description = "작가 작품 관리 API")
 public class ArtworkCommandController {
     private final ArtworkCommandFacade artworkCommandFacade;
 

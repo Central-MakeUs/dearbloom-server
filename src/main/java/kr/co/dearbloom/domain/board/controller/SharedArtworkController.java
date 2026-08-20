@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/shared-boards")
-@Tag(name = "Shared Artwork", description = "공동보드 공유작품 API")
+@Tag(name = "2-9 [Customer] Shared Artwork", description = "공동보드 공유작품 API")
 public class SharedArtworkController {
     private final SharedArtworkFacade sharedArtworkFacade;
 

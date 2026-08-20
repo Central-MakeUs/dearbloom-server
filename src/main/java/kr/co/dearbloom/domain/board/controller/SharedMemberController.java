@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/shared-boards")
-@Tag(name = "Shared Member", description = "공동보드 초대 및 멤버 API")
+@Tag(name = "2-8 [Customer] Shared Member", description = "공동보드 초대 및 멤버 API")
 public class SharedMemberController {
     private final SharedMemberFacade sharedMemberFacade;
 

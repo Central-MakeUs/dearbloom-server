@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dev/member")
-@Tag(name = "Dev - Member", description = "개발 전용 테스트 계정 조회 및 로그인 API")
+@Tag(name = "9-1 [Dev] Member", description = "개발 전용 테스트 계정 조회 및 로그인 API")
 @Profile("!prod")
 public class DevMemberController {
     private final DevMemberService devMemberService;

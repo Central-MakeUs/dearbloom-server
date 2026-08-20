@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/customers/me")
 @RequiredArgsConstructor
-@Tag(name = "- Customer -", description = "고객 정보 관리 API")
+@Tag(name = "2-1 [Customer] Profile", description = "고객 정보 관리 API")
 public class CustomerController {
     private final CustomerFacade customerFacade;
 
