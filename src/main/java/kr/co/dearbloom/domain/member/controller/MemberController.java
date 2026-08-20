@@ -92,9 +92,10 @@ public class MemberController {
     @PostMapping("/customer")
     @Operation(summary = "고객 계정 생성 (온보딩)",
             description = """
-                    이름 / 학교 / 지역을 받아 고객 프로필을 생성합니다. 학교는 한 곳만 선택(선택 항목), 지역도 한 곳 선택(선택 항목)입니다.<br>
-                    <b>이름</b>은 2-5자의 한글 또는 영문입니다 — 공백과 숫자는 받지 않습니다.
-                    실명이라 중복을 허용하며, 이후 프로필 수정 API 로 변경할 수 있습니다.<br>
+                    학교 / 지역을 받아 고객 프로필을 생성합니다. 학교는 한 곳만 선택(선택 항목), 지역도 한 곳 선택(선택 항목)입니다.<br>
+                    <b>[임시] 이름은 받지 않습니다.</b> 소셜 계정 이메일의 @ 앞부분에서 <b>한글·영문만 남겨 5자 이내로 잘라</b> 자동 생성합니다
+                    (예: chyun5197@gmail.com → "chyun"). 남는 글자가 2자 미만이면 "고객" 으로 대체됩니다.<br>
+                    실명이라 중복을 허용하며, 생성 후 <b>프로필 수정 API 로 변경</b>할 수 있습니다.<br>
                     회원가입 직후의 accessToken 으로는 아직 고객 API 를 호출할 수 없으므로, 이 API 는
                     <b>고객 API 호출이 가능한 새 accessToken</b> 을 응답 바디로 함께 반환합니다.<br>
                     <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b> 그래야 이후 고객 API 가 정상 동작합니다.<br>
@@ -112,9 +113,10 @@ public class MemberController {
     }
 
     @GetMapping("/artist/nickname/availability")
-    @Operation(summary = "작가 닉네임 중복 검사 (온보딩·닉네임 수정)",
+    @Operation(summary = "작가 닉네임 중복 검사 (닉네임 수정)",
             description = """
-                    이 닉네임을 쓸 수 있는지 확인합니다. 작가 온보딩과 닉네임 수정 화면에서 입력 중에 호출하세요.<br>
+                    이 닉네임을 쓸 수 있는지 확인합니다. <b>닉네임 수정</b> 화면에서 입력 중에 호출하세요.<br>
+                    <b>[임시] 작가 온보딩은 닉네임을 입력받지 않으므로 이 API 를 쓰지 않습니다.</b><br>
                     <br>
                     <b>available=true</b> 면 등록/수정에 쓸 수 있고, <b>false</b> 면 이미 다른 작가가 쓰고 있습니다.<br>
                     <b>이미 본인이 쓰고 있는 닉네임은 true</b> 입니다 — 수정 화면에서 닉네임을 바꾸지 않고 저장하는 경우가
@@ -137,12 +139,15 @@ public class MemberController {
     @PostMapping("/artist")
     @Operation(summary = "작가 계정 생성 (온보딩)",
             description = """
-                    닉네임 / 활동 지역 / 대표 이미지를 받아 작가 프로필을 생성합니다.<br>
-                    닉네임과 활동 지역은 필수, <b>대표 이미지는 선택</b>입니다 — 보내지 않으면 이미지 없이 생성되며
+                    활동 지역 / 대표 이미지를 받아 작가 프로필을 생성합니다.<br>
+                    활동 지역은 필수, <b>대표 이미지는 선택</b>입니다 — 보내지 않으면 이미지 없이 생성되며
                     이후 대표 이미지 수정 API 로 등록할 수 있습니다.<br>
-                    <b>닉네임</b>은 2-12자의 한글·영문·숫자·<code>_</code> 에 단어 사이 공백까지 허용합니다
-                    (앞뒤 공백과 연속 공백은 불가). <b>이미 쓰이는 닉네임이면 409</b> 를 반환하며,
-                    이후 닉네임 수정 API 로 변경할 수 있습니다.<br>
+                    <b>[임시] 닉네임은 받지 않습니다.</b> 소셜 계정 이메일의 @ 앞부분에서
+                    <b>한글·영문·숫자·<code>_</code> 만 남겨 12자 이내로 잘라</b> 자동 생성합니다
+                    (예: chyun5197@gmail.com → "chyun5197"). 남는 글자가 2자 미만이면 "작가" 로 대체됩니다.<br>
+                    자동 생성이라 <b>닉네임 중복으로 실패하지 않습니다</b> — 이미 쓰이는 닉네임이면 뒤에 번호를 붙여
+                    비어 있는 닉네임으로 생성됩니다(예: chyun5197 → chyun51972).
+                    생성 후 <b>닉네임 수정 API 로 변경</b>할 수 있습니다.<br>
                     회원가입 직후의 accessToken 으로는 아직 작가 API 를 호출할 수 없으므로, 이 API 는
                     <b>작가 API 호출이 가능한 새 accessToken</b> 을 응답 바디로 함께 반환합니다.<br>
                     <b>응답받는 즉시 저장해 둔 accessToken 을 이 값으로 교체하세요.</b> 그래야 이후 작가 API 가 정상 동작합니다.<br>
@@ -153,7 +158,8 @@ public class MemberController {
                     GANGWON, CHUNGBUK, CHUNGNAM, JEONBUK, JEONNAM, GYEONGBUK, GYEONGNAM, JEJU
                     """)
     @ApiErrorCodes({ErrorCode.EXPIRED_TOKEN, ErrorCode.INVALID_FILE_URL,
-            ErrorCode.NICKNAME_ALREADY_EXISTS, ErrorCode.ARTIST_ALREADY_EXISTS})
+//            ErrorCode.NICKNAME_ALREADY_EXISTS,   // [임시] 닉네임 자동 생성이라 중복으로 실패하지 않는다
+            ErrorCode.ARTIST_ALREADY_EXISTS})
     public ResponseEntity<ApiResponse<ArtistCreateResponse>> createArtist(
             @AuthenticationPrincipal Member member,
             @RequestBody @Valid ArtistCreateRequest request
