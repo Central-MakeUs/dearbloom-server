@@ -10,8 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * FCM 요청 본문 검증.
  *
- * <p>Android 는 채널 ID 가 앱과 어긋나면 알림이 <b>에러 없이 조용히 사라진다</b>. 발송 로그는 SUCCESS 로
- * 남아 원인을 찾기 어려우므로, 페이로드 모양을 테스트로 고정한다.
+ * <p>Android 는 채널 지정이 앱 상태와 어긋나면 알림이 <b>에러 없이 누락될 수 있다</b>. 발송 로그는
+ * SUCCESS 로 남아 원인을 찾기 어려우므로, 페이로드 모양을 테스트로 고정한다.
  */
 class FcmMessageMapperTest {
     private final FcmMessageMapper mapper = new FcmMessageMapper();
@@ -41,10 +41,10 @@ class FcmMessageMapperTest {
         Map<String, Object> android = (Map<String, Object>) messageBody().get("android");
         Map<String, Object> notification = (Map<String, Object>) android.get("notification");
 
-        // 채널이 없으면 Android 8+ 에서 표시되지 않는다.
-        assertThat(notification.get("channel_id")).isEqualTo(FcmMessageMapper.NOTIFICATION_CHANNEL_ID);
-        assertThat(notification.get("default_sound")).isEqualTo(true);
         assertThat(android.get("priority")).isEqualTo("high");
+        assertThat(notification.get("default_sound")).isEqualTo(true);
+        // 앱(nativePush.ts 의 ANDROID_CHANNEL_ID)이 만드는 채널과 같아야 한다.
+        assertThat(notification.get("channel_id")).isEqualTo("dearbloom-default");
     }
 
     @Test
