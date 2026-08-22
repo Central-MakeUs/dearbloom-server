@@ -23,6 +23,7 @@ import kr.co.dearbloom.domain.customer.service.CustomerQueryService;
 import kr.co.dearbloom.domain.customer.service.SavedArtworkCommandService;
 import kr.co.dearbloom.domain.inquiry.service.InquiryWithdrawalService;
 import kr.co.dearbloom.domain.member.dto.RoleSwitchResponse;
+import kr.co.dearbloom.domain.board.service.board.SharedBoardAutoJoinService;
 import kr.co.dearbloom.domain.member.entity.Member;
 import kr.co.dearbloom.domain.member.entity.MemberRole;
 import kr.co.dearbloom.domain.member.event.MemberSignedUpEvent;
@@ -65,6 +66,7 @@ public class MemberFacade {
     private final SharedBoardWithdrawalService sharedBoardWithdrawalService;
     private final DeviceTokenCommandService deviceTokenCommandService;
     private final TokenService tokenService;
+    private final SharedBoardAutoJoinService sharedBoardAutoJoinService;
     private final TokenProvider tokenProvider;
     private final FileUrlValidator fileUrlValidator;
     private final ApplicationEventPublisher eventPublisher;
@@ -94,6 +96,8 @@ public class MemberFacade {
         Member updated = memberCommandService.markAsCustomer(member);
         Customer customer = customerCommandService.create(
                 updated, request.getName(), university, request.getRegion());
+        // 안내용 공동보드에 자동 합류. 그 보드가 없으면 아무 일도 하지 않는다.
+        sharedBoardAutoJoinService.joinWelcomeBoard(customer);
         eventPublisher.publishEvent(
                 new MemberSignedUpEvent(updated.getMemberId(), MemberRole.CUSTOMER, customer.getName()));
         return new CustomerCreateResponse(
