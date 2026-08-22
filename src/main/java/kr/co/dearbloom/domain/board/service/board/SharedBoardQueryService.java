@@ -9,11 +9,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class SharedBoardQueryService {
     private final SharedBoardRepository sharedBoardRepository;
+
+    // 없으면 빈 값. 보드가 없어도 흐름을 계속해야 하는 곳(자동 합류 등)에서 쓴다.
+    public Optional<SharedBoard> findById(Long sharedBoardId) {
+        return sharedBoardRepository.findById(sharedBoardId);
+    }
 
     // 방장 여부와 무관하게 보드를 조회한다(입장 등). 없으면 404.
     public SharedBoard getById(Long sharedBoardId) {

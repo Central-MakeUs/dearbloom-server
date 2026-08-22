@@ -92,6 +92,10 @@ app:
     from: no-reply@dearbloom.co.kr
     support-address: dearbloom.dev@gmail.com
 
+board:
+  # 신규 고객이 온보딩 직후 자동 합류할 안내용 공동보드 ID. 그 보드가 없으면 합류를 건너뛴다.
+  welcome-shared-board-id: ${WELCOME_SHARED_BOARD_ID:6}
+
 file:
   cdn-url: ${FILE_CDN_URL}
 
