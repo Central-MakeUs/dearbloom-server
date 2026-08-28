@@ -14,10 +14,7 @@
 | Realtime        | WebSocket + STOMP                                | 실시간 채팅, 메시지·읽음 실시간 브로드캐스트                   |
 | Push            | Firebase Cloud Messaging (HTTP v1)               | iOS · Android, Admin SDK 없이 직접 호출           |
 | API Docs        | springdoc-openapi (Swagger UI)                   | 공통 에러 응답 자동 문서화                             |
-| External Client | AWS SDK v2, Spring RestClient                    | S3·SES 연동 / FCM HTTP v1 직접 호출               |
 | Mail            | Spring Boot Starter Mail, <br>AWS SES (SMTP)     | 안내 메일 전송                                    |
-| Observability   | OpenTelemetry                                    | 분산 추적 (예정)                                  |
-
 
 ### Cloud & External Services
 | 서비스                      | 용도                                      |
@@ -36,6 +33,7 @@
 | CI/CD      | GitHub Actions (self-hosted runner) | 운영 / 개발 환경 분리 |
 | Web Server | Nginx                               | 리버스 프록시       |
 | SSL        | Certbot (Let's Encrypt)             | 인증서 자동 갱신     |
+
 ### 개발 도구
 
 | 구분         | 기술            | 비고                                    |
@@ -59,7 +57,7 @@
   FCM 이 대상 토큰의 플랫폼에 맞는 쪽만 고르도록 구성
 
 # System Architecture
-<img width="1700" height="1190" alt="dearbloom-sa" src="https://github.com/user-attachments/assets/bc395bee-63bb-4b09-a9a1-9b4d5d728f6a" />
+<img width="1355" height="963" alt="image" src="https://github.com/user-attachments/assets/4dd3087a-8ac9-4c9f-adfb-e4f317085d96" />
 
 # ERD
 <img width="1720" height="1308" alt="dearbloom-erd-summary" src="https://github.com/user-attachments/assets/6d2bf592-3792-4683-8e6a-bf1f039259ad" />
