@@ -92,6 +92,13 @@ app:
     from: no-reply@dearbloom.co.kr
     support-address: dearbloom.dev@gmail.com
 
+artwork:
+  view:
+    # 같은 회원이 같은 작품을 다시 봐도 세지 않는 기간. 새로고침·뒤로가기로 부풀지 않게 한다.
+    dedup-ttl: ${ARTWORK_VIEW_DEDUP_TTL:1h}
+    # Redis 에 쌓인 증가분을 DB 로 옮기는 주기. ISO-8601 표기(PT5M = 5분, PT30S = 30초).
+    flush-interval: ${ARTWORK_VIEW_FLUSH_INTERVAL:PT5M}
+
 file:
   cdn-url: ${FILE_CDN_URL}
 

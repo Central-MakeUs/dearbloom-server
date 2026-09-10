@@ -10,6 +10,7 @@ import kr.co.dearbloom.domain.artwork.entity.Artwork;
 import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 import kr.co.dearbloom.domain.artwork.event.ArtworkExploreChangedEvent;
+import kr.co.dearbloom.domain.artwork.repository.ArtworkViewCountRepository;
 import kr.co.dearbloom.domain.artwork.service.ArtworkCommandService;
 import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
 import kr.co.dearbloom.domain.artwork.util.ArtworkPackageFactory;
@@ -38,6 +39,7 @@ public class ArtworkCommandFacade {
     private final SavedArtworkCommandService savedArtworkCommandService;
     private final InquiryCommandService inquiryCommandService;
     private final ReportCommandService reportCommandService;
+    private final ArtworkViewCountRepository artworkViewCountRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -117,6 +119,7 @@ public class ArtworkCommandFacade {
         reportCommandService.deleteByArtwork(artwork);
         inquiryCommandService.detachArtwork(artwork);
         artworkCommandService.delete(artwork);
+        artworkViewCountRepository.clear(artworkId); // 아직 DB 로 못 옮긴 조회수 집계를 버린다
         eventPublisher.publishEvent(new ArtworkExploreChangedEvent()); // 목록에서 빠지고 totalCount 가 줄어든다
     }
 }
