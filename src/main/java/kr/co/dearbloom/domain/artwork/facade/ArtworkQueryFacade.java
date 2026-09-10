@@ -14,6 +14,7 @@ import kr.co.dearbloom.domain.artwork.entity.ArtworkPackage;
 import kr.co.dearbloom.domain.artwork.entity.PortfolioFile;
 import kr.co.dearbloom.domain.artwork.repository.ArtworkExploreCacheRepository;
 import kr.co.dearbloom.domain.artwork.service.ArtworkQueryService;
+import kr.co.dearbloom.domain.artwork.service.ArtworkViewCountService;
 import kr.co.dearbloom.domain.customer.service.SavedArtworkQueryService;
 import kr.co.dearbloom.global.auth.resolver.ViewerContext;
 import kr.co.dearbloom.global.util.CursorCodec;
@@ -30,6 +31,7 @@ public class ArtworkQueryFacade {
     private final ArtworkQueryService artworkQueryService;
     private final SavedArtworkQueryService savedArtworkQueryService;
     private final ArtworkExploreCacheRepository artworkExploreCacheRepository;
+    private final ArtworkViewCountService artworkViewCountService;
     private final CursorCodec cursorCodec;
 
     /**
@@ -44,6 +46,9 @@ public class ArtworkQueryFacade {
         List<ArtworkPackage> packages = artworkQueryService.getPackages(artwork);
         List<ArtworkThumbnailResponse> otherArtworkList =
                 artworkQueryService.getOtherArtworkThumbnails(artist, artworkId);
+
+        // 조회수 집계(회원 한정·작가 본인 제외). Redis 에만 쌓이고 DB 반영은 스케줄러가 맡는다.
+        artworkViewCountService.record(artwork, viewer);
 
         Boolean isSaved = viewer.isCustomer()
                 ? savedArtworkQueryService.isSaved(viewer.activeProfileId(), artworkId)
